@@ -81,10 +81,10 @@ export class RoleInfoMgr {
     * 定时落地玩家的player信息
     */
     private sqlRoleUpdate() {
-        let perNum = 100;
+        let perNum = 50;
         for (let one of this.sqlRoles) {
-            one.updateSql();
             this.sqlRoles.delete(one);
+            one.updateSql();
             perNum--;
             if (perNum === 0) {
                 break;

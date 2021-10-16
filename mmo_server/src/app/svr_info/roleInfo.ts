@@ -10,6 +10,7 @@ import { Friend } from "./friend";
 import { MapIdMgr } from "../svr_map/mapIdMgr";
 import { I_playerMapJson } from "../../servers/map/handler/main";
 import { cfg_all } from "../common/configUtil";
+import { Bag } from "./bag";
 
 export class RoleInfo {
     public uid: number;
@@ -18,6 +19,7 @@ export class RoleInfo {
     public roleMem: I_roleMem;
 
     public friend: Friend;
+    public bag: Bag;
 
     private lock = 0;   // 部分操作上锁
     private changedKey: { [key in keyof I_roleInfo]?: boolean } = {};
@@ -29,6 +31,7 @@ export class RoleInfo {
         this.role = allInfo.role;
 
         this.friend = new Friend(this, { "list": [], "asklist": [] });
+        this.bag = new Bag(this, allInfo.bag);
 
         this.roleMem = {
             "mapSvr": MapIdMgr.getSvr(this.role.mapId),
@@ -68,6 +71,7 @@ export class RoleInfo {
                     "mapId": this.role.mapId,
                     "mapSvr": this.roleMem.mapSvr,
                     "mapIndex": this.roleMem.mapIndex,
+                    "bag": this.bag.getBag(),
                 }
             }
             cb(0, allInfo);
@@ -109,6 +113,7 @@ export class RoleInfo {
     updateSql() {
 
         this.isInSql = false;
+        this.bag.updateSql();
 
         let updateArr: string[] = [];
         let key: keyof I_roleInfo;

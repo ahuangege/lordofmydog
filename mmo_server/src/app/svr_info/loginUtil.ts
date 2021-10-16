@@ -5,6 +5,7 @@ import { timeFormat, randStr } from "../util/util";
 import { I_friendCache } from "./roleInfoMgr";
 import { I_roleInfo, roleMysql } from "./roleInfo";
 import { svr_info } from "./svr_info";
+import { I_bagItem, I_item } from "./bag";
 
 
 /**
@@ -19,17 +20,22 @@ export class LoginUtil {
             if (err) {
                 return cb(err, null as any);
             }
-            this.getFriends(uid, (err, friends) => {
+            this.getBag(uid, (err, items) => {
                 if (err) {
                     return cb(err, null as any);
                 }
-                this.checkPublicMails(uid, (err) => {
+                this.getFriends(uid, (err, friends) => {
                     if (err) {
                         return cb(err, null as any);
                     }
-                    cb(null, { "role": role });
-                });
+                    this.checkPublicMails(uid, (err) => {
+                        if (err) {
+                            return cb(err, null as any);
+                        }
+                        cb(null, { "role": role, "bag": items });
+                    });
 
+                });
             });
         });
     }
@@ -56,6 +62,33 @@ export class LoginUtil {
         });
     }
 
+    private getBag(uid: number, cb: (err: any, items: I_bagItem[]) => void) {
+        let sql = "select * from bag where uid = ? limit 1";
+        svr_info.mysql.query(sql, [uid], (err, res: { "items": string }[]) => {
+            if (err) {
+                return cb(err, null as any);
+            }
+            if (res.length !== 0) {
+                return cb(null, JSON.parse(res[0].items));
+            }
+            let initItems: I_bagItem[] = [
+                { "i": 0, "id": 1101, "num": 1 },
+                { "i": 1, "id": 1102, "num": 2 },
+                { "i": 2, "id": 1201, "num": 2 }
+            ];
+            let obj = {
+                "uid": uid,
+                "items": initItems
+            }
+            svr_info.mysql.query(getInsertSql("bag", obj), null, (err) => {
+                if (err) {
+                    return cb(err, null as any);
+                }
+                cb(null, initItems);
+            });
+        });
+
+    }
 
     private getFriends(uid: number, cb: (err: any, friends: { "list": number[], "asklist": number[] }) => void) {
         return cb(null, { "list": [], "asklist": [] })

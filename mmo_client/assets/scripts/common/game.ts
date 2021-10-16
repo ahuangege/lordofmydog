@@ -5,6 +5,9 @@ export class Game {
     static uid: number = 0;
     static loginInfo: I_loginBack = null as any;
     static roleInfo: I_roleInfo = null as any;
+
+
+
 }
 
 
@@ -19,4 +22,11 @@ export interface I_roleInfo {
     "mapId": number,            // 当前地图
     "mapSvr": string,
     "mapIndex": number,
+    "bag": I_bagItem[],
+}
+
+export interface I_bagItem {
+    i: number,
+    id: number,
+    num: number,
 }

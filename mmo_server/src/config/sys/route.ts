@@ -21,5 +21,12 @@ export default [
     "onAskFriend",
     "onAddFriend",
     "onDelFriend",
-    "onFriendInfoChange"
+    "onFriendInfoChange",
+
+
+    "info.bag.delItem",
+    "info.bag.dropItem",
+    "onItemChanged",
+    "info.bag.changePos",
+
 ]

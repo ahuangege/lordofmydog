@@ -71,8 +71,7 @@ export default class Handler {
             return;
         }
 
-        type I_roleinfoNoUid = Exclude<keyof I_roleInfo, "uid">
-        let oneRole: { [p in I_roleinfoNoUid]: I_roleInfo[p] } = {
+        let oneRole: Omit<I_roleInfo, "uid"> = {
             "accId": session.getLocal("accId"),
             "nickname": msg.nickname,
             "gold": 1000,

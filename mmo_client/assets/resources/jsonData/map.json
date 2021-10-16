@@ -4,18 +4,15 @@
         "name": "广袤的城镇",
         "isCopy": 0,
         "copyNum": 0,
+        "copyEnter": {},
         "exitDoor": [
             {
                 "id": 1,
+                "mapId": 2,
                 "x": 1,
                 "y": 2,
-                "mapId": 2
-            },
-            {
-                "id": 2,
-                "x": 1,
-                "y": 2,
-                "mapId": 3
+                "x2": 1,
+                "y2": 2
             }
         ]
     },
@@ -24,12 +21,15 @@
         "name": "偏僻的郊区",
         "isCopy": 0,
         "copyNum": 0,
+        "copyEnter": {},
         "exitDoor": [
             {
                 "id": 1,
+                "mapId": 1,
                 "x": 1,
                 "y": 2,
-                "mapId": 1
+                "x2": 1,
+                "y2": 1
             }
         ]
     },
@@ -38,6 +38,13 @@
         "name": "深山",
         "isCopy": 1,
         "copyNum": 3,
+        "copyEnter": {
+            "mapId": 1,
+            "x": 1,
+            "y": 1,
+            "x2": 1,
+            "y2": 1
+        },
         "exitDoor": []
     }
 }

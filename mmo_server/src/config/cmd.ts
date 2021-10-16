@@ -55,4 +55,8 @@ export const enum cmd {
 	onAddFriend = 14,
 	onDelFriend = 15,
 	onFriendInfoChange = 16,
+	info_bag_delItem = 17,
+	info_bag_dropItem = 18,
+	onItemChanged = 19,
+	info_bag_changePos = 20,
 }

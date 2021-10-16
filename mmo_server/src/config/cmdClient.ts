@@ -55,4 +55,8 @@ export const enum cmd {
 	onAddFriend = "onAddFriend",
 	onDelFriend = "onDelFriend",
 	onFriendInfoChange = "onFriendInfoChange",
+	info_bag_delItem = "info.bag.delItem",
+	info_bag_dropItem = "info.bag.dropItem",
+	onItemChanged = "onItemChanged",
+	info_bag_changePos = "info.bag.changePos",
 }

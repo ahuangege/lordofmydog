@@ -8,7 +8,7 @@
 import { cmd } from "../common/cmdClient";
 import { getMapJson } from "../common/configUtil";
 import { network } from "../common/network";
-import { UIMgr } from "../common/uiMgr";
+import { UIMgr, uiPanel } from "../common/uiMgr";
 import { CameraFollow } from "./cameraFollow";
 import { Entity, Entity_type, I_entityJson } from "./entity";
 import { Pathfind } from "./pathFind";
@@ -34,6 +34,9 @@ export class MapMain extends cc.Component {
     tiles: number[][] = [];
     private entities: Dic<Entity> = {};
 
+    @property(cc.Node)
+    private hintInfoNode: cc.Node = null;
+
     onLoad() {
         MapMain.instance = this;
     }
@@ -44,6 +47,7 @@ export class MapMain extends cc.Component {
         network.addHandler(cmd.onEntityChange, this.svr_onEntityChanged, this);
         network.addHandler(cmd.onMove, this.svr_onMove, this);
 
+        UIMgr.showPanel(uiPanel.gameMain);
 
         network.sendMsg(cmd.map_main_enterMap);
         this.tileLayer = this.tilemap.getLayer("obj");
@@ -154,6 +158,22 @@ export class MapMain extends cc.Component {
             entity.node.x = msg.x;
             entity.node.y = msg.y;
         }
+    }
+
+
+    setHintInfo(info: string, pos: cc.Vec2) {
+        if (info.length === 0) {
+            this.hintInfoNode.active = false;
+            return;
+        }
+        this.hintInfoNode.active = true;
+        let label = this.hintInfoNode.children[0].getComponent(cc.RichText);
+        label.string = info;
+        this.hintInfoNode.height = label.node.height + 10;
+        let localPos = this.hintInfoNode.parent.convertToNodeSpaceAR(pos);
+        this.hintInfoNode.x = localPos.x;
+        this.hintInfoNode.y = localPos.y;
+        this.hintInfoNode.setSiblingIndex(this.hintInfoNode.parent.children.length);
     }
 
 

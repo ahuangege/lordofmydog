@@ -8,6 +8,7 @@ interface Dic<T = any> {
 
 interface I_cfgAll {
     "errcode": Dic<I_cfg_errcode>,
+    "item": Dic<I_cfg_item>,
 }
 
 
@@ -48,4 +49,12 @@ export function initConfig(cb: () => void) {
 
 interface I_cfg_errcode {
     des: string
+}
+
+interface I_cfg_item {
+    id: number,
+    name: string,
+    des: string,
+    type: number,
+    num: number,
 }

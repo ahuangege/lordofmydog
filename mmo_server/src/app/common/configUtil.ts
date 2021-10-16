@@ -100,6 +100,7 @@ jsonOn("map", () => {
 interface I_cfg_item {
     id: number,
     type: number,
+    num: number,
 }
 
 interface I_cfg_map {

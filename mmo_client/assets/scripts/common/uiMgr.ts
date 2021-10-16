@@ -70,4 +70,6 @@ export const enum uiPanel {
     registerPanel = "login/registerPanel",
     createRole = "login/createRole",
 
+    gameMain = "map/gameMainPanel",
+    bagPanel = "map/bagPanel",
 }

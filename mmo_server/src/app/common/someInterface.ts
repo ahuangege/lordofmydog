@@ -1,3 +1,4 @@
+import { I_bagItem, I_item } from "../svr_info/bag";
 import { I_roleInfo } from "../svr_info/roleInfo";
 
 
@@ -17,6 +18,7 @@ export interface I_roleMem {
  */
 export interface I_roleAllInfo {
     "role": I_roleInfo,
+    "bag": I_bagItem[],
 }
 
 /**
@@ -38,6 +40,7 @@ interface I_roleInfoClient {
     "mapId": number,            // 当前地图
     "mapSvr": string,
     "mapIndex": number,
+    "bag": I_bagItem[],
 }
 
 /**

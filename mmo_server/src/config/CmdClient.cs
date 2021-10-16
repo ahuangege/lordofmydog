@@ -56,4 +56,8 @@ public class Cmd
 	public const string onAddFriend = "onAddFriend";
 	public const string onDelFriend = "onDelFriend";
 	public const string onFriendInfoChange = "onFriendInfoChange";
+	public const string info_bag_delItem = "info.bag.delItem";
+	public const string info_bag_dropItem = "info.bag.dropItem";
+	public const string onItemChanged = "onItemChanged";
+	public const string info_bag_changePos = "info.bag.changePos";
 }
