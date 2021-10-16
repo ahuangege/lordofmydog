@@ -1,0 +1,53 @@
+{
+  "group-list": [
+    "default",
+    "ui"
+  ],
+  "last-module-event-record-time": 1633965439907,
+  "collision-matrix": [
+    [
+      true
+    ],
+    [
+      false,
+      false
+    ]
+  ],
+  "excluded-modules": [
+    "Collider",
+    "Dynamic Atlas",
+    "DragonBones",
+    "Physics",
+    "ParticleSystem",
+    "Spine Skeleton",
+    "3D",
+    "3D Primitive",
+    "3D Physics/cannon.js",
+    "3D Physics/Builtin",
+    "3D Particle",
+    "SafeArea"
+  ],
+  "preview-port": 7456,
+  "design-resolution-width": 1280,
+  "design-resolution-height": 720,
+  "fit-width": true,
+  "fit-height": true,
+  "use-project-simulator-setting": false,
+  "simulator-orientation": false,
+  "use-customize-simulator": true,
+  "simulator-resolution": {
+    "width": 960,
+    "height": 640
+  },
+  "clear-simulator-cache": true,
+  "facebook": {
+    "enable": false,
+    "appID": "",
+    "live": {
+      "enable": false
+    },
+    "audience": {
+      "enable": false
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+    "input": "E:\\projects\\mmo_demo\\mmo_excel\\xlsx",
+    "output_server": "E:\\projects\\mmo_demo\\mmo_server\\jsonConfig",
+    "output_client": "E:\\projects\\mmo_demo\\mmo_client\\assets\\resources\\jsonData"
+}

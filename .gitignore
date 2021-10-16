@@ -1,0 +1,14 @@
+# mmo client
+mmo_client/build
+mmo_client/library
+mmo_client/local
+mmo_client/packages
+mmo_client/temp
+
+# mmo server
+mmo_server/dist
+mmo_server/node_modules
+mmo_server/src/log
+
+# mmo excel
+mmo_excel/node_modules
