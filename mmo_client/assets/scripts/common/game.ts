@@ -7,6 +7,15 @@ export class Game {
     static roleInfo: I_roleInfo = null as any;
 
 
+    static getItemByI(index: number) {
+        let bag = this.roleInfo.bag;
+        for (let one of bag) {
+            if (one.i === index) {
+                return one;
+            }
+        }
+        return null;
+    }
 
 }
 
@@ -20,13 +29,27 @@ export interface I_roleInfo {
     "level": number,            // 等级
     "exp": number,              // 经验值
     "mapId": number,            // 当前地图
-    "mapSvr": string,
-    "mapIndex": number,
-    "bag": I_bagItem[],
+    "bag": I_bagItem[],         // 背包
+    "equip": I_equipment,       // 装备
+    "hpPos": I_Item,
+    "mpPos": I_Item,
 }
 
 export interface I_bagItem {
     i: number,
     id: number,
     num: number,
+}
+
+export interface I_Item {
+    id: number,
+    num: number,
+}
+
+export interface I_equipment {
+    "weapon": number,           // 武器
+    "armor_physical": number,   // 物理护甲
+    "armor_magic": number,      // 魔法抗性
+    "hp": number,               // 加血量上限
+    "mp": number,               // 加蓝量上限
 }

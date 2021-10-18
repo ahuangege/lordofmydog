@@ -60,4 +60,20 @@ public class Cmd
 	public const string info_bag_dropItem = "info.bag.dropItem";
 	public const string onItemChanged = "onItemChanged";
 	public const string info_bag_changePos = "info.bag.changePos";
+	/// <summary>
+	/// 装备道具
+	/// </summary>
+	public const string info_bag_equipItem = "info.bag.equipItem";
+	/// <summary>
+	/// 通知 装备改变
+	/// </summary>
+	public const string onEquipChanged = "onEquipChanged";
+	/// <summary>
+	/// hp mp 快速使用栏变化
+	/// </summary>
+	public const string onHpMpPosChanged = "onHpMpPosChanged";
+	/// <summary>
+	/// gm命令
+	/// </summary>
+	public const string info_main_gmCommit = "info.main.gmCommit";
 }

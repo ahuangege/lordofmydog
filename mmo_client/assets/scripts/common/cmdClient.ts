@@ -59,4 +59,20 @@ export const enum cmd {
 	info_bag_dropItem = "info.bag.dropItem",
 	onItemChanged = "onItemChanged",
 	info_bag_changePos = "info.bag.changePos",
+	/**
+	 * 装备道具
+	 */
+	info_bag_equipItem = "info.bag.equipItem",
+	/**
+	 * 通知 装备改变
+	 */
+	onEquipChanged = "onEquipChanged",
+	/**
+	 * hp mp 快速使用栏变化
+	 */
+	onHpMpPosChanged = "onHpMpPosChanged",
+	/**
+	 * gm命令
+	 */
+	info_main_gmCommit = "info.main.gmCommit",
 }

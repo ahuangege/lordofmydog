@@ -10,10 +10,10 @@ export function getItemImg(id: number, cb: (img: cc.SpriteFrame) => void) {
         }
     });
 }
-export const enum E_itemT {
+export enum E_itemT {
     gold = 0,               // 金币
     weapon = 1,             // 武器栏
-    armor_physicial = 2,    // 物抗栏
+    armor_physical = 2,    // 物抗栏
     armor_magic = 3,        // 魔抗栏
     hp_add = 4,     // 加血上限栏
     mp_add = 5,     // 加魔上限栏
@@ -23,7 +23,7 @@ export const enum E_itemT {
 
 let hintDic = {
     [E_itemT.weapon]: "攻击力：",
-    [E_itemT.armor_physicial]: "物抗：",
+    [E_itemT.armor_physical]: "物抗：",
     [E_itemT.armor_magic]: "魔抗：",
     [E_itemT.hp_add]: "血量：",
     [E_itemT.mp_add]: "魔量：",

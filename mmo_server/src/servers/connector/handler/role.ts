@@ -1,4 +1,5 @@
 import { app, Session } from "mydog";
+import { gameLog } from "../../../app/common/logger";
 import { constKey, serverType } from "../../../app/common/someConfig";
 import { svr_con } from "../../../app/svr_connector/svr_con";
 import { I_roleInfo } from "../../../app/svr_info/roleInfo";
@@ -37,17 +38,22 @@ export default class Handler {
         }
 
         function selectRoleList() {
-            svr_con.mysql.query("select uid, heroId, level,nickname from player where accId = ? and isDelete = 0 limit 3", [msg.accId], (err, list: any[]) => {
+            svr_con.mysql.query("select lastUid from account where id = ? limit 1", [msg.accId], (err, res) => {
                 if (err) {
                     return next({ "code": 1 });
                 }
-                let uids: number[] = [];
-                for (let one of list) {
-                    uids.push(one.uid);
-                    app.rpc(getInfoId(one.uid)).info.main.loginResetToken(one.uid);
-                }
-                session.setLocal("uids", uids);
-                next({ "code": 0, "list": list });
+                svr_con.mysql.query("select uid, heroId, level,nickname from player where accId = ? and isDelete = 0 limit 3", [msg.accId], (err, list: any[]) => {
+                    if (err) {
+                        return next({ "code": 1 });
+                    }
+                    let uids: number[] = [];
+                    for (let one of list) {
+                        uids.push(one.uid);
+                        app.rpc(getInfoId(one.uid)).info.main.loginResetToken(one.uid);
+                    }
+                    session.setLocal("uids", uids);
+                    next({ "code": 0, "list": list, "lastUid": res[0].lastUid });
+                });
             });
         }
     }
@@ -83,6 +89,8 @@ export default class Handler {
             "y": 1,
             "hp": 1,
             "mp": 1,
+            "hpPos": { "id": 0, "num": 0 },
+            "mpPos": { "id": 0, "num": 0 },
             "isDelete": 0,
         };
         let sql = getInsertSql("player", oneRole);
@@ -91,6 +99,7 @@ export default class Handler {
                 if (err.errno === constKey.duplicateKey) {
                     return next({ "code": 10022 });
                 } else {
+                    gameLog.error(err);
                     return next({ "code": 1 })
                 }
             }

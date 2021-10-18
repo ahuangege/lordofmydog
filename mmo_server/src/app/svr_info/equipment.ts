@@ -1,11 +1,13 @@
+import { cmd } from "../../config/cmd";
 import { gameLog } from "../common/logger";
-import { RoleInfo } from "./roleInfo";
+import { E_itemT, RoleInfo } from "./roleInfo";
 import { svr_info } from "./svr_info";
 
 export class Equipment {
     private role: RoleInfo;
-    private equip: I_equipment;
+    public equip: I_equipment;
     private changedKey: { [key in keyof I_equipment]?: boolean } = {};
+    private changed = false;
     constructor(role: RoleInfo, equip: I_equipment) {
         this.role = role;
         this.equip = equip;
@@ -13,6 +15,11 @@ export class Equipment {
 
 
     updateSql() {
+        if (!this.changed) {
+            return;
+        }
+        this.changed = false;
+
         let updateArr: string[] = [];
         let key: keyof I_equipment;
         for (key in this.changedKey) {
@@ -26,9 +33,19 @@ export class Equipment {
         svr_info.mysql.query(sql, null, (err) => {
             err && gameLog.error(err);
         });
-
     }
 
+    changeSqlKey(key: keyof I_equipment) {
+        if (!this.changedKey[key]) {
+            this.changedKey[key] = true;
+            this.changed = true;
+            this.role.addToSqlPool();
+        }
+    }
+
+    onEquipChanged(msg: { "t": E_itemT, "id": number }) {
+        this.role.getMsg(cmd.onEquipChanged, msg);
+    }
 }
 
 

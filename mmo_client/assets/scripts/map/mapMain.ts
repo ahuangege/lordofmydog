@@ -33,6 +33,7 @@ export class MapMain extends cc.Component {
     tileW = 64;
     tiles: number[][] = [];
     private entities: Dic<Entity> = {};
+    public meId: number = 0;
 
     @property(cc.Node)
     private hintInfoNode: cc.Node = null;
@@ -42,6 +43,8 @@ export class MapMain extends cc.Component {
     }
 
     start() {
+        this.setHintInfo("", null);
+
         network.onClose(this.svr_onClose, this);
         network.addHandler(cmd.map_main_enterMap, this.svr_enterMapBack, this);
         network.addHandler(cmd.onEntityChange, this.svr_onEntityChanged, this);
@@ -52,7 +55,10 @@ export class MapMain extends cc.Component {
         network.sendMsg(cmd.map_main_enterMap);
         this.tileLayer = this.tilemap.getLayer("obj");
 
-        this.node.on(cc.Node.EventType.TOUCH_START, (event: cc.Event.EventTouch) => {
+        this.node.on(cc.Node.EventType.MOUSE_UP, (event: cc.Event.EventMouse) => {
+            if (event.getButton() !== cc.Event.EventMouse.BUTTON_RIGHT) {
+                return;
+            }
             let tmpPos = this.cameraNode.getComponent(cc.Camera).getScreenToWorldPoint(event.getLocation());
             if (cc.isValid(this.mePlayer)) {
                 let node = this.mePlayer.node;
@@ -92,6 +98,7 @@ export class MapMain extends cc.Component {
         }
         this.onAddEntities(msg.entities);
 
+        this.meId = msg.meId;
         this.mePlayer = this.getEntity(msg.meId) as Player;
         CameraFollow.instance.setTarget(this.mePlayer.node);
 
@@ -173,7 +180,7 @@ export class MapMain extends cc.Component {
         let localPos = this.hintInfoNode.parent.convertToNodeSpaceAR(pos);
         this.hintInfoNode.x = localPos.x;
         this.hintInfoNode.y = localPos.y;
-        this.hintInfoNode.setSiblingIndex(this.hintInfoNode.parent.children.length);
+        this.hintInfoNode.setSiblingIndex(-1);
     }
 
 

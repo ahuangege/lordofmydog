@@ -6,6 +6,7 @@ import { I_friendCache } from "./roleInfoMgr";
 import { I_roleInfo, roleMysql } from "./roleInfo";
 import { svr_info } from "./svr_info";
 import { I_bagItem, I_item } from "./bag";
+import { I_equipment } from "./equipment";
 
 
 /**
@@ -24,17 +25,21 @@ export class LoginUtil {
                 if (err) {
                     return cb(err, null as any);
                 }
-                this.getFriends(uid, (err, friends) => {
+                this.getEquip(uid, (err, equip) => {
                     if (err) {
                         return cb(err, null as any);
                     }
-                    this.checkPublicMails(uid, (err) => {
+                    this.getFriends(uid, (err, friends) => {
                         if (err) {
                             return cb(err, null as any);
                         }
-                        cb(null, { "role": role, "bag": items });
+                        this.checkPublicMails(uid, (err) => {
+                            if (err) {
+                                return cb(err, null as any);
+                            }
+                            cb(null, { "role": role, "bag": items, "equip": equip });
+                        });
                     });
-
                 });
             });
         });
@@ -85,6 +90,34 @@ export class LoginUtil {
                     return cb(err, null as any);
                 }
                 cb(null, initItems);
+            });
+        });
+
+    }
+
+    private getEquip(uid: number, cb: (err: any, equip: I_equipment) => void) {
+        let sql = "select * from equipment where uid = ? limit 1";
+        svr_info.mysql.query(sql, [uid], (err, res: I_equipment[]) => {
+            if (err) {
+                return cb(err, null as any);
+            }
+            if (res.length !== 0) {
+                return cb(null, res[0]);
+            }
+            let initEquip: I_equipment = {
+                "uid": uid,
+                "weapon": 0,
+                "armor_physical": 0,
+                "armor_magic": 0,
+                "hp": 1401,
+                "mp": 0,
+            }
+
+            svr_info.mysql.query(getInsertSql("equipment", initEquip), null, (err) => {
+                if (err) {
+                    return cb(err, null as any);
+                }
+                cb(null, initEquip);
             });
         });
 

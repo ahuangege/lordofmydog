@@ -57,6 +57,10 @@ export class BagPanel extends cc.Component {
         this.setDragItemPos(pos);
     }
 
+    hasDragItem() {
+        return this.dragItem.active;
+    }
+
     setDragItemPos(pos: cc.Vec2) {
         let localPos = this.node.convertToNodeSpaceAR(pos);
         this.dragItem.setPosition(localPos.x, localPos.y);

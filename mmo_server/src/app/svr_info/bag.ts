@@ -1,7 +1,8 @@
 import { cmd } from "../../config/cmd";
+import { cfg_all } from "../common/configUtil";
 import { gameLog } from "../common/logger";
 import { removeFromArr } from "../util/util";
-import { RoleInfo } from "./roleInfo";
+import { E_itemT, RoleInfo } from "./roleInfo";
 import { svr_info } from "./svr_info";
 
 export class Bag {
@@ -42,12 +43,63 @@ export class Bag {
         return null;
     }
 
-    addItem(item: I_item) {
+    getItem(id: number) {
+        for (let one of this.items) {
+            if (one.id === id) {
+                return one;
+            }
+        }
+        return null;
+    }
 
+    getEmptyIndex() {
+        let index = -1;
+        for (let i = 0; i < 16; i++) {
+            if (!this.getItemByI(i)) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
+    addItem(item: I_item) {
+        let tmpItem = this.getItem(item.id);
+        if (tmpItem) {
+            tmpItem.num += item.num;
+        } else {
+            let tmpI = this.getEmptyIndex();
+            if (tmpI !== -1) {
+                tmpItem = { "i": tmpI, "id": item.id, "num": item.num };
+                this.items.push(tmpItem);
+            } else {
+                return;
+            }
+        }
+        this.onItemChanged([tmpItem]);
+        this.addToSqlPool();
     }
 
     addItems(items: I_item[]) {
-
+        let changedArr: I_bagItem[] = [];
+        for (let item of items) {
+            let tmpItem = this.getItem(item.id);
+            if (tmpItem) {
+                tmpItem.num += item.num;
+                changedArr.push(tmpItem);
+            } else {
+                let tmpI = this.getEmptyIndex();
+                if (tmpI !== -1) {
+                    tmpItem = { "i": tmpI, "id": item.id, "num": item.num };
+                    this.items.push(tmpItem);
+                    changedArr.push(tmpItem);
+                }
+            }
+        }
+        if (changedArr.length) {
+            this.onItemChanged(changedArr);
+            this.addToSqlPool();
+        }
     }
 
     private onItemChanged(arr: I_bagItem[]) {
@@ -102,6 +154,116 @@ export class Bag {
             this.onItemChanged([{ "i": msg.index1, "id": item1.id, "num": 0 }, item1]);
         }
         this.addToSqlPool();
+    }
+
+    /** 装备道具 */
+    equipItem(msg: { index: number, t: E_itemT }) {
+        let item = this.getItemByI(msg.index);
+        if (!item) {
+            return;
+        }
+        msg.t = Math.floor(msg.t) || 0;
+        let cfg = cfg_all().item[item.id];
+        if (cfg.type !== msg.t) {
+            return;
+        }
+        if (cfg.type >= E_itemT.weapon && cfg.type <= E_itemT.mp_add) {   // 装备栏
+            let equip = this.role.equip.equip;
+            let oldId = 0;
+            if (cfg.type === E_itemT.weapon) {
+                oldId = equip.weapon;
+                equip.weapon = item.id;
+                this.role.equip.changeSqlKey("weapon");
+            } else if (cfg.type === E_itemT.armor_physical) {
+                oldId = equip.armor_physical;
+                equip.armor_physical = item.id;
+                this.role.equip.changeSqlKey("armor_physical");
+            } else if (cfg.type === E_itemT.armor_magic) {
+                oldId = equip.armor_magic;
+                equip.armor_magic = item.id;
+                this.role.equip.changeSqlKey("armor_magic");
+            } else if (cfg.type === E_itemT.hp_add) {
+                oldId = equip.hp;
+                equip.hp = item.id;
+                this.role.equip.changeSqlKey("hp");
+            } else if (cfg.type === E_itemT.mp_add) {
+                oldId = equip.mp;
+                equip.mp = item.id;
+                this.role.equip.changeSqlKey("mp");
+            }
+            item.num--;
+            if (item.num <= 0) {
+                removeFromArr(this.items, item);
+            }
+            this.addToSqlPool();
+            let changedArr: I_bagItem[] = [item];
+            if (oldId !== 0) {
+                let tmpItem = this.getItem(oldId);
+                if (tmpItem) {
+                    tmpItem.num += 1;
+                    changedArr.push(tmpItem);
+                } else {
+                    let tmpI = 0;
+                    if (item.num <= 0) {
+                        tmpI = item.i;
+                    } else {
+                        tmpI = this.getEmptyIndex();
+                    }
+                    if (tmpI !== -1) {
+                        tmpItem = { "i": tmpI, "id": oldId, "num": 1 };
+                        this.items.push(tmpItem);
+                        changedArr.push(tmpItem);
+                    }
+                }
+            }
+            this.onItemChanged(changedArr);
+            this.role.equip.onEquipChanged({ "t": cfg.type, "id": item.id });
+            return;
+        }
+
+        if (cfg.type === E_itemT.hp || cfg.type === E_itemT.mp) { // 快速加血加蓝栏
+            let oldPos: I_item = null as any;
+            if (cfg.type === E_itemT.hp) {
+                oldPos = this.role.role.hpPos;
+                this.role.changeSqlKey("hpPos");
+            } else {
+                oldPos = this.role.role.mpPos;
+                this.role.changeSqlKey("mpPos");
+            }
+            let changedArr: I_bagItem[] = [];
+            let itemNum = item.num;
+            item.num = 0;
+            removeFromArr(this.items, item);
+            changedArr.push(item);
+
+            if (oldPos.id === item.id) {
+                oldPos.num += itemNum;
+                this.role.getMsg(cmd.onHpMpPosChanged, { "t": cfg.type, "id": oldPos.id, "num": oldPos.num });
+            } else {
+                let newPos: I_item = { "id": item.id, "num": itemNum };
+                if (cfg.type === E_itemT.hp) {
+                    this.role.role.hpPos = newPos;
+                } else {
+                    this.role.role.mpPos = newPos;
+                }
+                this.role.getMsg(cmd.onHpMpPosChanged, { "t": cfg.type, "id": newPos.id, "num": newPos.num });
+
+                if (oldPos.id !== 0) {
+                    let tmpItem = this.getItem(oldPos.id);
+                    if (tmpItem) {
+                        tmpItem.num += oldPos.num;
+                        changedArr.push(tmpItem);
+                    } else {
+                        tmpItem = { "i": item.i, "id": oldPos.id, "num": oldPos.num };
+                        this.items.push(tmpItem);
+                        changedArr.push(tmpItem);
+                    }
+                }
+            }
+            this.onItemChanged(changedArr);
+            this.addToSqlPool();
+            return;
+        }
     }
 }
 

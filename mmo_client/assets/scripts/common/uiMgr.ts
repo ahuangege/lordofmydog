@@ -72,4 +72,6 @@ export const enum uiPanel {
 
     gameMain = "map/gameMainPanel",
     bagPanel = "map/bagPanel",
+    heroInfoPanel = "map/heroInfoPanel",
+    gmPanel = "map/gmPanel",
 }

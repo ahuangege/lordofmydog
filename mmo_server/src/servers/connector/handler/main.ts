@@ -33,6 +33,9 @@ export default class Handler {
             }
             session.set({ "mapSvr": info.role.mapSvr, "mapIndex": info.role.mapIndex });
             next(info);
+            svr_con.mysql.query("update account set lastUid = ? where id = ? limit 1", [session.uid, session.getLocal("accId")], (err) => {
+                err && gameLog.error(err);
+            });
         });
     }
 

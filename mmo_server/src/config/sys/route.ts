@@ -28,5 +28,9 @@ export default [
     "info.bag.dropItem",
     "onItemChanged",
     "info.bag.changePos",
+    "info.bag.equipItem",   // 装备道具
+    "onEquipChanged",   // 通知 装备改变
+    "onHpMpPosChanged", // hp mp 快速使用栏变化
 
+    "info.main.gmCommit",   // gm命令
 ]

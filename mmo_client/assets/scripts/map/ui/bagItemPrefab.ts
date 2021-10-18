@@ -18,8 +18,8 @@ const { ccclass, property } = cc._decorator;
 export class BagItemPrefab extends cc.Component {
 
     i: number = 0;
-    id: number = 0;
-    num: number = 0;
+    private id: number = 0;
+    private num: number = 0;
 
     @property(cc.Sprite)
     private imgSprite: cc.Sprite = null;
@@ -32,8 +32,10 @@ export class BagItemPrefab extends cc.Component {
             if (!this.id) {
                 return;
             }
-            let pos = this.node.convertToWorldSpaceAR(new cc.Vec2(this.node.width / 2 - 10, this.node.height / 2 - 10))
-            MapMain.instance.setHintInfo(getItemHintInfo(this.id), pos);
+            if (!BagPanel.instance.hasDragItem()) {
+                let pos = this.node.convertToWorldSpaceAR(new cc.Vec2(this.node.width / 2 - 10, this.node.height / 2 - 10));
+                MapMain.instance.setHintInfo(getItemHintInfo(this.id), pos);
+            }
         });
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, (event: cc.Event.EventMouse) => {
             if (!this.id) {

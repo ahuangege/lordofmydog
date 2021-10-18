@@ -47,7 +47,7 @@ export class RolelistMain extends cc.Component {
         network.sendMsg(cmd.connector_role_getRoleList, { "accId": Game.loginInfo.accId, "accToken": Game.loginInfo.accToken });
     }
 
-    private svr_getRoleListBack(msg: { "code": number, "list": I_roleOne[] }) {
+    private svr_getRoleListBack(msg: { "code": number, "list": I_roleOne[], "lastUid": number }) {
         if (msg.code !== 0) {
             network.disconnect();
             UIMgr.showErrcode(msg.code, false, () => {
@@ -58,10 +58,14 @@ export class RolelistMain extends cc.Component {
         if (msg.list.length === 0) {
             return;
         }
+        let selectIndex = 0;
         for (let i = 0; i < msg.list.length; i++) {
             this.rolelist[i].init(msg.list[i]);
+            if (msg.list[i].uid === msg.lastUid) {
+                selectIndex = i;
+            }
         }
-        this.rolelist[0].selected = true;
+        this.rolelist[selectIndex].selected = true;
     }
 
     onCreateRoleOk(role: I_roleOne) {

@@ -10,7 +10,8 @@ import { Friend } from "./friend";
 import { MapIdMgr } from "../svr_map/mapIdMgr";
 import { I_playerMapJson } from "../../servers/map/handler/main";
 import { cfg_all } from "../common/configUtil";
-import { Bag } from "./bag";
+import { Bag, I_item } from "./bag";
+import { Equipment } from "./equipment";
 
 export class RoleInfo {
     public uid: number;
@@ -20,9 +21,11 @@ export class RoleInfo {
 
     public friend: Friend;
     public bag: Bag;
+    public equip: Equipment;
 
     private lock = 0;   // 部分操作上锁
     private changedKey: { [key in keyof I_roleInfo]?: boolean } = {};
+    private changed = false;
     public delThisTime: number = 0; // 玩家下线后删除时刻
     private isInSql = false;
 
@@ -32,6 +35,7 @@ export class RoleInfo {
 
         this.friend = new Friend(this, { "list": [], "asklist": [] });
         this.bag = new Bag(this, allInfo.bag);
+        this.equip = new Equipment(this, allInfo.equip);
 
         this.roleMem = {
             "mapSvr": MapIdMgr.getSvr(this.role.mapId),
@@ -58,20 +62,24 @@ export class RoleInfo {
                 }
             }
             this.online();
+            let role = this.role;
             let allInfo: I_roleAllInfoClient = {
                 "code": 0,
                 "role": {
                     "uid": this.uid,
-                    "accId": this.role.accId,
-                    "nickname": this.role.nickname,
-                    "gold": this.role.gold,
-                    "heroId": this.role.heroId,
-                    "level": this.role.level,
-                    "exp": this.role.exp,
-                    "mapId": this.role.mapId,
+                    "accId": role.accId,
+                    "nickname": role.nickname,
+                    "gold": role.gold,
+                    "heroId": role.heroId,
+                    "level": role.level,
+                    "exp": role.exp,
+                    "mapId": role.mapId,
                     "mapSvr": this.roleMem.mapSvr,
                     "mapIndex": this.roleMem.mapIndex,
                     "bag": this.bag.getBag(),
+                    "equip": this.equip.equip,
+                    "hpPos": role.hpPos,
+                    "mpPos": role.mpPos,
                 }
             }
             cb(0, allInfo);
@@ -99,6 +107,7 @@ export class RoleInfo {
     changeSqlKey(key: keyof I_roleInfo) {
         if (!this.changedKey[key]) {
             this.changedKey[key] = true;
+            this.changed = true;
             this.addToSqlPool();
         }
     }
@@ -114,6 +123,12 @@ export class RoleInfo {
 
         this.isInSql = false;
         this.bag.updateSql();
+        this.equip.updateSql();
+
+        if (!this.changed) {
+            return;
+        }
+        this.changed = false;
 
         let updateArr: string[] = [];
         let key: keyof I_roleInfo;
@@ -149,6 +164,7 @@ export class RoleInfo {
             (this.role as any)[key] = changed[key];
             this.changedKey[key] = true;
         }
+        this.changed = true;
         this.addToSqlPool();
     }
 
@@ -239,6 +255,8 @@ export let roleMysql: I_roleInfo = {
     "y": 1,
     "hp": 1,
     "mp": 1,
+    "hpPos": {} as any,
+    "mpPos": {} as any,
     "isDelete": 1,
 };
 
@@ -256,6 +274,8 @@ export interface I_roleInfo {
     "y": number,                // 当前地图，坐标y
     "hp": number,               // 血量
     "mp": number,               // 蓝量
+    "hpPos": I_item,           // 快速加血栏
+    "mpPos": I_item,           // 快速加蓝栏
     "isDelete": number,         // 角色是否被删除
 }
 
@@ -269,7 +289,7 @@ export const enum E_lock {
 export const enum E_itemT {
     gold = 0,               // 金币
     weapon = 1,             // 武器栏
-    armor_physicial = 2,    // 物抗栏
+    armor_physical = 2,    // 物抗栏
     armor_magic = 3,        // 魔抗栏
     hp_add = 4,     // 加血上限栏
     mp_add = 5,     // 加魔上限栏
