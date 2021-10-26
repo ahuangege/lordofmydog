@@ -7,6 +7,7 @@
 
 import { cmd } from "../../common/cmdClient";
 import { network } from "../../common/network";
+import { GameEvent } from "../../util/gameUtil";
 
 const { ccclass, property } = cc._decorator;
 
@@ -17,7 +18,7 @@ export default class NewClass extends cc.Component {
     private isDel: boolean = true;
 
     start() {
-        cc.game.on("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.on(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 
     private onBagItemDrop(index: number, pos: cc.Vec2) {
@@ -40,6 +41,6 @@ export default class NewClass extends cc.Component {
 
 
     onDestroy() {
-        cc.game.off("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.off(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 }

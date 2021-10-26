@@ -16,11 +16,9 @@ export class BagPanel extends cc.Component {
 
     static instance: BagPanel = null;
 
-    @property(cc.Node)
-    private dragItem: cc.Node = null;
+
     @property(cc.Node)
     private delOrDropNode: cc.Node = null;
-
     private items: BagItemPrefab[] = [];
 
     onLoad() {
@@ -28,7 +26,7 @@ export class BagPanel extends cc.Component {
     }
 
     start() {
-        this.setDragItem(0, 0, null);
+        this.showDelOrDrop(false);
         let itemArr = this.node.getChildByName("items").children;
         for (let i = 0; i < itemArr.length; i++) {
             let one = itemArr[i].getComponent(BagItemPrefab);
@@ -42,28 +40,8 @@ export class BagPanel extends cc.Component {
     }
 
 
-    setDragItem(id: number, num: number, pos: cc.Vec2) {
-        if (id === 0) {
-            this.dragItem.active = false;
-            this.delOrDropNode.active = false;
-            return;
-        }
-        this.delOrDropNode.active = true;
-        this.dragItem.active = true;
-        getItemImg(id, (img) => {
-            this.dragItem.getComponent(cc.Sprite).spriteFrame = img;
-        });
-        this.dragItem.children[0].getComponent(cc.Label).string = num === 1 ? "" : num.toString();
-        this.setDragItemPos(pos);
-    }
-
-    hasDragItem() {
-        return this.dragItem.active;
-    }
-
-    setDragItemPos(pos: cc.Vec2) {
-        let localPos = this.node.convertToNodeSpaceAR(pos);
-        this.dragItem.setPosition(localPos.x, localPos.y);
+    showDelOrDrop(show: boolean) {
+        this.delOrDropNode.active = show;
     }
 
     onItemChanged(arr: I_bagItem[]) {

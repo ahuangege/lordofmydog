@@ -5,6 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import { Dic } from "../map/mapMain";
 import { cfg_all } from "./configUtil";
 import { SomeInfo } from "./someInfo";
 
@@ -74,4 +75,6 @@ export const enum uiPanel {
     bagPanel = "map/bagPanel",
     heroInfoPanel = "map/heroInfoPanel",
     gmPanel = "map/gmPanel",
+    skillPanel = "map/skillPanel",
+    settingPanel = "map/settingPanel",
 }

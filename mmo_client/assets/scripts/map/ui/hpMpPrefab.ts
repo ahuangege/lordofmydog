@@ -9,7 +9,7 @@ import { cmd } from "../../common/cmdClient";
 import { cfg_all } from "../../common/configUtil";
 import { Game, I_bagItem, I_Item } from "../../common/game";
 import { network } from "../../common/network";
-import { E_itemT, getItemImg } from "../../util/gameUtil";
+import { E_itemT, GameEvent, getItemImg } from "../../util/gameUtil";
 import { MapMain } from "../mapMain";
 import { BagPanel } from "./bagPanel";
 
@@ -30,7 +30,7 @@ export class HpMpPrefab extends cc.Component {
 
 
     start() {
-        cc.game.on("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.on(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 
 
@@ -79,6 +79,6 @@ export class HpMpPrefab extends cc.Component {
 
 
     onDestroy() {
-        cc.game.off("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.off(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 }

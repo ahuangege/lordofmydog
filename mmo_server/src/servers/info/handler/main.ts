@@ -19,13 +19,71 @@ export default class Handler {
         for (let i = 0; i < arr.length; i++) {
             arr[i] = arr[i].trim();
         }
-        if (arr[0] === "additem") {
-            let itemId = parseInt(arr[1]) || 0;
-            let num = parseInt(arr[2]) || 1;
-            if (cfg_all().item[itemId]) {
-                role.bag.addItem({ "id": itemId, "num": num });
-            }
+        let num = 0;
+        switch (arr[0]) {
+            case "additem":
+                let itemId = parseInt(arr[1]) || 0;
+                num = parseInt(arr[2]) || 1;
+                if (cfg_all().item[itemId]) {
+                    role.bag.addItem({ "id": itemId, "num": num });
+                }
+                break;
+            case "addexp":
+                num = parseInt(arr[1]) || 1;
+                role.addExp(num);
+                break;
+            default:
+                break;
         }
     }
 
+    /** 学习技能 */
+    learnSkill(msg: { skillId: number }, session: Session, next: Function) {
+        msg.skillId = Math.floor(msg.skillId) || 0;
+
+        let role = svr_info.roleInfoMgr.getRole(session.uid);
+        let cfg = cfg_all().hero[role.role.heroId];
+        let index = cfg.skill.indexOf(msg.skillId);
+        if (index === -1) {   // 该英雄没有技能
+            return;
+        }
+        if (role.role.learnedSkill.includes(msg.skillId)) {   // 已学习
+            return next({ "code": 0, "skillId": msg.skillId });
+        }
+        if (role.role.level < cfg.skillUnlockLv[index]) { // 技能解锁等级不足
+            return;
+        }
+
+        role.role.learnedSkill.push(msg.skillId);
+        role.changeSqlKey("learnedSkill");
+        next({ "code": 0, "skillId": msg.skillId });
+    }
+
+    /** 装备技能 */
+    equipSkill(msg: { skillId: number, index: number }, session: Session, next: Function) {
+        msg.skillId = Math.floor(msg.skillId) || 0;
+        msg.index = Math.floor(msg.index) || 0;
+        if (msg.index !== 0 && msg.index !== 1 && msg.index !== 2) {
+            return;
+        }
+        let role = svr_info.roleInfoMgr.getRole(session.uid);
+        if (!role.role.learnedSkill.includes(msg.skillId)) {   // 未学习
+            return;
+        }
+        let skillPos = role.role.skillPos;
+        let oldIndex = skillPos.indexOf(msg.skillId);
+        if (oldIndex === msg.index) {
+            return;
+        }
+        let skillChanged: { "index": number, "skillId": number }[] = [];
+        if (oldIndex !== -1) {
+            skillPos[oldIndex] = 0;
+            skillChanged.push({ "index": oldIndex, "skillId": 0 });
+        }
+        skillPos[msg.index] = msg.skillId;
+        skillChanged.push({ "index": msg.index, "skillId": msg.skillId });
+
+        role.changeSqlKey("skillPos");
+        next({ "code": 0, "skill": skillChanged });
+    }
 }

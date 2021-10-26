@@ -109,8 +109,8 @@ export class LoginUtil {
                 "weapon": 0,
                 "armor_physical": 0,
                 "armor_magic": 0,
-                "hp": 1401,
-                "mp": 0,
+                "hp_add": 1401,
+                "mp_add": 0,
             }
 
             svr_info.mysql.query(getInsertSql("equipment", initEquip), null, (err) => {

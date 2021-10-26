@@ -33,4 +33,8 @@ export default [
     "onHpMpPosChanged", // hp mp 快速使用栏变化
 
     "info.main.gmCommit",   // gm命令
+    "info.main.learnSkill",   // 学习技能
+    "info.main.equipSkill",   // 装备技能
+
+    "onLvExpChanged",   // 等级经验发生变化
 ]

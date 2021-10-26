@@ -8,8 +8,8 @@
 import { cmd } from "../../common/cmdClient";
 import { I_bagItem } from "../../common/game";
 import { network } from "../../common/network";
-import { getItemHintInfo, getItemImg } from "../../util/gameUtil";
-import { MapMain } from "../mapMain";
+import { GameEvent, getItemHintInfo, getItemImg } from "../../util/gameUtil";
+import { E_dragType, MapMain } from "../mapMain";
 import { BagPanel } from "./bagPanel";
 
 const { ccclass, property } = cc._decorator;
@@ -32,36 +32,35 @@ export class BagItemPrefab extends cc.Component {
             if (!this.id) {
                 return;
             }
-            if (!BagPanel.instance.hasDragItem()) {
-                let pos = this.node.convertToWorldSpaceAR(new cc.Vec2(this.node.width / 2 - 10, this.node.height / 2 - 10));
-                MapMain.instance.setHintInfo(getItemHintInfo(this.id), pos);
-            }
+            let pos = this.node.convertToWorldSpaceAR(new cc.Vec2(this.node.width / 2 - 10, this.node.height / 2 - 10));
+            MapMain.instance.setHintInfo(getItemHintInfo(this.id), pos, this.node);
         });
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, (event: cc.Event.EventMouse) => {
             if (!this.id) {
                 return;
             }
-            MapMain.instance.setHintInfo("", null);
+            MapMain.instance.setHintInfo("", null, null);
         });
 
         this.node.on(cc.Node.EventType.TOUCH_START, (event: cc.Event.EventTouch) => {
             if (!this.id) {
                 return;
             }
-            MapMain.instance.setHintInfo("", null);
-            BagPanel.instance.setDragItem(this.id, this.num, event.getLocation());
+            BagPanel.instance.showDelOrDrop(true);
+            MapMain.instance.setDragImg(E_dragType.item, this.id, this.num, event.getLocation(), this.node);
         });
         this.node.on(cc.Node.EventType.TOUCH_MOVE, (event: cc.Event.EventTouch) => {
             if (!this.id) {
                 return;
             }
-            BagPanel.instance.setDragItemPos(event.getLocation());
+            MapMain.instance.setDragImgPos(event.getLocation());
         });
         this.node.on(cc.Node.EventType.TOUCH_END, (event: cc.Event.EventTouch) => {
             if (!this.id) {
                 return;
             }
-            BagPanel.instance.setDragItem(0, 0, null);
+            BagPanel.instance.showDelOrDrop(false);
+            MapMain.instance.setDragImg(E_dragType.item, 0, 0, null, null);
         });
 
 
@@ -69,10 +68,12 @@ export class BagItemPrefab extends cc.Component {
             if (!this.id) {
                 return;
             }
-            BagPanel.instance.setDragItem(0, 0, null);
-            cc.game.emit("onBagItemDrop", this.i, event.getLocation());
+            BagPanel.instance.showDelOrDrop(false);
+            MapMain.instance.setDragImg(E_dragType.item, 0, 0, null, null);
+
+            cc.game.emit(GameEvent.onBagItemDrop, this.i, event.getLocation());
         });
-        cc.game.on("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.on(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 
     private onBagItemDrop(index: number, pos: cc.Vec2) {
@@ -112,6 +113,6 @@ export class BagItemPrefab extends cc.Component {
 
 
     onDestroy() {
-        cc.game.off("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.off(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 }

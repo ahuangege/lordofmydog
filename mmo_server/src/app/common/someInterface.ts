@@ -44,8 +44,10 @@ interface I_roleInfoClient {
     "mapIndex": number,
     "bag": I_bagItem[],         // 背包
     "equip": I_equipment,       // 装备
-    "hpPos": I_item,
-    "mpPos": I_item,
+    "learnedSkill": number[],   // 已学习技能
+    "skillPos": number[],   // 使用中的技能栏
+    "hpPos": I_item,    // 快速加血栏
+    "mpPos": I_item,    // 快速加蓝栏
 }
 
 /**

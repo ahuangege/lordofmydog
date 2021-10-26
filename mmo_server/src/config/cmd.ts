@@ -75,4 +75,16 @@ export const enum cmd {
 	 * gm命令
 	 */
 	info_main_gmCommit = 24,
+	/**
+	 * 学习技能
+	 */
+	info_main_learnSkill = 25,
+	/**
+	 * 装备技能
+	 */
+	info_main_equipSkill = 26,
+	/**
+	 * 等级经验发生变化
+	 */
+	onLvExpChanged = 27,
 }

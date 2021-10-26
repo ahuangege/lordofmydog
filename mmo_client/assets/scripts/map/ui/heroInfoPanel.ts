@@ -54,8 +54,8 @@ export class HeroInfoPanel extends cc.Component {
         this.equipDic[E_itemT.weapon].init(equip.weapon);
         this.equipDic[E_itemT.armor_physical].init(equip.armor_physical);
         this.equipDic[E_itemT.armor_magic].init(equip.armor_magic);
-        this.equipDic[E_itemT.hp_add].init(equip.hp);
-        this.equipDic[E_itemT.mp_add].init(equip.mp);
+        this.equipDic[E_itemT.hp_add].init(equip.hp_add);
+        this.equipDic[E_itemT.mp_add].init(equip.mp_add);
     }
 
     onEquipChanged(msg: { "t": E_itemT, "id": number }) {

@@ -1,4 +1,5 @@
 import { app, Session } from "mydog";
+import { cfg_all } from "../../../app/common/configUtil";
 import { gameLog } from "../../../app/common/logger";
 import { constKey, serverType } from "../../../app/common/someConfig";
 import { svr_con } from "../../../app/svr_connector/svr_con";
@@ -76,7 +77,7 @@ export default class Handler {
             next({ "code": 10023 });
             return;
         }
-
+        let cfg = cfg_all().hero[msg.heroId];
         let oneRole: Omit<I_roleInfo, "uid"> = {
             "accId": session.getLocal("accId"),
             "nickname": msg.nickname,
@@ -89,6 +90,8 @@ export default class Handler {
             "y": 1,
             "hp": 1,
             "mp": 1,
+            "learnedSkill": [cfg.initSkill],
+            "skillPos": [cfg.initSkill, 0, 0],
             "hpPos": { "id": 0, "num": 0 },
             "mpPos": { "id": 0, "num": 0 },
             "isDelete": 0,

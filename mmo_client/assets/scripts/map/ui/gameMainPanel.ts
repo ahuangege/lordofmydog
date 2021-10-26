@@ -6,15 +6,19 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { cmd } from "../../common/cmdClient";
+import { cfg_all } from "../../common/configUtil";
 import { Game, I_bagItem } from "../../common/game";
 import { network } from "../../common/network";
 import { UIMgr, uiPanel } from "../../common/uiMgr";
-import { E_itemT } from "../../util/gameUtil";
+import { E_itemT, removeFromArr } from "../../util/gameUtil";
 import { MapMain } from "../mapMain";
 import { BagPanel } from "./bagPanel";
+import { EscGo } from "./escGo";
 import { GmPanel } from "./gmPanel";
 import { HeroInfoPanel } from "./heroInfoPanel";
 import { HpMpPrefab } from "./hpMpPrefab";
+import { SkillPanel } from "./skillPanel";
+import { SkillPrefab } from "./skillPrefab";
 
 const { ccclass, property } = cc._decorator;
 
@@ -23,9 +27,10 @@ export class GameMainPanel extends cc.Component {
 
     static instance: GameMainPanel = null;
 
-    @property(HpMpPrefab)
+    @property(cc.Node)
+    private skillParentNode: cc.Node = null;
+    private skillArr: SkillPrefab[] = [];
     private hpPrefab: HpMpPrefab = null;
-    @property(HpMpPrefab)
     private mpPrefab: HpMpPrefab = null;
 
     onLoad() {
@@ -36,39 +41,25 @@ export class GameMainPanel extends cc.Component {
         network.addHandler(cmd.onItemChanged, this.svr_onItemChanged, this);
         network.addHandler(cmd.onEquipChanged, this.svr_onEquipChanged, this);
         network.addHandler(cmd.onHpMpPosChanged, this.svr_onHpMpPosChanged, this);
+        network.addHandler(cmd.onLvExpChanged, this.svr_onLvExpChanged, this);
+        network.addHandler(cmd.info_main_equipSkill, this.svr_equipSkillBack, this);
 
+        this.setLvExp(true);
+
+        let children = this.skillParentNode.children;
+        let skillPos = Game.roleInfo.skillPos;
+        for (let i = 0; i < skillPos.length; i++) {
+            this.skillArr[i] = children[i].getComponent(SkillPrefab);
+            this.skillArr[i].index = i;
+            this.skillArr[i].init(skillPos[i]);
+        }
+        this.hpPrefab = children[3].getComponent(HpMpPrefab);
+        this.mpPrefab = children[4].getComponent(HpMpPrefab);
         this.hpPrefab.init(Game.roleInfo.hpPos);
         this.mpPrefab.init(Game.roleInfo.mpPos);
+
     }
 
-
-    btn_bag() {
-        if (!cc.isValid(BagPanel.instance)) {
-            UIMgr.showPanel(uiPanel.bagPanel);
-        } else {
-            BagPanel.instance.node.destroy();
-        }
-    }
-    btn_hero() {
-        if (!cc.isValid(HeroInfoPanel.instance)) {
-            UIMgr.showPanel(uiPanel.heroInfoPanel, (err, node) => {
-                if (err || !cc.isValid(this)) {
-                    return;
-                }
-                HeroInfoPanel.instance.init(MapMain.instance.getEntity(MapMain.instance.meId));
-            });
-        } else {
-            HeroInfoPanel.instance.node.destroy();
-        }
-    }
-
-    btn_gm() {
-        if (!cc.isValid(GmPanel.instance)) {
-            UIMgr.showPanel(uiPanel.gmPanel);
-        } else {
-            GmPanel.instance.node.destroy();
-        }
-    }
 
     /** 背包变化 */
     private svr_onItemChanged(msg: I_bagItem[]) {
@@ -99,9 +90,9 @@ export class GameMainPanel extends cc.Component {
         } else if (msg.t === E_itemT.armor_magic) {
             equip.armor_magic = msg.id;
         } else if (msg.t === E_itemT.hp_add) {
-            equip.hp = msg.id;
+            equip.hp_add = msg.id;
         } else if (msg.t === E_itemT.mp_add) {
-            equip.mp = msg.id;
+            equip.mp_add = msg.id;
         }
 
         if (cc.isValid(HeroInfoPanel.instance) && HeroInfoPanel.instance.entityId === MapMain.instance.meId) {
@@ -119,6 +110,41 @@ export class GameMainPanel extends cc.Component {
             Game.roleInfo.mpPos.id = msg.id;
             Game.roleInfo.mpPos.num = msg.num;
             this.mpPrefab.init(msg);
+        }
+    }
+
+    /** 等级经验变化 */
+    private svr_onLvExpChanged(msg: { "lv": number, "exp": number }) {
+        Game.roleInfo.level = msg.lv;
+        Game.roleInfo.exp = msg.exp;
+        this.setLvExp();
+    }
+    /** 等级经验ui修改 */
+    private setLvExp(setName = false) {
+        let node = cc.find("top_left/roleInfo", this.node);
+        node.getChildByName("lv").getComponent(cc.Label).string = "LV" + Game.roleInfo.level;
+        let cfg = cfg_all().heroLv[Game.roleInfo.heroId];
+        let expNeed = cfg[Game.roleInfo.level];
+        let bar = node.getChildByName("exp").getComponent(cc.ProgressBar);
+        if (expNeed === -1) { // 满级了
+            bar.progress = 1;
+            bar.node.getChildByName("num").getComponent(cc.Label).string = "--";
+        } else {
+            bar.progress = Game.roleInfo.exp / expNeed;
+            bar.node.getChildByName("num").getComponent(cc.Label).string = Game.roleInfo.exp + " / " + expNeed;
+        }
+        if (setName) {
+            node.getChildByName("name").getComponent(cc.Label).string = Game.roleInfo.nickname;
+        }
+    }
+
+    /** 技能使用栏，换了技能 */
+    private svr_equipSkillBack(msg: { "code": number, "skill": { "index": number, "skillId": number }[] }) {
+        if (msg.code === 0) {
+            for (let one of msg.skill) {
+                Game.roleInfo.skillPos[one.index] = one.skillId;
+                this.skillArr[one.index].init(one.skillId);
+            }
         }
     }
 

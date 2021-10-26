@@ -9,6 +9,7 @@ import { cmd } from "../common/cmdClient";
 import { getMapJson } from "../common/configUtil";
 import { network } from "../common/network";
 import { UIMgr, uiPanel } from "../common/uiMgr";
+import { getItemImg, getSkillImg } from "../util/gameUtil";
 import { CameraFollow } from "./cameraFollow";
 import { Entity, Entity_type, I_entityJson } from "./entity";
 import { Pathfind } from "./pathFind";
@@ -37,13 +38,18 @@ export class MapMain extends cc.Component {
 
     @property(cc.Node)
     private hintInfoNode: cc.Node = null;
+    private hintInfoTarget: any = null;
+    @property(cc.Node)
+    private dragImg: cc.Node = null;
+    private dragTarget: cc.Node = null;
 
     onLoad() {
         MapMain.instance = this;
     }
 
     start() {
-        this.setHintInfo("", null);
+        this.setHintInfo("", null, null);
+        this.setDragImg(E_dragType.item, 0, 0, null, null);
 
         network.onClose(this.svr_onClose, this);
         network.addHandler(cmd.map_main_enterMap, this.svr_enterMapBack, this);
@@ -77,6 +83,17 @@ export class MapMain extends cc.Component {
 
     update(dt) {
         network.readMsg();
+        if (this.hintInfoNode.active) {
+            this.hintInfoNode.setSiblingIndex(-1);
+            if (!cc.isValid(this.hintInfoTarget)) {
+                this.setHintInfo("", null, null);
+            }
+        } else if (this.dragImg.active) {
+            if (!cc.isValid(this.dragTarget)) {
+                this.setDragImg(E_dragType.item, 0, 0, null, null);
+            }
+        }
+
     }
 
     private svr_onClose() {
@@ -168,20 +185,58 @@ export class MapMain extends cc.Component {
     }
 
 
-    setHintInfo(info: string, pos: cc.Vec2) {
+    setHintInfo(info: string, pos: cc.Vec2, target: cc.Node) {
+        if (this.dragImg.active) {
+            return;
+        }
         if (info.length === 0) {
             this.hintInfoNode.active = false;
+            this.hintInfoTarget = null;
             return;
         }
         this.hintInfoNode.active = true;
+        this.hintInfoTarget = target;
         let label = this.hintInfoNode.children[0].getComponent(cc.RichText);
         label.string = info;
         this.hintInfoNode.height = label.node.height + 10;
         let localPos = this.hintInfoNode.parent.convertToNodeSpaceAR(pos);
         this.hintInfoNode.x = localPos.x;
         this.hintInfoNode.y = localPos.y;
-        this.hintInfoNode.setSiblingIndex(-1);
     }
+
+    setDragImg(dragType: E_dragType, id: number, num: number, pos: cc.Vec2, dragTarget: cc.Node) {
+        if (id === 0) {
+            this.dragImg.active = false;
+            this.dragTarget = null;
+            return;
+        }
+        if (this.hintInfoNode.active) {
+            this.hintInfoNode.active = false;
+        }
+        this.dragImg.active = true;
+        this.dragTarget = dragTarget;
+        if (dragType === E_dragType.item) {
+            getItemImg(id, (img) => {
+                this.dragImg.getComponent(cc.Sprite).spriteFrame = img;
+            });
+        } else {
+            getSkillImg(id, (img) => {
+                this.dragImg.getComponent(cc.Sprite).spriteFrame = img;
+            });
+        }
+
+        this.dragImg.children[0].getComponent(cc.Label).string = num === 1 ? "" : num.toString();
+        this.setDragImgPos(pos);
+        this.scheduleOnce(() => {
+            this.dragImg.setSiblingIndex(-1);
+        }, 0);
+    }
+
+    setDragImgPos(pos: cc.Vec2) {
+        let localPos = this.node.convertToNodeSpaceAR(pos);
+        this.dragImg.setPosition(localPos.x, localPos.y);
+    }
+
 
 
     onDestroy() {
@@ -203,4 +258,10 @@ export function j2x(j: number) {
 
 export function x2j(x: number) {
     return Math.floor(x / 64);
+}
+
+
+export const enum E_dragType {
+    item,
+    skill,
 }

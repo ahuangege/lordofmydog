@@ -100,7 +100,6 @@ export class RoleInfoMgr {
             one = this.roles[uid];
             if (one.delThisTime !== 0 && nowTime > one.delThisTime) {
                 delete this.roles[uid];
-                one.onDestroy();
             }
         }
 

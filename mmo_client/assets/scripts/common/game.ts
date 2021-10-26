@@ -1,4 +1,5 @@
 import { I_loginBack } from "../login/loginPanel";
+import { Dic } from "../map/mapMain";
 
 export class Game {
 
@@ -6,6 +7,7 @@ export class Game {
     static loginInfo: I_loginBack = null as any;
     static roleInfo: I_roleInfo = null as any;
 
+    static keySet: Dic<string> = null as any;    // 快捷键设置
 
     static getItemByI(index: number) {
         let bag = this.roleInfo.bag;
@@ -17,6 +19,19 @@ export class Game {
         return null;
     }
 
+    static localStorage_getItem(key: string | any[]) {
+        if (typeof key !== "string") {
+            key = key.join("_");
+        }
+        return cc.sys.localStorage.getItem(key);
+    }
+
+    static localStorage_setItem(key: string | any[], value: string) {
+        if (typeof key !== "string") {
+            key = key.join("_");
+        }
+        cc.sys.localStorage.setItem(key, value);
+    }
 }
 
 
@@ -31,8 +46,10 @@ export interface I_roleInfo {
     "mapId": number,            // 当前地图
     "bag": I_bagItem[],         // 背包
     "equip": I_equipment,       // 装备
-    "hpPos": I_Item,
-    "mpPos": I_Item,
+    "learnedSkill": number[],   // 已学习的技能
+    "skillPos": number[],         // 使用中的技能栏
+    "hpPos": I_Item,     // 快速加血栏
+    "mpPos": I_Item,     // 快速加蓝栏
 }
 
 export interface I_bagItem {
@@ -50,6 +67,11 @@ export interface I_equipment {
     "weapon": number,           // 武器
     "armor_physical": number,   // 物理护甲
     "armor_magic": number,      // 魔法抗性
-    "hp": number,               // 加血量上限
-    "mp": number,               // 加蓝量上限
+    "hp_add": number,               // 加血量上限
+    "mp_add": number,               // 加蓝量上限
+}
+
+export enum E_localStorageType {
+    panelPos = "panelPos",  // 游戏中界面位置
+    keySet = "keySet",  // 快捷键设置
 }

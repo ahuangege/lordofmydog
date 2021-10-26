@@ -5,16 +5,25 @@ import * as fs from "fs";
 interface I_cfgAll {
     "item": Dic<I_cfg_item>,
     "map": Dic<I_cfg_map>,
+    "hero": Dic<I_cfg_hero>,
+    "heroLv": Dic<Dic<number>>,
+    "skill": Dic<I_cfg_skill>,
 }
 
 interface I_cfgNameJson {
-    "item": number,
-    "map": number,
+    "item": boolean,
+    "map": boolean,
+    "hero": boolean,
+    "heroLv": boolean,
+    "skill": boolean,
 }
 
 let jsonNames: I_cfgNameJson = {
-    "item": 1,
-    "map": 1,
+    "item": true,
+    "map": true,
+    "hero": true,
+    "heroLv": true,
+    "skill": true,
 };
 
 let cfgAll: I_cfgAll = {} as any;
@@ -92,17 +101,42 @@ jsonOn("map", () => {
     pushToChanged("map");
 });
 
+jsonOn("hero", () => {
+    cfgAll.hero = requireJson("hero");
+    pushToChanged("hero");
+});
 
+jsonOn("heroLv", () => {
+    let data = requireJson("heroLv");
+    let endData: Dic<Dic<number>> = {};
+    for (let x in data) {
+        let one = data[x];
+        let heroOne = endData[one.heroId];
+        if (!heroOne) {
+            heroOne = {};
+            endData[one.heroId] = heroOne;
+        }
+        heroOne[one.lv] = one.exp;
+    }
+    cfgAll.heroLv = endData;
+    pushToChanged("heroLv");
+});
+
+jsonOn("skill", () => {
+    cfgAll.skill = requireJson("skill");
+    pushToChanged("skill");
+});
 
 //#region 结构声明
 
-
+/** 道具 */
 interface I_cfg_item {
     id: number,
     type: number,
     num: number,
 }
 
+/** 地图信息 */
 interface I_cfg_map {
     id: number,
     isCopy: number,
@@ -112,6 +146,21 @@ interface I_cfg_map {
     exitDoor: { "id": number, "mapId": number, "x": number, "y": number, "x2": number, "y2": number }[],   // 通往其他非副本地图的出口
 }
 
+/** 英雄 */
+interface I_cfg_hero {
+    id: number,
+    initSkill: number,
+    skill: number[],
+    skillUnlockLv: number[],
+}
+
+/** 技能 */
+interface I_cfg_skill {
+    id: number,
+    name: number,
+    des: number,
+    cd: number,
+}
 
 //#endregion
 

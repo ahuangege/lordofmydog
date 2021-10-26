@@ -54,7 +54,7 @@ export interface I_equipment {
     "weapon": number,           // 武器
     "armor_physical": number,   // 物理护甲
     "armor_magic": number,      // 魔法抗性
-    "hp": number,               // 加血量上限
-    "mp": number,               // 加蓝量上限
+    "hp_add": number,               // 加血量上限
+    "mp_add": number,               // 加蓝量上限
 }
 

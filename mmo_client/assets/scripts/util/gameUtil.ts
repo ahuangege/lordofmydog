@@ -10,6 +10,16 @@ export function getItemImg(id: number, cb: (img: cc.SpriteFrame) => void) {
         }
     });
 }
+export function getSkillImg(id: number, cb: (img: cc.SpriteFrame) => void) {
+    cc.resources.load("skillImg/" + id, cc.SpriteFrame, (err, img: cc.SpriteFrame) => {
+        if (err) {
+            cb(null);
+        } else {
+            cb(img);
+        }
+    });
+}
+
 export enum E_itemT {
     gold = 0,               // 金币
     weapon = 1,             // 武器栏
@@ -37,3 +47,23 @@ export function getItemHintInfo(id: number) {
     return info;
 }
 
+export function getSkillHintInfo(id: number) {
+    let cfg = cfg_all().skill[id];
+    let info = "<b>" + cfg.name + "</b>\n\n" + cfg.des + "";
+    return info;
+}
+
+/** 一些事件 */
+export enum GameEvent {
+    /** 背包道具拖拽放下 */
+    onBagItemDrop = "onBagItemDrop",
+    /** 技能拖拽放下 */
+    onSkillDrop = "onSkillDrop",
+}
+
+export function removeFromArr<T>(arr: T[], one: T) {
+    let index = arr.indexOf(one);
+    if (index !== -1) {
+        arr.splice(index, 1);
+    }
+}

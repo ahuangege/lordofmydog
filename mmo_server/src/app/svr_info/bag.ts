@@ -183,13 +183,13 @@ export class Bag {
                 equip.armor_magic = item.id;
                 this.role.equip.changeSqlKey("armor_magic");
             } else if (cfg.type === E_itemT.hp_add) {
-                oldId = equip.hp;
-                equip.hp = item.id;
-                this.role.equip.changeSqlKey("hp");
+                oldId = equip.hp_add;
+                equip.hp_add = item.id;
+                this.role.equip.changeSqlKey("hp_add");
             } else if (cfg.type === E_itemT.mp_add) {
-                oldId = equip.mp;
-                equip.mp = item.id;
-                this.role.equip.changeSqlKey("mp");
+                oldId = equip.mp_add;
+                equip.mp_add = item.id;
+                this.role.equip.changeSqlKey("mp_add");
             }
             item.num--;
             if (item.num <= 0) {

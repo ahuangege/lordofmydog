@@ -9,6 +9,9 @@ interface Dic<T = any> {
 interface I_cfgAll {
     "errcode": Dic<I_cfg_errcode>,
     "item": Dic<I_cfg_item>,
+    "hero": Dic<I_cfg_hero>,
+    "heroLv": Dic<Dic<number>>,
+    "skill": Dic<I_cfg_skill>,
 }
 
 
@@ -33,6 +36,7 @@ export function initConfig(cb: () => void) {
         for (let one of res) {
             cfgAll[one.name] = one.json;
         }
+        changeHeroLv();
         cc.resources.loadDir("mapJson", cc.JsonAsset, (err, res2: cc.JsonAsset[]) => {
             if (err) {
                 console.error(err);
@@ -47,14 +51,46 @@ export function initConfig(cb: () => void) {
 }
 
 
+function changeHeroLv() {
+    let data = cfg_all().heroLv as any;
+    let endData: Dic<Dic<number>> = {};
+    for (let x in data) {
+        let one = data[x];
+        let heroOne = endData[one.heroId];
+        if (!heroOne) {
+            heroOne = {};
+            endData[one.heroId] = heroOne;
+        }
+        heroOne[one.lv] = one.exp;
+    }
+    cfgAll.heroLv = endData;
+}
+
+/** 错误码 */
 interface I_cfg_errcode {
     des: string
 }
-
+/** 道具 */
 interface I_cfg_item {
     id: number,
     name: string,
     des: string,
     type: number,
     num: number,
+}
+
+/** 英雄 */
+interface I_cfg_hero {
+    id: number,
+    initSkill: number,
+    skill: number[],
+    skillUnlockLv: number[],
+}
+
+/** 技能 */
+interface I_cfg_skill {
+    id: number,
+    name: number,
+    des: number,
+    cd: number,
 }

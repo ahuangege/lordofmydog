@@ -78,6 +78,8 @@ export class RoleInfo {
                     "mapIndex": this.roleMem.mapIndex,
                     "bag": this.bag.getBag(),
                     "equip": this.equip.equip,
+                    "learnedSkill": role.learnedSkill,
+                    "skillPos": role.skillPos,
                     "hpPos": role.hpPos,
                     "mpPos": role.mpPos,
                 }
@@ -233,15 +235,34 @@ export class RoleInfo {
         }
     }
 
-    // 离线时间过久，不再缓存了
-    onDestroy() {
+    /** 增加英雄经验值 */
+    addExp(num: number) {
+        let cfg = cfg_all().heroLv[this.role.heroId];
+        if (cfg[this.role.level] === -1) {    // 已经满级了
+            return;
+        }
+        while (true) {
+            if (num + this.role.exp >= cfg[this.role.level]) {    // 升级
+                num -= (cfg[this.role.level] - this.role.exp);
+                this.role.level += 1;
+                this.role.exp = 0;
+                if (cfg[this.role.level] === -1) {    // 已经满级了
+                    break;
+                }
+            } else {
+                this.role.exp += num;
+                break;
+            }
+        }
+        this.changeSqlKey("level");
+        this.changeSqlKey("exp");
+        this.getMsg(cmd.onLvExpChanged, { "lv": this.role.level, "exp": this.role.exp });
     }
-
 
 }
 
 
-// 数据库里的玩家数据
+// 数据库里的玩家数据（注意，类型需要正确）
 export let roleMysql: I_roleInfo = {
     "uid": 1,
     "accId": 1,
@@ -255,6 +276,8 @@ export let roleMysql: I_roleInfo = {
     "y": 1,
     "hp": 1,
     "mp": 1,
+    "learnedSkill": [],
+    "skillPos": [],
     "hpPos": {} as any,
     "mpPos": {} as any,
     "isDelete": 1,
@@ -274,6 +297,8 @@ export interface I_roleInfo {
     "y": number,                // 当前地图，坐标y
     "hp": number,               // 血量
     "mp": number,               // 蓝量
+    "learnedSkill": number[],   // 已学习的技能
+    "skillPos": number[],         // 使用中的技能栏
     "hpPos": I_item,           // 快速加血栏
     "mpPos": I_item,           // 快速加蓝栏
     "isDelete": number,         // 角色是否被删除

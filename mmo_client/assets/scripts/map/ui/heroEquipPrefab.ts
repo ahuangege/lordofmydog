@@ -9,7 +9,7 @@ import { cmd } from "../../common/cmdClient";
 import { cfg_all } from "../../common/configUtil";
 import { Game } from "../../common/game";
 import { network } from "../../common/network";
-import { E_itemT, getItemHintInfo, getItemImg } from "../../util/gameUtil";
+import { E_itemT, GameEvent, getItemHintInfo, getItemImg } from "../../util/gameUtil";
 import { MapMain } from "../mapMain";
 import { BagPanel } from "./bagPanel";
 import { HeroInfoPanel } from "./heroInfoPanel";
@@ -28,26 +28,17 @@ export class HeroEquipPrefab extends cc.Component {
             if (!this.id) {
                 return;
             }
-            if (cc.isValid(BagPanel.instance) && BagPanel.instance.hasDragItem()) {
-                return;
-            }
             let pos = this.node.convertToWorldSpaceAR(new cc.Vec2(this.node.width / 2 - 10, this.node.height / 2 - 10));
-            MapMain.instance.setHintInfo(getItemHintInfo(this.id), pos);
+            MapMain.instance.setHintInfo(getItemHintInfo(this.id), pos, this.node);
         });
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, (event: cc.Event.EventMouse) => {
             if (!this.id) {
                 return;
             }
-            MapMain.instance.setHintInfo("", null);
-        });
-        this.node.on(cc.Node.EventType.TOUCH_START, (event: cc.Event.EventTouch) => {
-            if (!this.id) {
-                return;
-            }
-            MapMain.instance.setHintInfo("", null);
+            MapMain.instance.setHintInfo("", null, null);
         });
 
-        cc.game.on("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.on(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 
     init(id: number) {
@@ -96,6 +87,6 @@ export class HeroEquipPrefab extends cc.Component {
 
 
     onDestroy() {
-        cc.game.off("onBagItemDrop", this.onBagItemDrop, this);
+        cc.game.off(GameEvent.onBagItemDrop, this.onBagItemDrop, this);
     }
 }

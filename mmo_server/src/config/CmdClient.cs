@@ -76,4 +76,16 @@ public class Cmd
 	/// gm命令
 	/// </summary>
 	public const string info_main_gmCommit = "info.main.gmCommit";
+	/// <summary>
+	/// 学习技能
+	/// </summary>
+	public const string info_main_learnSkill = "info.main.learnSkill";
+	/// <summary>
+	/// 装备技能
+	/// </summary>
+	public const string info_main_equipSkill = "info.main.equipSkill";
+	/// <summary>
+	/// 等级经验发生变化
+	/// </summary>
+	public const string onLvExpChanged = "onLvExpChanged";
 }
