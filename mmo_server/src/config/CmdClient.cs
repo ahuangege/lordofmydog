@@ -29,6 +29,10 @@ public class Cmd
 	/// </summary>
 	public const string onMove = "onMove";
 	/// <summary>
+	/// 点击玩家查看信息
+	/// </summary>
+	public const string map_main_getPlayerInfo = "map.main.getPlayerInfo";
+	/// <summary>
 	/// 新增或移除实体
 	/// </summary>
 	public const string onEntityChange = "onEntityChange";

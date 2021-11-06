@@ -28,6 +28,10 @@ export const enum cmd {
 	 */
 	onMove = "onMove",
 	/**
+	 * 点击玩家查看信息
+	 */
+	map_main_getPlayerInfo = "map.main.getPlayerInfo",
+	/**
 	 * 新增或移除实体
 	 */
 	onEntityChange = "onEntityChange",

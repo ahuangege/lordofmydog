@@ -1,62 +1,112 @@
 {
-    "1": {
-        "id": 1,
+    "101": {
+        "id": 101,
         "heroId": 1,
         "lv": 1,
-        "exp": 10
+        "exp": 10,
+        "attack": 1,
+        "hp": 10,
+        "mp": 10,
+        "armor_p": 10,
+        "armor_m": 10
     },
-    "2": {
-        "id": 2,
+    "102": {
+        "id": 102,
         "heroId": 1,
         "lv": 2,
-        "exp": 15
+        "exp": 15,
+        "attack": 2,
+        "hp": 15,
+        "mp": 20,
+        "armor_p": 15,
+        "armor_m": 12
     },
-    "3": {
-        "id": 3,
+    "103": {
+        "id": 103,
         "heroId": 1,
         "lv": 3,
-        "exp": 20
+        "exp": 20,
+        "attack": 3,
+        "hp": 20,
+        "mp": 25,
+        "armor_p": 17,
+        "armor_m": 14
     },
-    "4": {
-        "id": 4,
+    "104": {
+        "id": 104,
         "heroId": 1,
         "lv": 4,
-        "exp": 25
+        "exp": 25,
+        "attack": 4,
+        "hp": 30,
+        "mp": 30,
+        "armor_p": 18,
+        "armor_m": 16
     },
-    "5": {
-        "id": 5,
+    "105": {
+        "id": 105,
         "heroId": 1,
         "lv": 5,
-        "exp": -1
+        "exp": -1,
+        "attack": 5,
+        "hp": 45,
+        "mp": 40,
+        "armor_p": 19,
+        "armor_m": 17
     },
-    "6": {
-        "id": 6,
+    "201": {
+        "id": 201,
         "heroId": 2,
         "lv": 1,
-        "exp": 10
+        "exp": 10,
+        "attack": 2,
+        "hp": 15,
+        "mp": 10,
+        "armor_p": 10,
+        "armor_m": 10
     },
-    "7": {
-        "id": 7,
+    "202": {
+        "id": 202,
         "heroId": 2,
         "lv": 2,
-        "exp": 13
+        "exp": 13,
+        "attack": 3,
+        "hp": 20,
+        "mp": 20,
+        "armor_p": 15,
+        "armor_m": 12
     },
-    "8": {
-        "id": 8,
+    "203": {
+        "id": 203,
         "heroId": 2,
         "lv": 3,
-        "exp": 22
+        "exp": 22,
+        "attack": 4,
+        "hp": 25,
+        "mp": 25,
+        "armor_p": 17,
+        "armor_m": 14
     },
-    "9": {
-        "id": 9,
+    "204": {
+        "id": 204,
         "heroId": 2,
         "lv": 4,
-        "exp": 25
+        "exp": 25,
+        "attack": 5,
+        "hp": 30,
+        "mp": 30,
+        "armor_p": 18,
+        "armor_m": 16
     },
-    "10": {
-        "id": 10,
+    "205": {
+        "id": 205,
         "heroId": 2,
         "lv": 5,
-        "exp": -1
+        "exp": -1,
+        "attack": 6,
+        "hp": 45,
+        "mp": 40,
+        "armor_p": 19,
+        "armor_m": 17
     }
 }

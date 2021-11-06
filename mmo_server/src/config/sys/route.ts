@@ -9,6 +9,7 @@ export default [
     "map.main.enterMap", // 客户端加载场景完了，请求进入地图
     "map.main.move", // 移动
     "onMove",   // 通知，移动
+    "map.main.getPlayerInfo", // 点击玩家查看信息
 
     "onEntityChange",   // 新增或移除实体
     "onChatAOI",    // 视野内聊天

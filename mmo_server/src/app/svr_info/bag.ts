@@ -1,3 +1,4 @@
+import { app } from "mydog";
 import { cmd } from "../../config/cmd";
 import { cfg_all } from "../common/configUtil";
 import { gameLog } from "../common/logger";
@@ -217,7 +218,9 @@ export class Bag {
                 }
             }
             this.onItemChanged(changedArr);
-            this.role.equip.onEquipChanged({ "t": cfg.type, "id": item.id });
+            let equipChanged = { "t": cfg.type, "id": item.id };
+            this.role.equip.onEquipChanged(equipChanged);
+            app.rpc(this.role.roleMem.mapSvr).map.main.onEquipChanged(this.role.roleMem.mapIndex, this.role.uid, equipChanged);
             return;
         }
 

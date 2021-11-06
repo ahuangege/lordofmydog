@@ -165,10 +165,10 @@ export class Pathfind {
             }
         }
 
-        let path = [];
+        let path: tile[] = [];
         let tmpTile = closestTile;
         while (tmpTile !== startTile) {
-            path.push({ "x": tmpTile.x, "y": tmpTile.y });
+            path.push(tmpTile);
             tmpTile = tmpTile.pre;
         }
         path.reverse();

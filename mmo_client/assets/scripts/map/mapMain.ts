@@ -13,7 +13,7 @@ import { getItemImg, getSkillImg } from "../util/gameUtil";
 import { CameraFollow } from "./cameraFollow";
 import { Entity, Entity_type, I_entityJson } from "./entity";
 import { Pathfind } from "./pathFind";
-import { I_playerJson, Player } from "./player";
+import { I_playerJson, I_xy, Player } from "./player";
 
 const { ccclass, property } = cc._decorator;
 
@@ -32,6 +32,7 @@ export class MapMain extends cc.Component {
     private mePlayer: Player = null;
     pathFind: Pathfind = null;
     tileW = 64;
+    tileW2 = this.tileW / 2;
     tiles: number[][] = [];
     private entities: Dic<Entity> = {};
     public meId: number = 0;
@@ -67,16 +68,40 @@ export class MapMain extends cc.Component {
             }
             let tmpPos = this.cameraNode.getComponent(cc.Camera).getScreenToWorldPoint(event.getLocation());
             if (cc.isValid(this.mePlayer)) {
-                let node = this.mePlayer.node;
-                // let x1 = Math.floor(this.mePlayer.node.x / this.tileW);
-                // let y1 = Math.floor(this.mePlayer.node.y / this.tileW);
-                // let x2 = Math.floor(tmpPos.x / this.tileW);
-                // let y2 = Math.floor(tmpPos.y / this.tileW);
-                // let path = this.pathFind.findPath(x1, y1, x2, y2);
-                // console.log(path.length)
-                node.x = tmpPos.x;
-                node.y = tmpPos.y;
-                network.sendMsg(cmd.map_main_move, { "x": Math.floor(node.x), "y": Math.floor(node.y) });
+                let meNode = this.mePlayer.node;
+                let x1 = Math.floor(meNode.x / this.tileW);
+                let y1 = Math.floor(meNode.y / this.tileW);
+                let x2 = Math.floor(tmpPos.x / this.tileW);
+                let y2 = Math.floor(tmpPos.y / this.tileW);
+                let path = this.pathFind.findPath(x1, y1, x2, y2);
+                if (!path) {
+                    return;
+                }
+                let endTile = path[path.length - 1];
+                if (path.length === 0) {  // 周围被堵住，或者是当前格子
+                    if (x1 !== x2 || y1 !== y2) {
+                        return;
+                    }
+                } else if (endTile.x !== x2 || endTile.y !== y2) {  // 未到达终点格子
+                    path.pop();
+                    tmpPos.x = endTile.x * this.tileW + this.tileW2;
+                    tmpPos.y = endTile.y * this.tileW + this.tileW2;
+                } else {
+                    path.pop();
+                }
+                let endPath: I_xy[] = [];
+                for (let one of path) {
+                    endPath.push({
+                        "x": one.x * this.tileW + this.tileW2,
+                        "y": one.y * this.tileW + this.tileW2
+                    });
+                }
+                endPath.push({ "x": Math.floor(tmpPos.x), "y": Math.floor(tmpPos.y) });
+                endPath.unshift({ "x": Math.floor(meNode.x), "y": Math.floor(meNode.y) });
+                network.sendMsg(cmd.map_main_move, { "path": endPath });
+
+                endPath.shift();
+                this.mePlayer.move(endPath);
             }
         });
     }

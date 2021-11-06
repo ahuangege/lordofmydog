@@ -43,21 +43,27 @@
       },
       {
         "__id__": 89
+      },
+      {
+        "__id__": 92
+      },
+      {
+        "__id__": 95
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 92
+        "__id__": 98
       },
       {
-        "__id__": 93
+        "__id__": 99
       },
       {
-        "__id__": 94
+        "__id__": 100
       },
       {
-        "__id__": 95
+        "__id__": 101
       },
       {
         "__id__": 16
@@ -67,7 +73,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 96
+      "__id__": 102
     },
     "_opacity": 255,
     "_color": {
@@ -1057,7 +1063,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 34.1,
+      "width": 36.32,
       "height": 25.2
     },
     "_anchorPoint": {
@@ -1109,8 +1115,8 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "LV1",
-    "_N$string": "LV1",
+    "_string": "Lv.1",
+    "_N$string": "Lv.1",
     "_fontSize": 20,
     "_lineHeight": 20,
     "_enableWrapText": true,
@@ -2969,7 +2975,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        59.951,
+        36.29,
         -43.714,
         0,
         0,
@@ -3009,8 +3015,8 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "攻击力：\n血量：\n魔量：\n物抗：\n魔抗：\n",
-    "_N$string": "攻击力：\n血量：\n魔量：\n物抗：\n魔抗：\n",
+    "_string": "攻击力：\n物抗：\n魔抗：\n血量：\n魔量：\n",
+    "_N$string": "攻击力：\n物抗：\n魔抗：\n血量：\n魔量：\n",
     "_fontSize": 18,
     "_lineHeight": 26,
     "_enableWrapText": true,
@@ -3040,7 +3046,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "New Label copy",
+    "_name": "num",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -3065,7 +3071,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 50.05,
+      "width": 30.03,
       "height": 136.76
     },
     "_anchorPoint": {
@@ -3077,8 +3083,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        63.75,
-        -32.534,
+        37.222,
+        -30.793,
         0,
         0,
         0,
@@ -3117,8 +3123,8 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "111\n11\n12334\n12\n41",
-    "_N$string": "111\n11\n12334\n12\n41",
+    "_string": "111\n11\n123\n12\n41",
+    "_N$string": "111\n11\n123\n12\n41",
     "_fontSize": 18,
     "_lineHeight": 26,
     "_enableWrapText": true,
@@ -3144,6 +3150,222 @@
       "__uuid__": "e47a775e-25f6-4e42-804b-b9dd2726d4c7"
     },
     "fileId": "8a5YdRQ/1CBrZv9Kn1cQYV",
+    "sync": false
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "lvUp",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 93
+      }
+    ],
+    "_prefab": {
+      "__id__": 94
+    },
+    "_opacity": 255,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 57,
+      "g": 157,
+      "b": 83,
+      "a": 255
+    },
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 20.52,
+      "height": 136.76
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0.5
+    },
+    "_trs": {
+      "__type__": "TypedArray",
+      "ctor": "Float64Array",
+      "array": [
+        90.737,
+        -30.793,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "_eulerAngles": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_skewX": 0,
+    "_skewY": 0,
+    "_is3DNode": false,
+    "_groupIndex": 0,
+    "groupIndex": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.Label",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 92
+    },
+    "_enabled": true,
+    "_materials": [
+      {
+        "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
+      }
+    ],
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
+    "_string": "+1\n+1\n+1\n+1\n+1",
+    "_N$string": "+1\n+1\n+1\n+1\n+1",
+    "_fontSize": 18,
+    "_lineHeight": 26,
+    "_enableWrapText": true,
+    "_N$file": null,
+    "_isSystemFontUsed": true,
+    "_spacingX": 0,
+    "_batchAsBitmap": false,
+    "_styleFlags": 0,
+    "_underlineHeight": 0,
+    "_N$horizontalAlign": 0,
+    "_N$verticalAlign": 1,
+    "_N$fontFamily": "Arial",
+    "_N$overflow": 0,
+    "_N$cacheMode": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.PrefabInfo",
+    "root": {
+      "__id__": 1
+    },
+    "asset": {
+      "__uuid__": "e47a775e-25f6-4e42-804b-b9dd2726d4c7"
+    },
+    "fileId": "1bxrZlvRZLJ5piBzOwVxQQ",
+    "sync": false
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "lvUpInfo",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 96
+      }
+    ],
+    "_prefab": {
+      "__id__": 97
+    },
+    "_opacity": 255,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 17,
+      "g": 47,
+      "b": 7,
+      "a": 255
+    },
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 50,
+      "height": 31.5
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0.5,
+      "y": 0.5
+    },
+    "_trs": {
+      "__type__": "TypedArray",
+      "ctor": "Float64Array",
+      "array": [
+        100.53,
+        43.326,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        1
+      ]
+    },
+    "_eulerAngles": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_skewX": 0,
+    "_skewY": 0,
+    "_is3DNode": false,
+    "_groupIndex": 0,
+    "groupIndex": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.Label",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 95
+    },
+    "_enabled": true,
+    "_materials": [
+      {
+        "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
+      }
+    ],
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
+    "_string": "升级",
+    "_N$string": "升级",
+    "_fontSize": 25,
+    "_lineHeight": 25,
+    "_enableWrapText": true,
+    "_N$file": null,
+    "_isSystemFontUsed": true,
+    "_spacingX": 0,
+    "_batchAsBitmap": false,
+    "_styleFlags": 0,
+    "_underlineHeight": 0,
+    "_N$horizontalAlign": 1,
+    "_N$verticalAlign": 1,
+    "_N$fontFamily": "Arial",
+    "_N$overflow": 0,
+    "_N$cacheMode": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.PrefabInfo",
+    "root": {
+      "__id__": 1
+    },
+    "asset": {
+      "__uuid__": "e47a775e-25f6-4e42-804b-b9dd2726d4c7"
+    },
+    "fileId": "1cka862jpAK7dB1phKLN7H",
     "sync": false
   },
   {

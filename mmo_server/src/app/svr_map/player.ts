@@ -1,7 +1,10 @@
 import { app } from "mydog";
 import { cmd } from "../../config/cmd";
-import { I_playerMapJson } from "../../servers/map/handler/main";
+import { I_playerMapJson, I_xy } from "../../servers/map/handler/main";
 import { nowMs } from "../common/time";
+import { I_item } from "../svr_info/bag";
+import { I_equipment } from "../svr_info/equipment";
+import { E_itemT } from "../svr_info/roleInfo";
 import { Entity_type, I_entityJson } from "./entity";
 import { Map } from "./map";
 import { Role } from "./role";
@@ -10,16 +13,27 @@ import { Role } from "./role";
 export class Player extends Role {
     uid: number;
     sid: string;
-    heroId: number;
-    nickname: string;
+    heroId: number;     // 英雄id
+    level: number;
+    nickname: string;   // 昵称
     chatMapTime: number = 0;   // 上次场景聊天时刻
+    equip: I_equipment;   // 装备
+    skillPos: number[]; // 技能栏
+    hpPos: I_item; // 快速加血栏
+    mpPos: I_item; // 快速加蓝栏
+
     constructor(map: Map, info: I_playerMapJson) {
         super({ "map": map, "id": map.getId(), "t": Entity_type.player, "x": info.x, "y": info.y });
         this.map = map;
         this.uid = info.uid;
         this.sid = info.sid;
         this.heroId = info.heroId;
+        this.level = info.level;
         this.nickname = info.nickname;
+        this.equip = info.equip;
+        this.skillPos = info.skillPos;
+        this.hpPos = info.hpPos;
+        this.mpPos = info.mpPos;
     }
 
     /** 进入地图 */
@@ -63,7 +77,7 @@ export class Player extends Role {
 
 
     /** 移动 */
-    move(msg: { "x": number, "y": number }) {
+    move(msg: { "path": I_xy[] }) {
 
         // if (!this.uidsid.sid) {
         //     return;
@@ -123,6 +137,31 @@ export class Player extends Role {
 
     }
 
+    /** 装备变化了 */
+    onEquipChanged(equip: { "t": E_itemT, "id": number }) {
+        switch (equip.t) {
+            case E_itemT.weapon:
+                this.equip.weapon = equip.id;
+                break;
+            case E_itemT.armor_physical:
+                this.equip.armor_physical = equip.id;
+                break;
+            case E_itemT.armor_magic:
+                this.equip.armor_magic = equip.id;
+                break;
+            case E_itemT.hp_add:
+                this.equip.hp_add = equip.id;
+                break;
+            case E_itemT.mp_add:
+                this.equip.mp_add = equip.id;
+                break;
+            default:
+                break;
+        }
+
+
+    }
+
     toJson(): I_playerJson {
         return {
             "id": this.id,
@@ -133,6 +172,16 @@ export class Player extends Role {
             "heroId": this.heroId,
             "nickname": this.nickname
         };
+    }
+
+    toJsonClick() {
+        return {
+            "id": this.id,
+            "heroId": this.heroId,
+            "level": this.level,
+            "nickname": this.nickname,
+            "equip": this.equip,
+        }
     }
 
 }

@@ -1,7 +1,8 @@
 import { Entity } from "./entity";
+import { Role } from "./role";
 
 /** 怪物 */
-export class Monster extends Entity {
+export class Monster extends Role {
 
 }
 

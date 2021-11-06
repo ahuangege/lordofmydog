@@ -6,7 +6,7 @@ interface I_cfgAll {
     "item": Dic<I_cfg_item>,
     "map": Dic<I_cfg_map>,
     "hero": Dic<I_cfg_hero>,
-    "heroLv": Dic<Dic<number>>,
+    "heroLv": Dic<Dic<I_cfg_heroLv>>,
     "skill": Dic<I_cfg_skill>,
 }
 
@@ -108,7 +108,7 @@ jsonOn("hero", () => {
 
 jsonOn("heroLv", () => {
     let data = requireJson("heroLv");
-    let endData: Dic<Dic<number>> = {};
+    let endData: Dic<Dic<I_cfg_heroLv>> = {};
     for (let x in data) {
         let one = data[x];
         let heroOne = endData[one.heroId];
@@ -116,7 +116,7 @@ jsonOn("heroLv", () => {
             heroOne = {};
             endData[one.heroId] = heroOne;
         }
-        heroOne[one.lv] = one.exp;
+        heroOne[one.lv] = one;
     }
     cfgAll.heroLv = endData;
     pushToChanged("heroLv");
@@ -153,7 +153,16 @@ interface I_cfg_hero {
     skill: number[],
     skillUnlockLv: number[],
 }
-
+/** 英雄升级数据 */
+interface I_cfg_heroLv {
+    "lv": number,
+    "exp": number,
+    "attack": number,
+    "hp": number,
+    "mp": number,
+    "armor_p": number,
+    "armor_m": number
+}
 /** 技能 */
 interface I_cfg_skill {
     id: number,
@@ -161,6 +170,8 @@ interface I_cfg_skill {
     des: number,
     cd: number,
 }
+
+
 
 //#endregion
 

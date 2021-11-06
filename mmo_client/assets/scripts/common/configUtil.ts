@@ -10,7 +10,7 @@ interface I_cfgAll {
     "errcode": Dic<I_cfg_errcode>,
     "item": Dic<I_cfg_item>,
     "hero": Dic<I_cfg_hero>,
-    "heroLv": Dic<Dic<number>>,
+    "heroLv": Dic<Dic<I_cfg_heroLv>>,
     "skill": Dic<I_cfg_skill>,
 }
 
@@ -53,7 +53,7 @@ export function initConfig(cb: () => void) {
 
 function changeHeroLv() {
     let data = cfg_all().heroLv as any;
-    let endData: Dic<Dic<number>> = {};
+    let endData: Dic<Dic<I_cfg_heroLv>> = {};
     for (let x in data) {
         let one = data[x];
         let heroOne = endData[one.heroId];
@@ -61,7 +61,7 @@ function changeHeroLv() {
             heroOne = {};
             endData[one.heroId] = heroOne;
         }
-        heroOne[one.lv] = one.exp;
+        heroOne[one.lv] = one;
     }
     cfgAll.heroLv = endData;
 }
@@ -86,7 +86,16 @@ interface I_cfg_hero {
     skill: number[],
     skillUnlockLv: number[],
 }
-
+/** 英雄升级数据 */
+interface I_cfg_heroLv {
+    "lv": number,
+    "exp": number,
+    "attack": number,
+    "hp": number,
+    "mp": number,
+    "armor_p": number,
+    "armor_m": number
+}
 /** 技能 */
 interface I_cfg_skill {
     id: number,

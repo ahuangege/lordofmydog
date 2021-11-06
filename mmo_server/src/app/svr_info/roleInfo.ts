@@ -223,30 +223,36 @@ export class RoleInfo {
     }
 
     toMapJson(): I_playerMapJson {
+        let role = this.role;
         return {
             "uid": this.uid,
             "sid": this.sid,
-            "nickname": this.role.nickname,
-            "heroId": this.role.heroId,
-            "mapId": this.role.mapId,
+            "nickname": role.nickname,
+            "heroId": role.heroId,
+            "level": role.level,
+            "mapId": role.mapId,
             "mapIndex": this.roleMem.mapIndex,
-            "x": this.role.x,
-            "y": this.role.y,
+            "x": role.x,
+            "y": role.y,
+            "equip": this.equip.equip,
+            "skillPos": role.skillPos,
+            "hpPos": role.hpPos,
+            "mpPos": role.mpPos,
         }
     }
 
     /** 增加英雄经验值 */
     addExp(num: number) {
         let cfg = cfg_all().heroLv[this.role.heroId];
-        if (cfg[this.role.level] === -1) {    // 已经满级了
+        if (cfg[this.role.level].exp === -1) {    // 已经满级了
             return;
         }
         while (true) {
-            if (num + this.role.exp >= cfg[this.role.level]) {    // 升级
-                num -= (cfg[this.role.level] - this.role.exp);
+            if (num + this.role.exp >= cfg[this.role.level].exp) {    // 升级
+                num -= (cfg[this.role.level].exp - this.role.exp);
                 this.role.level += 1;
                 this.role.exp = 0;
-                if (cfg[this.role.level] === -1) {    // 已经满级了
+                if (cfg[this.role.level].exp === -1) {    // 已经满级了
                     break;
                 }
             } else {

@@ -17,6 +17,7 @@ import { EscGo } from "./escGo";
 import { GmPanel } from "./gmPanel";
 import { HeroInfoPanel } from "./heroInfoPanel";
 import { HpMpPrefab } from "./hpMpPrefab";
+import { E_keyType, InputKeyListen } from "./inputKeyListen";
 import { SkillPanel } from "./skillPanel";
 import { SkillPrefab } from "./skillPrefab";
 
@@ -122,9 +123,9 @@ export class GameMainPanel extends cc.Component {
     /** 等级经验ui修改 */
     private setLvExp(setName = false) {
         let node = cc.find("top_left/roleInfo", this.node);
-        node.getChildByName("lv").getComponent(cc.Label).string = "LV" + Game.roleInfo.level;
+        node.getChildByName("lv").getComponent(cc.Label).string = "Lv." + Game.roleInfo.level;
         let cfg = cfg_all().heroLv[Game.roleInfo.heroId];
-        let expNeed = cfg[Game.roleInfo.level];
+        let expNeed = cfg[Game.roleInfo.level].exp;
         let bar = node.getChildByName("exp").getComponent(cc.ProgressBar);
         if (expNeed === -1) { // 满级了
             bar.progress = 1;
@@ -148,7 +149,9 @@ export class GameMainPanel extends cc.Component {
         }
     }
 
-
+    btn_heroInfo() {
+        InputKeyListen.instance.showPanel(E_keyType.heroInfo);
+    }
 
     onDestroy() {
         network.removeThisHandlers(this);

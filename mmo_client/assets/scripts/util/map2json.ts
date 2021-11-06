@@ -13,12 +13,26 @@ export default class NewClass extends cc.Component {
 
     @property(cc.TiledMap)
     private tilemap: cc.TiledMap = null;
+    private _save = false;
+    @property({ "type": cc.Boolean, "displayName": "点击保存地图" })
+    private get saveMap() {
+        return this._save;
+    }
+    private set saveMap(value: boolean) {
+        this._save = value;
+        if (value) {
+            this.saveMap = false;
+            this.saveLogic();
+        }
+    }
 
-    start() {
+    private saveLogic() {
         if (!this.tilemap) {
+            cc.warn("no tilemap");
             return;
         }
         if (!this.tilemap.tmxAsset) {
+            cc.warn("no tilemap.tmxAsset");
             return;
         }
         let mapName = this.tilemap.tmxAsset.name;
@@ -31,10 +45,10 @@ export default class NewClass extends cc.Component {
         let arrAll: number[][] = [];
         let tiles = layer.getTiles();
         for (let i = 0; i < tiles.length; i++) {
-            let arr = arrAll[i % mapSize.width];
+            let arr = arrAll[Math.floor(i / mapSize.width)];
             if (!arr) {
                 arr = [];
-                arrAll[i % mapSize.width] = arr;
+                arrAll.push(arr);
             }
             arr.push(tiles[i] === 0 ? 1 : 0);
         }

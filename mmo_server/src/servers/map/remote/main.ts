@@ -1,3 +1,4 @@
+import { E_itemT } from "../../../app/svr_info/roleInfo";
 import { MapMgr } from "../../../app/svr_map/mapMgr";
 import { svr_map } from "../../../app/svr_map/svr_map";
 
@@ -53,6 +54,10 @@ export default class Remote {
         cb(0, map.isPlayerHere(mapId, uid));
     }
 
-
+    /** 装备变化了 */
+    onEquipChanged(mapIndex: number, uid: number, equip: { "t": E_itemT, "id": number }) {
+        let p = this.mapMgr.getPlayer(mapIndex, uid);
+        p.onEquipChanged(equip);
+    }
 
 }
