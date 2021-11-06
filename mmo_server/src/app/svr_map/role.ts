@@ -1,6 +1,8 @@
 
+import { BuffMgr } from "./buffMgr";
 import { Entity, I_EntityInit } from "./entity";
 import { Map } from "./map";
+import { SkillMgr } from "./skill/skillMgr";
 
 /** 角色（如玩家、怪物） */
 export abstract class Role extends Entity {
@@ -12,8 +14,13 @@ export abstract class Role extends Entity {
     armor_p = 0;    // 物防
     armor_m = 0;    // 魔防
 
+    skillMgr: SkillMgr; // 技能管理
+    buffMgr: BuffMgr;   // buff 管理
+
     constructor(info: I_EntityInit) {
         super(info);
+        this.skillMgr = new SkillMgr(this);
+        this.buffMgr = new BuffMgr();
     }
 
 

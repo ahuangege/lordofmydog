@@ -1,1 +1,2 @@
-console.log(Math.sqrt(4));
+console.log("111");
+require("./test.js");
