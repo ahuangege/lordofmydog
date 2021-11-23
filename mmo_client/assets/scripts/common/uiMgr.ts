@@ -41,7 +41,7 @@ export class UIMgr extends cc.Component {
     }
 
 
-    static showSomeInfo(info: string, showCloseBtn: boolean = false, yesCb?: () => void) {
+    static showSomeInfo(info: string, showCloseBtn: boolean = true, yesCb?: () => void) {
         this.showPanel(uiPanel.someInfoPanel, (err, node) => {
             if (err) {
                 return;
@@ -50,7 +50,7 @@ export class UIMgr extends cc.Component {
         });
     }
 
-    static showErrcode(code: number, showCloseBtn: boolean = false, yesCb?: () => void) {
+    static showErrcode(code: number, showCloseBtn: boolean = true, yesCb?: () => void) {
         let one = cfg_all().errcode[code];
         if (one) {
             this.showSomeInfo(one.des, showCloseBtn, yesCb);

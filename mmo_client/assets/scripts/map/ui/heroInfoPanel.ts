@@ -127,6 +127,10 @@ export class HeroInfoPanel extends cc.Component {
         this.showHeroNum(Game.roleInfo);
     }
 
+    onHeroLvUp() {
+        this.showHeroNum(Game.roleInfo);
+    }
+
     btn_close() {
         this.node.destroy();
     }

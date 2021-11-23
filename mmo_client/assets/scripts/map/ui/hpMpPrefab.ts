@@ -24,9 +24,16 @@ export class HpMpPrefab extends cc.Component {
     private imgSprite: cc.Sprite = null;
     @property(cc.Label)
     private numLabel: cc.Label = null;
+    private cdImg: cc.Sprite = null;
+    private cd = 0;
+    private cdBase = 5;
 
     private id = 0;
     private num = 0;
+
+    onLoad() {
+        this.cdImg = this.node.getChildByName("cd").getComponent(cc.Sprite);
+    }
 
 
     start() {
@@ -41,6 +48,8 @@ export class HpMpPrefab extends cc.Component {
             this.id = 0;
             this.numLabel.string = "";
             this.imgSprite.spriteFrame = null;
+            this.cdImg.fillRange = 0;
+            this.cd = 0;
         } else {
             this.numLabel.string = info.num === 1 ? "" : info.num.toString();
             if (this.id !== info.id) {
@@ -55,6 +64,9 @@ export class HpMpPrefab extends cc.Component {
     }
 
     private onBagItemDrop(index: number, pos: cc.Vec2) {
+        if (this.id && this.cd > 0) {
+            return;
+        }
         let node = this.node;
         let localPos = node.convertToNodeSpaceAR(pos);
 
@@ -75,6 +87,29 @@ export class HpMpPrefab extends cc.Component {
             return;
         }
         network.sendMsg(cmd.info_bag_equipItem, { "index": index, "t": equipT });
+    }
+
+    btn_click() {
+        if (!this.id) {
+            return;
+        }
+        cc.tween(this.node).to(0.1, { "scale": 1.1 }).to(0.1, { "scale": 1 }).start();
+        if (this.cd > 0) {
+            return;
+        }
+        this.cd = this.cdBase;
+        network.sendMsg(cmd.info_bag_useHpMpAdd, { "isHp": this.isHp });
+    }
+
+    update(dt: number) {
+        if (this.cd <= 0) {
+            return;
+        }
+        this.cd -= dt;
+        if (this.cd <= 0) {
+            this.cd = 0;
+        }
+        this.cdImg.fillRange = this.cd / this.cdBase;
     }
 
 

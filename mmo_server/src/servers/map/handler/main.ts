@@ -1,4 +1,5 @@
 import { app, Application, Session } from "mydog";
+import { nowSec } from "../../../app/common/time";
 import { I_item } from "../../../app/svr_info/bag";
 import { I_equipment } from "../../../app/svr_info/equipment";
 import { MapMgr } from "../../../app/svr_map/mapMgr";
@@ -32,17 +33,15 @@ export default class Handler {
             if (player) {
                 return next({ "code": 1 });
             }
-            data.x = 300;
-            data.y = 300;
             player = new Player(map, data);
             let jsonArr = player.enterMap();
-            next({ "code": 0, "meId": player.id, "entities": jsonArr });
+            next({ "code": 0, "meId": player.id, "mp": player.mp, "mpMax": player.mpMax, "skillCd": [1, 1, 1], "entities": jsonArr });
         });
     }
 
 
     /** 移动 */
-    move(msg: { "path": I_xy[] }, session: Session, next: Function) {
+    move(msg: { "x": number, "y": number, "path": I_xy[] }, session: Session, next: Function) {
         let p = this.mapMgr.getPlayer(session.get("mapIndex"), session.uid);
         if (p) {
             p.move(msg);
@@ -78,6 +77,21 @@ export default class Handler {
             next(p.toJsonClick());
         }
     }
+
+    /** 切换战斗模式 */
+    changeNoFight(msg: any, session: Session, next: Function) {
+        let p = this.mapMgr.getPlayer(session.get("mapIndex"), session.uid);
+        if (nowSec() < p.noFightTime) {
+            return next({ "code": 10030 });
+        }
+        p.noFightTime = nowSec() + 60;
+        p.noFight = !p.noFight;
+        next({ "code": 0, "noFight": p.noFight });
+    }
+
+    useSkill() {
+
+    }
 }
 
 export interface I_playerMapJson {
@@ -92,8 +106,8 @@ export interface I_playerMapJson {
     y: number,
     equip: I_equipment,   // 装备
     skillPos: number[], // 技能栏
-    hpPos: I_item, // 快速加血栏
-    mpPos: I_item, // 快速加蓝栏
+    hp: number, // 血量
+    mp: number, // 蓝量
 }
 
 export interface I_xy {

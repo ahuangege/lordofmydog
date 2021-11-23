@@ -7,6 +7,7 @@
 
 import { cmd } from "../common/cmdClient";
 import { getMapJson } from "../common/configUtil";
+import { Game } from "../common/game";
 import { network } from "../common/network";
 import { UIMgr, uiPanel } from "../common/uiMgr";
 import { getItemImg, getSkillImg } from "../util/gameUtil";
@@ -27,9 +28,9 @@ export class MapMain extends cc.Component {
     private tileLayer: cc.TiledLayer = null;
     @property(cc.Prefab)
     private playerPrefab: cc.Prefab = null;
-    @property(cc.Node)
-    private cameraNode: cc.Node = null;
-    private mePlayer: Player = null;
+    @property(cc.Camera)
+    private cameraMain: cc.Camera = null;
+    public mePlayer: Player = null;
     pathFind: Pathfind = null;
     tileW = 64;
     tileW2 = this.tileW / 2;
@@ -51,22 +52,24 @@ export class MapMain extends cc.Component {
     start() {
         this.setHintInfo("", null, null);
         this.setDragImg(E_dragType.item, 0, 0, null, null);
+        UIMgr.showPanel(uiPanel.gameMain);
 
         network.onClose(this.svr_onClose, this);
         network.addHandler(cmd.map_main_enterMap, this.svr_enterMapBack, this);
         network.addHandler(cmd.onEntityChange, this.svr_onEntityChanged, this);
         network.addHandler(cmd.onMove, this.svr_onMove, this);
+        network.addHandler(cmd.onHpMaxChanged, this.svr_onHpMaxChanged, this);
+        network.addHandler(cmd.onMpMaxChanged, this.svr_onMpMaxChanged, this);
 
-        UIMgr.showPanel(uiPanel.gameMain);
 
         network.sendMsg(cmd.map_main_enterMap);
-        this.tileLayer = this.tilemap.getLayer("obj");
 
+        this.tileLayer = this.tilemap.getLayer("obj");
         this.node.on(cc.Node.EventType.MOUSE_UP, (event: cc.Event.EventMouse) => {
             if (event.getButton() !== cc.Event.EventMouse.BUTTON_RIGHT) {
                 return;
             }
-            let tmpPos = this.cameraNode.getComponent(cc.Camera).getScreenToWorldPoint(event.getLocation());
+            let tmpPos = this.screen2worldPoint(event.getLocation());
             if (cc.isValid(this.mePlayer)) {
                 let meNode = this.mePlayer.node;
                 let x1 = Math.floor(meNode.x / this.tileW);
@@ -89,6 +92,20 @@ export class MapMain extends cc.Component {
                 } else {
                     path.pop();
                 }
+
+                // 同一条直线上的点，去除中间的点，只保留两端的关键点
+                for (let i = 2; i < path.length;) {
+                    let dx1 = path[i].x - path[i - 1].x;
+                    let dy1 = path[i].y - path[i - 1].y;
+                    let dx2 = path[i - 1].x - path[i - 2].x;
+                    let dy2 = path[i - 1].y - path[i - 2].y;
+                    if (dx1 * dy2 === dx2 * dy1) {  // 即 dx1 / dy1 = dx2 / dy2
+                        path.splice(i - 1, 1);
+                    } else {
+                        i++;
+                    }
+                }
+
                 let endPath: I_xy[] = [];
                 for (let one of path) {
                     endPath.push({
@@ -97,10 +114,8 @@ export class MapMain extends cc.Component {
                     });
                 }
                 endPath.push({ "x": Math.floor(tmpPos.x), "y": Math.floor(tmpPos.y) });
-                endPath.unshift({ "x": Math.floor(meNode.x), "y": Math.floor(meNode.y) });
-                network.sendMsg(cmd.map_main_move, { "path": endPath });
 
-                endPath.shift();
+                network.sendMsg(cmd.map_main_move, { "x": Math.floor(meNode.x), "y": Math.floor(meNode.y), "path": endPath });
                 this.mePlayer.move(endPath);
             }
         });
@@ -131,7 +146,7 @@ export class MapMain extends cc.Component {
 
     }
 
-    private svr_enterMapBack(msg: { "code": number, "meId": number, "entities": I_entityJson[] }) {
+    private svr_enterMapBack(msg: { "code": number, "meId": number, "mp": number, "mpMax": number, "skillCd": number[], "entities": I_entityJson[] }) {
         if (msg.code !== 0) {
             UIMgr.showErrcode(msg.code, false, () => {
                 cc.director.loadScene("login")
@@ -142,6 +157,10 @@ export class MapMain extends cc.Component {
 
         this.meId = msg.meId;
         this.mePlayer = this.getEntity(msg.meId) as Player;
+        this.mePlayer.initSkill(Game.roleInfo.skillPos, msg.skillCd);
+        this.mePlayer.mp = msg.mp;
+        this.mePlayer.mpMax = msg.mpMax;
+
         CameraFollow.instance.setTarget(this.mePlayer.node);
 
         this.pathFind = new Pathfind();
@@ -201,12 +220,17 @@ export class MapMain extends cc.Component {
         }
     }
 
-    private svr_onMove(msg: { "id": number, "x": number, "y": number }) {
+    private svr_onMove(msg: { "id": number, "path": I_xy[] }) {
         let entity = this.getEntity(msg.id);
-        if (entity && entity.t === Entity_type.player) {
-            entity.node.x = msg.x;
-            entity.node.y = msg.y;
+        if (!entity) {
+            return;
         }
+        if (entity.t === Entity_type.player) {
+            if (entity.id !== this.meId) {
+                (entity as Player).move(msg.path);
+            }
+        }
+
     }
 
 
@@ -262,6 +286,29 @@ export class MapMain extends cc.Component {
         this.dragImg.setPosition(localPos.x, localPos.y);
     }
 
+
+    /** 玩家血上限变化了 */
+    private svr_onHpMaxChanged(msg: { "id": number, "hpMax": number, "hp": number }) {
+        let entity = this.getEntity(msg.id);
+        if (!entity) {
+            return;
+        }
+        if (entity.t === Entity_type.player) {
+            (entity as Player).hp = msg.hp;
+            (entity as Player).hpMax = msg.hpMax;
+            (entity as Player).refreshHpUi();
+        }
+    }
+
+    /** 玩家蓝上限变化了 */
+    private svr_onMpMaxChanged(msg: { "mpMax": number, "mp": number }) {
+        this.mePlayer.mp = msg.mp;
+        this.mePlayer.mpMax = msg.mpMax;
+    }
+
+    screen2worldPoint(pos: cc.Vec2) {
+        return this.cameraMain.getScreenToWorldPoint(pos) as any as cc.Vec2;
+    }
 
 
     onDestroy() {

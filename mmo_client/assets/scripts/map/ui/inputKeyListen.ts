@@ -9,6 +9,7 @@ import { E_localStorageType, Game } from "../../common/game";
 import { UIMgr, uiPanel } from "../../common/uiMgr";
 import { Dic, MapMain } from "../mapMain";
 import { BagPanel } from "./bagPanel";
+import { GameMainPanel } from "./gameMainPanel";
 import { GmPanel } from "./gmPanel";
 import { HeroInfoPanel } from "./heroInfoPanel";
 import { SettingPanel } from "./settingPanel";
@@ -75,6 +76,26 @@ export class InputKeyListen extends cc.Component {
         if (keyCode) {
             this.on(keySetValue[keyCode], this.func_setting);
         }
+        keyCode = keySet[E_keyType.skill_1];
+        if (keyCode) {
+            this.on(keySetValue[keyCode], this.func_useSkill.bind(this, 0));
+        }
+        keyCode = keySet[E_keyType.skill_2];
+        if (keyCode) {
+            this.on(keySetValue[keyCode], this.func_useSkill.bind(this, 1));
+        }
+        keyCode = keySet[E_keyType.skill_3];
+        if (keyCode) {
+            this.on(keySetValue[keyCode], this.func_useSkill.bind(this, 2));
+        }
+        keyCode = keySet[E_keyType.add_hp];
+        if (keyCode) {
+            this.on(keySetValue[keyCode], this.func_add_hp);
+        }
+        keyCode = keySet[E_keyType.add_mp];
+        if (keyCode) {
+            this.on(keySetValue[keyCode], this.func_add_mp);
+        }
     }
 
     private func_bag() {
@@ -92,6 +113,16 @@ export class InputKeyListen extends cc.Component {
     private func_setting() {
         this.showPanel(E_keyType.setting);
     }
+    private func_useSkill(index: number) {
+        GameMainPanel.instance.skillArr[index].btn_click();
+    }
+    private func_add_hp() {
+        GameMainPanel.instance.hpPrefab.btn_click();
+    }
+    private func_add_mp() {
+        GameMainPanel.instance.mpPrefab.btn_click();
+    }
+
 
 
     showPanel(keyType: E_keyType) {
@@ -192,16 +223,16 @@ export let keySetValue: Dic<string> = {
     [cc.macro.KEY.y]: "Y",
     [cc.macro.KEY.z]: "Z",
     [cc.macro.KEY.space]: "SPACE",
-    [cc.macro.KEY.num0]: "0",
-    [cc.macro.KEY.num1]: "1",
-    [cc.macro.KEY.num2]: "2",
-    [cc.macro.KEY.num3]: "3",
-    [cc.macro.KEY.num4]: "4",
-    [cc.macro.KEY.num5]: "5",
-    [cc.macro.KEY.num6]: "6",
-    [cc.macro.KEY.num7]: "7",
-    [cc.macro.KEY.num8]: "8",
-    [cc.macro.KEY.num9]: "9",
+    [cc.macro.KEY["0"]]: "0",
+    [cc.macro.KEY["1"]]: "1",
+    [cc.macro.KEY["2"]]: "2",
+    [cc.macro.KEY["3"]]: "3",
+    [cc.macro.KEY["4"]]: "4",
+    [cc.macro.KEY["5"]]: "5",
+    [cc.macro.KEY["6"]]: "6",
+    [cc.macro.KEY["7"]]: "7",
+    [cc.macro.KEY["8"]]: "8",
+    [cc.macro.KEY["9"]]: "9",
 };
 for (let x in keySetValue) {
     keySetValue[keySetValue[x]] = x;
@@ -216,8 +247,8 @@ export let defaultKeySet = {
     [E_keyType.skill_1]: keySetValue[cc.macro.KEY.space],
     [E_keyType.skill_2]: keySetValue[cc.macro.KEY.a],
     [E_keyType.skill_3]: keySetValue[cc.macro.KEY.f],
-    [E_keyType.add_hp]: keySetValue[cc.macro.KEY.num0],
-    [E_keyType.add_mp]: keySetValue[cc.macro.KEY.num1],
+    [E_keyType.add_hp]: keySetValue[cc.macro.KEY["1"]],
+    [E_keyType.add_mp]: keySetValue[cc.macro.KEY["2"]],
     [E_keyType.setting]: keySetValue[cc.macro.KEY.t],
 }
 

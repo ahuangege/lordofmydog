@@ -1,39 +1,53 @@
 import { app, Application } from "mydog";
 import { cmd } from "../../config/cmd";
+import { I_xy } from "../../servers/map/handler/main";
 import { cfg_all, getMapTileJson } from "../common/configUtil";
 import { Dic, removeFromArr } from "../util/util";
 import { Entity, Entity_type, I_entityJson } from "./entity";
+import { Pathfind } from "./pathFind";
 import { Player } from "./player";
+import { svr_map } from "./svr_map";
 import { TowerAOI } from "./towerAOI";
+
+
+export const tileW = 64;
 
 
 /** 场景地图 */
 export class Map {
     app: Application;
+    public isCopy: boolean = false; // 是否是副本
     public mapId: number;
     public mapIndex: number;
+    public mapTiles: number[][];
     public width: number;
     public height: number;
     private towerWidth: number = 10;
     private towerHeight: number = 5;
     towerAOI: TowerAOI<Entity>;
+    pathFind: Pathfind;
     private id: number = 1;
     private entities: Dic<Entity> = {};
     private players: Dic<Player> = {};
 
     private group: Dic<number[]> = {};
     private copyUids: number[] = [];    // 副本时，本地图进来的玩家
-
+    private fps = 5;    // update 帧率
 
     constructor(mapId: number, mapIndex: number) {
         this.app = app;
         this.mapId = mapId;
         this.mapIndex = mapIndex;
-        let mapData = getMapTileJson(mapId);
-        this.width = mapData[0].length * 64;
-        this.height = mapData.length * 64;
+        this.mapTiles = getMapTileJson(mapId);
+        this.width = this.mapTiles[0].length * 64;
+        this.height = this.mapTiles.length * 64;
         this.towerAOI = new TowerAOI({ width: this.width, height: this.height, towerWidth: this.towerWidth * 64, towerHeight: this.towerHeight * 64, range: 1 });
         this.addAOIEvent();
+        svr_map.pathFindMgr.add(mapId);
+        this.pathFind = svr_map.pathFindMgr.get(mapId);
+
+
+        setInterval(this.update.bind(this), 1000 / this.fps);
     }
 
     isPlayerHere(mapId: number, uid: number) {
@@ -44,6 +58,13 @@ export class Map {
             return false;
         }
         return true;
+    }
+
+    update() {
+        let dt = 1 / this.fps;
+        for (let x in this.entities) {
+            this.entities[x].update(dt);
+        }
     }
 
     getId() {
@@ -133,7 +154,11 @@ export class Map {
     }
 
 
+    sendMsgByAOI(pos: I_xy, cmd: cmd, msg: any) {
+        let group = this.towerAOI.getWatchers(pos);
+        app.sendMsgByGroup(cmd, msg, group);
 
+    }
 
 
 }

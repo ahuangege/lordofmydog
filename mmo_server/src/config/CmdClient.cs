@@ -33,6 +33,14 @@ public class Cmd
 	/// </summary>
 	public const string map_main_getPlayerInfo = "map.main.getPlayerInfo";
 	/// <summary>
+	/// 切换战斗模式
+	/// </summary>
+	public const string map_main_changeNoFight = "map.main.changeNoFight";
+	/// <summary>
+	/// 使用技能
+	/// </summary>
+	public const string map_main_useSkill = "map.main.useSkill";
+	/// <summary>
 	/// 新增或移除实体
 	/// </summary>
 	public const string onEntityChange = "onEntityChange";
@@ -48,6 +56,14 @@ public class Cmd
 	/// 昵称修改
 	/// </summary>
 	public const string onNicknameChanged = "onNicknameChanged";
+	/// <summary>
+	/// 血上限变化了
+	/// </summary>
+	public const string onHpMaxChanged = "onHpMaxChanged";
+	/// <summary>
+	/// 蓝上限变化了
+	/// </summary>
+	public const string onMpMaxChanged = "onMpMaxChanged";
 	/// <summary>
 	/// 金币变化
 	/// </summary>
@@ -76,6 +92,10 @@ public class Cmd
 	/// hp mp 快速使用栏变化
 	/// </summary>
 	public const string onHpMpPosChanged = "onHpMpPosChanged";
+	/// <summary>
+	/// hp mp 快速使用
+	/// </summary>
+	public const string info_bag_useHpMpAdd = "info.bag.useHpMpAdd";
 	/// <summary>
 	/// gm命令
 	/// </summary>

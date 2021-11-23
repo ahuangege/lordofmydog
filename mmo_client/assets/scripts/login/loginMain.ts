@@ -6,7 +6,6 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { initConfig } from "../common/configUtil";
-import { httpReq } from "../common/httpReq";
 import { UIMgr, uiPanel } from "../common/uiMgr";
 
 const { ccclass, property } = cc._decorator;

@@ -10,11 +10,15 @@ export default [
     "map.main.move", // 移动
     "onMove",   // 通知，移动
     "map.main.getPlayerInfo", // 点击玩家查看信息
+    "map.main.changeNoFight",   // 切换战斗模式
+    "map.main.useSkill",   // 使用技能
 
     "onEntityChange",   // 新增或移除实体
     "onChatAOI",    // 视野内聊天
     "onChatMap",    // 本地图聊天
     "onNicknameChanged",    // 昵称修改
+    "onHpMaxChanged",   // 血上限变化了
+    "onMpMaxChanged",   // 蓝上限变化了
 
     "onGoldChanged",    // 金币变化
     "onKicked", // 被踢
@@ -32,6 +36,7 @@ export default [
     "info.bag.equipItem",   // 装备道具
     "onEquipChanged",   // 通知 装备改变
     "onHpMpPosChanged", // hp mp 快速使用栏变化
+    "info.bag.useHpMpAdd",  // hp mp 快速使用
 
     "info.main.gmCommit",   // gm命令
     "info.main.learnSkill",   // 学习技能

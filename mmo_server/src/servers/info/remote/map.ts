@@ -1,5 +1,6 @@
+import { cfg_all } from "../../../app/common/configUtil";
 import { svr_info } from "../../../app/svr_info/svr_info";
-import { I_playerMapJson } from "../../map/handler/main";
+import { I_playerMapJson, I_xy } from "../../map/handler/main";
 
 export default class MapRemote {
 
@@ -12,4 +13,23 @@ export default class MapRemote {
         cb(0, role.toMapJson());
 
     }
+
+    /** 场景服定时同步玩家一些信息到info服 */
+    syncSomeInfo(uid: number, pos: I_xy, hpmp: { "hp": number, "mp": number }) {
+        console.log("syncSomeInfo", pos, hpmp)
+        let role = svr_info.roleInfoMgr.getRole(uid);
+        if (pos) {
+            role.changeRoleInfo(pos);
+        }
+        if (hpmp) {
+            role.changeRoleInfo(hpmp);
+        }
+    }
+}
+
+export interface I_syncSomeInfo {
+    x?: number,
+    y?: number,
+    hp?: number,
+    mp?: number,
 }

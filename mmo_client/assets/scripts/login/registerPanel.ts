@@ -43,6 +43,7 @@ export default class NewClass extends cc.Component {
         httpReq({ "url": url, "msg": { "username": this.usernameInput.string, "password": this.passwordInput.string } }, (err, data) => {
             this.isRegistering = false;
             if (err) {
+                UIMgr.showSomeInfo("连不上服务器");
                 return;
             }
             if (data.code !== 0) {

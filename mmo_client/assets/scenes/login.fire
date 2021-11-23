@@ -85,6 +85,9 @@
       },
       {
         "__id__": 8
+      },
+      {
+        "__id__": 9
       }
     ],
     "_prefab": null,
@@ -298,5 +301,15 @@
     "loginHost": "127.0.0.1",
     "loginPort": 5101,
     "_id": "a0YQLHC4pO8aCEIZTn6uxK"
+  },
+  {
+    "__type__": "019e6cgqVdAkbcy+WB4t0a0",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "_id": "11xa8TBm1EQ6fM9+HwsyS3"
   }
 ]

@@ -3,8 +3,10 @@ import { Dic } from "../../util/util";
 import { Role } from "../role";
 import * as fs from "fs";
 import * as path from "path";
+import { gameLog } from "../../common/logger";
 
-let skillFuncDic: Dic<typeof SkillBase> = {};
+/** 技能实现集合 */
+let skillConDic: Dic<typeof SkillBase> = {};
 
 /** 加载技能 */
 export function loadSkill() {
@@ -17,15 +19,18 @@ export function loadSkill() {
     });
 }
 
-/** 技能注册（装饰器） */
+/**
+ * 技能注册（装饰器）
+ */
 export function registerSkill(skillCon: typeof SkillBase) {
-    skillFuncDic[skillCon.name] = skillCon;
+    // gameLog.debug("技能注册（装饰器）", skillCon.name.substr(6));
+    skillConDic[skillCon.name.substr(6)] = skillCon;
 }
 
 
 /** 技能管理 */
 export class SkillMgr {
-    public role: Role
+    public role: Role;  // 对应角色
     private skillDic: Dic<SkillBase> = {};
     private nowSkillId: number = 0; // 当前进行中的技能
     constructor(role: Role) {
@@ -37,7 +42,12 @@ export class SkillMgr {
         if (this.skillDic[skillId]) {
             return;
         }
-        this.skillDic[skillId] = new skillFuncDic[skillId](skillId, this);
+        let skillCon = skillConDic[skillId];
+        if (skillCon) {
+            this.skillDic[skillId] = new skillCon(this);
+        } else {
+            gameLog.warn("没有技能实现", skillId)
+        }
     }
     /** 删除技能 */
     delSkill(skillId: number) {
@@ -71,14 +81,14 @@ interface I_userSkill {
 }
 
 
-
+/** 注意：请不要直接实例化此类 */
 export class SkillBase {
     skillId: number;    // 技能id
     skillMgr: SkillMgr;
     cd: number = 0; // 下次可释放技能的时间
 
-    constructor(skillId: number, skillMgr: SkillMgr) {
-        this.skillId = skillId;
+    constructor(skillMgr: SkillMgr) {
+        this.skillId = Number((this as Object).constructor.name.substr(6));
         this.skillMgr = skillMgr;
     }
 
@@ -104,7 +114,7 @@ export class SkillBase {
 
     }
 
-    /** 销毁，角色移除时使用 */
+    /** 销毁 */
     destroy() {
 
     }

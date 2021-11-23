@@ -236,8 +236,8 @@ export class RoleInfo {
             "y": role.y,
             "equip": this.equip.equip,
             "skillPos": role.skillPos,
-            "hpPos": role.hpPos,
-            "mpPos": role.mpPos,
+            "hp": role.hp,
+            "mp": role.mp,
         }
     }
 
@@ -247,6 +247,7 @@ export class RoleInfo {
         if (cfg[this.role.level].exp === -1) {    // 已经满级了
             return;
         }
+        let lastLv = this.role.level;
         while (true) {
             if (num + this.role.exp >= cfg[this.role.level].exp) {    // 升级
                 num -= (cfg[this.role.level].exp - this.role.exp);
@@ -263,6 +264,9 @@ export class RoleInfo {
         this.changeSqlKey("level");
         this.changeSqlKey("exp");
         this.getMsg(cmd.onLvExpChanged, { "lv": this.role.level, "exp": this.role.exp });
+        if (this.role.level !== lastLv) {
+            app.rpc(this.roleMem.mapSvr).map.main.onHeroLvUp(this.roleMem.mapIndex, this.uid, this.role.level);
+        }
     }
 
 }

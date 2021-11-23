@@ -28,4 +28,10 @@ export default class Handler {
         let role = svr_info.roleInfoMgr.getRole(session.uid);
         role.bag.equipItem(msg);
     }
+
+    /** 快速加血加蓝栏使用 */
+    useHpMpAdd(msg: { isHp: boolean }, session: Session, next: Function) {
+        let role = svr_info.roleInfoMgr.getRole(session.uid);
+        role.bag.useHpMpAdd(!!msg.isHp);
+    }
 }

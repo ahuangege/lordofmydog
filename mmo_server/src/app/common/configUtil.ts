@@ -10,15 +10,8 @@ interface I_cfgAll {
     "skill": Dic<I_cfg_skill>,
 }
 
-interface I_cfgNameJson {
-    "item": boolean,
-    "map": boolean,
-    "hero": boolean,
-    "heroLv": boolean,
-    "skill": boolean,
-}
 
-let jsonNames: I_cfgNameJson = {
+let jsonNames = {
     "item": true,
     "map": true,
     "hero": true,
@@ -56,10 +49,10 @@ function cfg_emit(cfgName: keyof I_cfgAll) {
 
 // json配置表的改变监听
 let eventProxyJson = new EventProxy();
-function jsonOn(jsonName: keyof I_cfgNameJson, cb: () => void) {
+function jsonOn(jsonName: keyof typeof jsonNames, cb: () => void) {
     eventProxyJson.on(jsonName, cb);
 }
-function jsonEmit(jsonName: keyof I_cfgNameJson) {
+function jsonEmit(jsonName: keyof typeof jsonNames) {
     eventProxyJson.emit(jsonName);
 }
 
@@ -184,7 +177,7 @@ interface Dic<T = any> {
 }
 
 /** 加载数据 */
-function requireJson(name: keyof I_cfgNameJson) {
+function requireJson(name: keyof typeof jsonNames) {
     let buf = fs.readFileSync(path.join(__dirname, "../../../jsonConfig/" + name + ".json"));
     return JSON.parse(buf.toString());
     // return require("../../../jsonConfig/" + name + ".json");
@@ -227,7 +220,7 @@ export function cfgReload(jsonNameArr: string) {
         if (str === "") {
             continue;
         }
-        if (jsonNames[str as keyof I_cfgNameJson] !== undefined) {
+        if (jsonNames[str as keyof typeof jsonNames] !== undefined) {
             okArr.push(str);
         }
     }
@@ -237,7 +230,7 @@ export function cfgReload(jsonNameArr: string) {
     for (let one of okArr) {
         deleteCache(one);
     }
-    let key: keyof I_cfgNameJson
+    let key: keyof typeof jsonNames
     for (key in jsonNames) {
         jsonEmit(key);
     }
@@ -250,7 +243,7 @@ export function cfgReloadAll() {
     for (let one in jsonNames) {
         deleteCache(one);
     }
-    let key: keyof I_cfgNameJson
+    let key: keyof typeof jsonNames
     for (key in jsonNames) {
         jsonEmit(key);
     }

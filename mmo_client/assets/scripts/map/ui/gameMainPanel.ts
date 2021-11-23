@@ -30,9 +30,9 @@ export class GameMainPanel extends cc.Component {
 
     @property(cc.Node)
     private skillParentNode: cc.Node = null;
-    private skillArr: SkillPrefab[] = [];
-    private hpPrefab: HpMpPrefab = null;
-    private mpPrefab: HpMpPrefab = null;
+    public skillArr: SkillPrefab[] = [];
+    public hpPrefab: HpMpPrefab = null;
+    public mpPrefab: HpMpPrefab = null;
 
     onLoad() {
         GameMainPanel.instance = this;
@@ -119,6 +119,10 @@ export class GameMainPanel extends cc.Component {
         Game.roleInfo.level = msg.lv;
         Game.roleInfo.exp = msg.exp;
         this.setLvExp();
+
+        if (cc.isValid(HeroInfoPanel.instance) && HeroInfoPanel.instance.entityId === MapMain.instance.meId) {
+            HeroInfoPanel.instance.onHeroLvUp();
+        }
     }
     /** 等级经验ui修改 */
     private setLvExp(setName = false) {

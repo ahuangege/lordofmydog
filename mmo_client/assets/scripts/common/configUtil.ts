@@ -1,3 +1,4 @@
+import { E_skillTargetType } from "../map/skill/skillPre";
 
 let hasLoaded = false;
 
@@ -102,4 +103,7 @@ interface I_cfg_skill {
     name: number,
     des: number,
     cd: number,
+    damage: number,
+    targetType: E_skillTargetType,
+    targetDistance: number,
 }

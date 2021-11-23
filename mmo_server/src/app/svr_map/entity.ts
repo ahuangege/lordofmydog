@@ -18,6 +18,10 @@ export abstract class Entity {
         this.y = opts.y;
     }
 
+    update(dt: number) {
+
+    }
+
     toJson(): I_entityJson {
         return null as any;
     }

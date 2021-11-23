@@ -45,11 +45,8 @@ export class network {
         };
 
         ws.onclose = function () {
-            clearInterval(heartbeatTimer);
-            clearTimeout(heartbeatResTimeoutTimer);
-            heartbeatResTimeoutTimer = null;
+            network.disconnect()
             msgCache.push({ "id": openOrClose.close, "data": null });
-            ws = null;
         };
         ws.onmessage = function (event) {
             handleMsg(new Uint8Array(event.data));
@@ -72,6 +69,7 @@ export class network {
             clearInterval(heartbeatTimer);
             clearTimeout(heartbeatResTimeoutTimer);
             heartbeatResTimeoutTimer = null;
+            msgCache.length = 0;
         }
     }
 
@@ -239,8 +237,8 @@ function sendHeartbeat() {
 
     if (heartbeatResTimeoutTimer === null) {
         heartbeatResTimeoutTimer = setTimeout(function () {
-            msgCache.push({ "id": openOrClose.close, "data": null })
             network.disconnect();
+            msgCache.push({ "id": openOrClose.close, "data": null })
         }, 5 * 1000);
     }
 }

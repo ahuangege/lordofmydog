@@ -7,6 +7,8 @@ import { svr_info } from "../svr_info/svr_info";
 import { LoginMgr } from "../svr_login/loginMgr";
 import { svr_login } from "../svr_login/svr_login";
 import { MapMgr } from "../svr_map/mapMgr";
+import { PathFindMgr } from "../svr_map/pathFindMgr";
+import { loadSkill } from "../svr_map/skill/skillMgr";
 import { svr_map } from "../svr_map/svr_map";
 import { getInfoId } from "../util/gameUtil";
 import { MysqlClient } from "../util/mysql";
@@ -63,7 +65,9 @@ function infoInit(app: Application) {
 
 // 地图服
 function mapInit(app: Application) {
+    svr_map.pathFindMgr = new PathFindMgr();
     svr_map.mapMgr = new MapMgr();
+    loadSkill();
 }
 
 

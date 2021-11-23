@@ -32,63 +32,83 @@ export const enum cmd {
 	 */
 	map_main_getPlayerInfo = 7,
 	/**
+	 * 切换战斗模式
+	 */
+	map_main_changeNoFight = 8,
+	/**
+	 * 使用技能
+	 */
+	map_main_useSkill = 9,
+	/**
 	 * 新增或移除实体
 	 */
-	onEntityChange = 8,
+	onEntityChange = 10,
 	/**
 	 * 视野内聊天
 	 */
-	onChatAOI = 9,
+	onChatAOI = 11,
 	/**
 	 * 本地图聊天
 	 */
-	onChatMap = 10,
+	onChatMap = 12,
 	/**
 	 * 昵称修改
 	 */
-	onNicknameChanged = 11,
+	onNicknameChanged = 13,
+	/**
+	 * 血上限变化了
+	 */
+	onHpMaxChanged = 14,
+	/**
+	 * 蓝上限变化了
+	 */
+	onMpMaxChanged = 15,
 	/**
 	 * 金币变化
 	 */
-	onGoldChanged = 12,
+	onGoldChanged = 16,
 	/**
 	 * 被踢
 	 */
-	onKicked = 13,
-	onAskFriend = 14,
-	onAddFriend = 15,
-	onDelFriend = 16,
-	onFriendInfoChange = 17,
-	info_bag_delItem = 18,
-	info_bag_dropItem = 19,
-	onItemChanged = 20,
-	info_bag_changePos = 21,
+	onKicked = 17,
+	onAskFriend = 18,
+	onAddFriend = 19,
+	onDelFriend = 20,
+	onFriendInfoChange = 21,
+	info_bag_delItem = 22,
+	info_bag_dropItem = 23,
+	onItemChanged = 24,
+	info_bag_changePos = 25,
 	/**
 	 * 装备道具
 	 */
-	info_bag_equipItem = 22,
+	info_bag_equipItem = 26,
 	/**
 	 * 通知 装备改变
 	 */
-	onEquipChanged = 23,
+	onEquipChanged = 27,
 	/**
 	 * hp mp 快速使用栏变化
 	 */
-	onHpMpPosChanged = 24,
+	onHpMpPosChanged = 28,
+	/**
+	 * hp mp 快速使用
+	 */
+	info_bag_useHpMpAdd = 29,
 	/**
 	 * gm命令
 	 */
-	info_main_gmCommit = 25,
+	info_main_gmCommit = 30,
 	/**
 	 * 学习技能
 	 */
-	info_main_learnSkill = 26,
+	info_main_learnSkill = 31,
 	/**
 	 * 装备技能
 	 */
-	info_main_equipSkill = 27,
+	info_main_equipSkill = 32,
 	/**
 	 * 等级经验发生变化
 	 */
-	onLvExpChanged = 28,
+	onLvExpChanged = 33,
 }

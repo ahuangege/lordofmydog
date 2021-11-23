@@ -268,6 +268,30 @@ export class Bag {
             return;
         }
     }
+
+    /** 使用快速加血加蓝 */
+    useHpMpAdd(isHp: boolean) {
+        let used: I_item = null as any;
+        if (isHp) {
+            used = this.role.role.hpPos;
+        } else {
+            used = this.role.role.mpPos;
+        }
+        if (!used.id) {
+            return;
+        }
+        used.num--;
+        if (used.num <= 0) {
+            used.id = 0;
+            used.num = 0;
+        }
+        this.role.getMsg(cmd.onHpMpPosChanged, { "t": isHp ? E_itemT.hp : E_itemT.mp, "id": used.id, "num": used.num });
+        if (isHp) {
+            this.role.changeSqlKey("hpPos");
+        } else {
+            this.role.changeSqlKey("mpPos");
+        }
+    }
 }
 
 

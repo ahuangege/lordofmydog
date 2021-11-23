@@ -87,11 +87,11 @@ export class Pathfind {
     findPath(sx: number, sy: number, ex: number, ey: number, maxSearch?: number): tile[] {
         if (sx < 0 || sx > this.max_x || sy < 0 || sy > this.max_y) {
             console.warn("findPath out of range start pos(" + sx + "," + sy + ")");
-            return null;
+            return null as any;
         }
         if (ex < 0 || ex > this.max_x || ey < 0 || ey > this.max_y) {
             console.warn("findPath out of range end pos (" + ex + "," + ey + ")");
-            return null;
+            return null as any;
         }
 
         let tiles = this.tiles;

@@ -60,4 +60,9 @@ export default class Remote {
         p.onEquipChanged(equip);
     }
 
+    /** 英雄升级了 */
+    onHeroLvUp(mapIndex: number, uid: number, lv: number) {
+        let p = this.mapMgr.getPlayer(mapIndex, uid);
+        p.onLvUp(lv);
+    }
 }

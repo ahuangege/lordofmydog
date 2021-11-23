@@ -32,6 +32,14 @@ export const enum cmd {
 	 */
 	map_main_getPlayerInfo = "map.main.getPlayerInfo",
 	/**
+	 * 切换战斗模式
+	 */
+	map_main_changeNoFight = "map.main.changeNoFight",
+	/**
+	 * 使用技能
+	 */
+	map_main_useSkill = "map.main.useSkill",
+	/**
 	 * 新增或移除实体
 	 */
 	onEntityChange = "onEntityChange",
@@ -47,6 +55,14 @@ export const enum cmd {
 	 * 昵称修改
 	 */
 	onNicknameChanged = "onNicknameChanged",
+	/**
+	 * 血上限变化了
+	 */
+	onHpMaxChanged = "onHpMaxChanged",
+	/**
+	 * 蓝上限变化了
+	 */
+	onMpMaxChanged = "onMpMaxChanged",
 	/**
 	 * 金币变化
 	 */
@@ -75,6 +91,10 @@ export const enum cmd {
 	 * hp mp 快速使用栏变化
 	 */
 	onHpMpPosChanged = "onHpMpPosChanged",
+	/**
+	 * hp mp 快速使用
+	 */
+	info_bag_useHpMpAdd = "info.bag.useHpMpAdd",
 	/**
 	 * gm命令
 	 */

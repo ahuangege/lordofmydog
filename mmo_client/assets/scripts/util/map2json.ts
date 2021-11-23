@@ -57,11 +57,14 @@ export default class NewClass extends cc.Component {
         arrAll.reverse();
 
 
+
+        let tileStr = JSON.stringify(arrAll);
+
         let url = `db://assets/resources/mapJson/${mapName}.json`
-        Editor.assetdb.saveExists(url, JSON.stringify(arrAll), (err: Error) => {
+        Editor.assetdb.saveExists(url, tileStr, (err: Error) => {
             if (err) {
                 if (err.message.includes("not exists")) {
-                    Editor.assetdb.create(url, JSON.stringify(arrAll), (err: Error) => {
+                    Editor.assetdb.create(url, tileStr, (err: Error) => {
                         if (!err) {
                             Editor.log("map data save ok:", mapName);
                             Editor.assetdb.refresh(url);

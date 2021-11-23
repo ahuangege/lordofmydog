@@ -18,7 +18,7 @@ export class RoleInfoMgr {
     constructor(app: Application) {
         this.app = app;
         this.loginUtil = new LoginUtil();
-        setInterval(this.sqlRoleUpdate.bind(this), 5000);
+        setInterval(this.sqlRoleUpdate.bind(this), 10000);
         setInterval(this.check_delRole.bind(this), 3600 * 1000);
     }
 
