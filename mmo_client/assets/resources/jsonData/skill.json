@@ -2,11 +2,12 @@
     "1001": {
         "id": 1001,
         "name": "重击",
-        "des": "重重打击敌人，造成大量伤害",
+        "des": "对敌人造成自己攻击力的伤害",
         "cd": 1,
-        "damage": 1,
+        "damage": 0,
         "targetType": 4,
-        "targetDistance": 100
+        "targetDistance": 100,
+        "mpCost": 1
     },
     "1002": {
         "id": 1002,
@@ -15,7 +16,8 @@
         "cd": 3,
         "damage": 1,
         "targetType": 2,
-        "targetDistance": 400
+        "targetDistance": 400,
+        "mpCost": 1
     },
     "1003": {
         "id": 1003,
@@ -24,7 +26,8 @@
         "cd": 6,
         "damage": 1,
         "targetType": 3,
-        "targetDistance": 200
+        "targetDistance": 200,
+        "mpCost": 1
     },
     "1004": {
         "id": 1004,
@@ -33,16 +36,18 @@
         "cd": 10,
         "damage": 1,
         "targetType": 1,
-        "targetDistance": 0
+        "targetDistance": 0,
+        "mpCost": 0
     },
     "1101": {
         "id": 1101,
         "name": "窒息之刃",
-        "des": "一个快速移动的匕首，射向目标造成伤害",
+        "des": "一个快速移动的匕首，射向目标造成自己攻击力的伤害",
         "cd": 1,
-        "damage": 1,
+        "damage": 0,
         "targetType": 4,
-        "targetDistance": 500
+        "targetDistance": 500,
+        "mpCost": 1
     },
     "1102": {
         "id": 1102,
@@ -51,7 +56,8 @@
         "cd": 3,
         "damage": 1,
         "targetType": 3,
-        "targetDistance": 200
+        "targetDistance": 200,
+        "mpCost": 1
     },
     "1103": {
         "id": 1103,
@@ -60,7 +66,8 @@
         "cd": 6,
         "damage": 1,
         "targetType": 4,
-        "targetDistance": 350
+        "targetDistance": 350,
+        "mpCost": 1
     },
     "1104": {
         "id": 1104,
@@ -69,6 +76,7 @@
         "cd": 10,
         "damage": 1,
         "targetType": 2,
-        "targetDistance": 400
+        "targetDistance": 400,
+        "mpCost": 1
     }
 }

@@ -39,19 +39,10 @@ export default class Remote {
      */
     kickUserByAccId(accId: number, cb: (err: number) => void) {
         let session = svr_con.conMgr.accDic[accId];
-        if (!session) {
-            return cb(0);
-        }
-        if (session.uid) {
-            this.app.sendMsgByUid(cmd.onKicked, { "code": 10021 }, [session.uid]);
-            setTimeout(() => {  // 延时断开原因： 消息发送启用了interval选项
-                session.close();
-                cb(0);
-            }, 100);
-        } else {
+        if (session) {
+            session.send(cmd.onKicked, { "code": 10021 });
             session.close();
-            cb(0);
         }
-
+        cb(0);
     }
 }

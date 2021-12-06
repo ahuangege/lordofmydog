@@ -2,7 +2,10 @@
 import { cmd } from "../../common/cmdClient";
 import { cfg_all } from "../../common/configUtil";
 import { network } from "../../common/network";
-import { Dic } from "../mapMain";
+import { UIMgr } from "../../common/uiMgr";
+import { Entity_type } from "../entity";
+import { Dic, MapMain } from "../mapMain";
+import { I_xy, Player } from "../player";
 import { Role } from "../role";
 import { E_skillTargetType, SkillPre } from "./skillPre";
 
@@ -16,7 +19,7 @@ export function registerSkill(skillCon: typeof SkillBase) {
     skillConDic[skillCon.name.substr(6)] = skillCon;
 }
 
-
+/** 技能管理 */
 export class SkillMgr {
     public role: Role;  // 对应角色
     private skillDic: Dic<SkillBase> = {};
@@ -45,8 +48,11 @@ export class SkillMgr {
     }
 
     /** 使用技能 */
-    useSkill(info: any) {
-
+    useSkill(msg: I_onUseSkill) {
+        let skill = this.getSkill(msg.skillId);
+        if (skill) {
+            skill.useSkill(msg);
+        }
     }
 
     getSkill(skillId) {
@@ -73,7 +79,7 @@ export class SkillMgr {
 }
 
 
-/** 注意：请不要直接实例化此类 */
+/** 技能基类 */
 export class SkillBase {
     skillId: number;    // 技能id
     skillMgr: SkillMgr;
@@ -86,22 +92,10 @@ export class SkillBase {
         this.cdBase = cfg_all().skill[this.skillId].cd;
     }
 
-    /** 能否使用 */
-    canUse(info: any): boolean {
-        // if (nowSec() < this.cd) {
-        //     return false;
-        // }
-        return true;
-    }
-
     /** 使用技能 */
-    useSkill(info: any) {
+    useSkill(info: I_onUseSkill) {
     }
 
-    /** 开始cd */
-    cdStart() {
-
-    }
 
     /** 技能被打断 */
     beBreak() {
@@ -116,10 +110,15 @@ export class SkillBase {
     /** 点击技能（想要使用该技能） */
     btnSkill() {
         if (this.cd > 0) {
+            UIMgr.showTileInfo("技能cd中");
             return;
         }
-        this.cd = this.cdBase;
         let cfg = cfg_all().skill[this.skillId];
+        if (this.skillMgr.role.mp < cfg.mpCost) {
+            UIMgr.showTileInfo("魔法不足");
+            return;
+        }
+
         if (cfg.targetType === E_skillTargetType.noTarget) {
             this.skillMgr.tellSvrUseSkill({ "skillId": this.skillId });
         } else {
@@ -127,13 +126,63 @@ export class SkillBase {
         }
     }
 
+    /** 指向性技能，选择目标回调 */
     private targetSelected(param: { "id": number, "pos": cc.Vec2 }) {
         let cfg = cfg_all().skill[this.skillId];
         if (cfg.targetType === E_skillTargetType.floor) {
-
-        } else {
-
+            if (cc.Vec2.distance<I_xy>(this.skillMgr.role.node, param.pos) > cfg.targetDistance) {
+                UIMgr.showTileInfo("超过施法距离");
+            } else {
+                this.skillMgr.tellSvrUseSkill({ "skillId": this.skillId, "x": Math.floor(param.pos.x), "y": Math.floor(param.pos.y) });
+            }
+            return;
         }
 
+        if (!param.id) {
+            return UIMgr.showTileInfo("需要以某个单位为目标");;
+        }
+        let meP = this.skillMgr.role as Player;
+        let otherP = MapMain.instance.getEntity<Player>(param.id);
+        if (!otherP || otherP.hp <= 0) {
+            return;
+        }
+        if (otherP.t === Entity_type.item) {    // 道具
+            return;
+        } else if (otherP.t === Entity_type.monster) {  // 野怪
+            if (cfg.targetType === E_skillTargetType.notEnemy) {
+                return UIMgr.showTileInfo("不能以野怪为目标");
+            }
+        } else {    // 玩家
+            if (cfg.targetType === E_skillTargetType.enemy) {
+                if (meP === otherP) {
+                    return UIMgr.showTileInfo("不能以自己为目标");
+                }
+            } else {
+                if (meP !== otherP) {
+                    return UIMgr.showTileInfo("必须以友方为目标");
+                }
+            }
+        }
+        if (cc.Vec2.distance<I_xy>(this.skillMgr.role.node, otherP.node) > cfg.targetDistance) {
+            return UIMgr.showTileInfo("超过施法距离");
+        }
+
+        this.skillMgr.tellSvrUseSkill({ "skillId": this.skillId, "id": param.id });
     }
+}
+
+/** 通知使用技能 */
+export interface I_onUseSkill {
+    "id": number,
+    "skillId": number,
+    "id2"?: number,
+    "x"?: number,
+    "y"?: number,
+    "data"?: I_skillDataOne[],
+}
+
+export interface I_skillDataOne {
+    id: number,
+    hurt: number,
+    hp: number,
 }

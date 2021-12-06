@@ -13,14 +13,27 @@ interface I_cfgAll {
     "hero": Dic<I_cfg_hero>,
     "heroLv": Dic<Dic<I_cfg_heroLv>>,
     "skill": Dic<I_cfg_skill>,
+    "map": Dic<I_cfg_map>,
+    "mapDoor": Dic<I_cfg_mapDoor>,
 }
 
 
 let cfgAll: I_cfgAll = {} as any;
 export let cfg_all = () => cfgAll;
 let mapJsonDic: Dic<number[][]> = {};
-export function getMapJson(mapId: number) {
-    return mapJsonDic["map" + mapId];
+export function getMapJson(mapId: number, cb: (data: number[][]) => void) {
+    let jsonName = "map" + mapId;
+    if (mapJsonDic[jsonName]) {
+        return cb(mapJsonDic[jsonName]);
+    }
+    cc.resources.load("mapJson/map" + mapId, cc.JsonAsset, (err, res: cc.JsonAsset) => {
+        if (err) {
+            console.error(err);
+            return cb(null);
+        }
+        mapJsonDic[jsonName] = res.json;
+        cb(res.json);
+    });
 }
 
 export function initConfig(cb: () => void) {
@@ -38,16 +51,7 @@ export function initConfig(cb: () => void) {
             cfgAll[one.name] = one.json;
         }
         changeHeroLv();
-        cc.resources.loadDir("mapJson", cc.JsonAsset, (err, res2: cc.JsonAsset[]) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            for (let one of res2) {
-                mapJsonDic[one.name] = one.json;
-            }
-            cb();
-        });
+        cb();
     });
 }
 
@@ -106,4 +110,24 @@ interface I_cfg_skill {
     damage: number,
     targetType: E_skillTargetType,
     targetDistance: number,
+    mpCost: number,
+}
+
+/** 地图信息 */
+interface I_cfg_map {
+    id: number,
+    name: string,
+    isCopy: number,
+    copyNum: number,
+}
+
+/** 地图出口信息 */
+export interface I_cfg_mapDoor {
+    id: number,
+    mapId: number,  // 地图id
+    mapId2: number, // 目标地图id
+    x: number,
+    y: number,
+    x2: number,
+    y2: number,
 }

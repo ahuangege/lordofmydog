@@ -93,7 +93,7 @@ export function routeFunc() {
         return getInfoId(session.uid);
     });
     app.route(serverType.map, (session: Session) => {
-        return session.get("mapSvr");
+        return session.get(constKey.mapSvr);
     });
 }
 

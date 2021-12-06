@@ -10,7 +10,7 @@ import { E_itemT } from "../svr_info/roleInfo";
 import { getInfoId } from "../util/gameUtil";
 import { Dic, getLen, getLen2 } from "../util/util";
 import { Entity_type, I_entityJson } from "./entity";
-import { Map, tileW } from "./map";
+import { Map } from "./map";
 import { Role } from "./role";
 
 const moveSpeed = 280;
@@ -31,8 +31,6 @@ export class Player extends Role {
     hp2: number;// 上次同步的hp
     mp2: number;// 上次同步的mp
     syncTime: number = 0;    // 定时同步一些信息到info服的计时器
-    noFight = true; // 战斗模式。false：自由战斗，玩家间可互相打斗。true：拒绝战斗，不参与玩家打斗。
-    noFightTime = 0;    // 切换时间。cd为1分钟。
 
     constructor(map: Map, info: I_playerMapJson) {
         super({ "map": map, "id": map.getId(), "t": Entity_type.player, "x": info.x, "y": info.y });
@@ -325,7 +323,6 @@ export class Player extends Role {
             "path": this.path,
             "hp": this.hp,
             "hpMax": this.hpMax,
-            "noFight": this.noFight,
         };
     }
 
@@ -353,5 +350,4 @@ export interface I_playerJson {
     path: I_xy[];
     hp: number;
     hpMax: number;
-    noFight: boolean;
 }

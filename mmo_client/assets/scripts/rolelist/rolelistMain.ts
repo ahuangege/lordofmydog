@@ -41,9 +41,12 @@ export class RolelistMain extends cc.Component {
         });
     }
 
+
+
     private svr_onOpen() {
         network.addHandler(cmd.connector_role_getRoleList, this.svr_getRoleListBack, this);
         network.addHandler(cmd.connector_role_deleteRole, this.svr_delRole, this);
+        network.addHandler(cmd.onKicked, this.svr_onKicked, this);
         network.sendMsg(cmd.connector_role_getRoleList, { "accId": Game.loginInfo.accId, "accToken": Game.loginInfo.accToken });
     }
 
@@ -128,6 +131,13 @@ export class RolelistMain extends cc.Component {
         network.sendMsg(cmd.connector_main_enter, { "uid": selectRole.info.uid });
     }
 
+    private svr_onKicked(msg: { code: number }) {
+        network.disconnect();
+        UIMgr.showErrcode(msg.code, false, () => {
+            cc.director.loadScene("login");
+        });
+    }
+
     private svr_enterBack(msg: { "code": number, "role": I_roleInfo }) {
         if (msg.code !== 0) {
             UIMgr.showErrcode(msg.code);
@@ -135,6 +145,7 @@ export class RolelistMain extends cc.Component {
         }
         Game.uid = msg.role.uid;
         Game.roleInfo = msg.role;
+        Game.mapId = msg.role.mapId;
         cc.director.loadScene("map");
     }
 

@@ -50,8 +50,6 @@ export class Player extends Role {
         this.hp = json.hp;
         this.hpMax = json.hpMax;
         this.refreshHpUi();
-
-
     }
 
     initSkill(skillPos: number[], skillCd: number[]) {

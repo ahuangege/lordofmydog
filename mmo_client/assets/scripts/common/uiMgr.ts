@@ -6,8 +6,10 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { Dic } from "../map/mapMain";
+import { removeFromArr } from "../util/gameUtil";
 import { cfg_all } from "./configUtil";
 import { SomeInfo } from "./someInfo";
+import { TileInfo } from "./tileInfo";
 
 
 
@@ -16,7 +18,8 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class UIMgr extends cc.Component {
 
-    private static instance: UIMgr = null;
+    public static instance: UIMgr = null;
+    private tileNodeArr: cc.Node[] = [];
 
     onLoad() {
         UIMgr.instance = this;
@@ -59,6 +62,32 @@ export class UIMgr extends cc.Component {
         }
     }
 
+    static showTileInfo(info: string) {
+        this.showPanel(uiPanel.tileInfo, (err, node) => {
+            if (err) {
+                return;
+            }
+            node.getComponent(TileInfo).init(info);
+            let nodeArr = UIMgr.instance.tileNodeArr;
+            nodeArr.push(node);
+            for (let i = nodeArr.length - 2; i >= 0; i--) {
+                if (nodeArr[i].y - nodeArr[i + 1].y < 50) {
+                    nodeArr[i].y = nodeArr[i + 1].y + 50;
+                }
+            }
+        });
+    }
+
+    static showTileErrCode(code: number) {
+        let one = cfg_all().errcode[code];
+        if (one) {
+            this.showTileInfo(one.des);
+        }
+    }
+
+    delTileNode(node: cc.Node) {
+        removeFromArr(this.tileNodeArr, node);
+    }
 
     onDestroy() {
         UIMgr.instance = null;
@@ -67,6 +96,7 @@ export class UIMgr extends cc.Component {
 
 export const enum uiPanel {
     someInfoPanel = "someInfoPanel",
+    tileInfo = "tileInfo",
     loginPanel = "login/loginPanel",
     registerPanel = "login/registerPanel",
     createRole = "login/createRole",

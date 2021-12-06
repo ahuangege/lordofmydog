@@ -19,8 +19,12 @@ export class CameraFollow extends cc.Component {
         CameraFollow.instance = this;
     }
 
+
+
     setTarget(node: cc.Node) {
         this.target = node;
+        this.node.x = node.x;
+        this.node.y = node.y;
     }
 
     lateUpdate(dt) {

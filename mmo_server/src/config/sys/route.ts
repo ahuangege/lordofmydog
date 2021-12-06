@@ -10,8 +10,8 @@ export default [
     "map.main.move", // 移动
     "onMove",   // 通知，移动
     "map.main.getPlayerInfo", // 点击玩家查看信息
-    "map.main.changeNoFight",   // 切换战斗模式
     "map.main.useSkill",   // 使用技能
+    "map.main.changeMap",   // 切换地图
 
     "onEntityChange",   // 新增或移除实体
     "onChatAOI",    // 视野内聊天
@@ -19,6 +19,8 @@ export default [
     "onNicknameChanged",    // 昵称修改
     "onHpMaxChanged",   // 血上限变化了
     "onMpMaxChanged",   // 蓝上限变化了
+    "onChangeMap",  // 通知，切换地图
+    "onUseSkill",   // 通知，使用技能
 
     "onGoldChanged",    // 金币变化
     "onKicked", // 被踢

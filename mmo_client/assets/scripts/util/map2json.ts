@@ -56,9 +56,18 @@ export default class NewClass extends cc.Component {
         // 坐标系转换
         arrAll.reverse();
 
+        // 为了行走平滑，单个格子拆为4个
+        let endArr: number[][] = [];
+        for (let i = 0; i < arrAll.length; i++) {
+            let arr = [];
+            let one = arrAll[i];
+            for (let j = 0; j < one.length; j++) {
+                arr.push(one[j], one[j]);
+            }
+            endArr.push(arr, arr);
+        }
 
-
-        let tileStr = JSON.stringify(arrAll);
+        let tileStr = JSON.stringify(endArr);
 
         let url = `db://assets/resources/mapJson/${mapName}.json`
         Editor.assetdb.saveExists(url, tileStr, (err: Error) => {

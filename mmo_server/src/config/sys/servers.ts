@@ -10,7 +10,7 @@ export default {
             { "id": "info-0", "host": "127.0.0.1", "port": 5130 },
         ],
         "map": [
-            { "id": "map-0", "host": "127.0.0.1", "port": 5150, "mapIds": [1], "loadCopy": true },
+            { "id": "map-0", "host": "127.0.0.1", "port": 5150, "mapIds": [1, 2], "loadCopy": true },
         ]
     },
     "production": {

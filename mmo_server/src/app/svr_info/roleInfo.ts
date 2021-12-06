@@ -56,10 +56,10 @@ export class RoleInfo {
 
             if (!ok) {
                 let mapData = cfg_all().map[this.role.mapId];
-                if (mapData.isCopy) {
-                    this.changeRoleInfo({ "mapId": mapData.copyEnter.mapId, "x": mapData.copyEnter.x, "y": mapData.copyEnter.y });
-                    this.changeRoleMem({ "mapSvr": MapIdMgr.getSvr(this.role.mapId), "mapIndex": this.role.mapId });
-                }
+                // if (mapData.isCopy) {
+                //     this.changeRoleInfo({ "mapId": mapData.copyEnter.mapId, "x": mapData.copyEnter.x, "y": mapData.copyEnter.y });
+                //     this.changeRoleMem({ "mapSvr": MapIdMgr.getSvr(this.role.mapId), "mapIndex": this.role.mapId });
+                // }
             }
             this.online();
             let role = this.role;

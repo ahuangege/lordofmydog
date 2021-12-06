@@ -5,6 +5,7 @@ import * as fs from "fs";
 interface I_cfgAll {
     "item": Dic<I_cfg_item>,
     "map": Dic<I_cfg_map>,
+    "mapDoor": Dic<I_cfg_mapDoor>,
     "hero": Dic<I_cfg_hero>,
     "heroLv": Dic<Dic<I_cfg_heroLv>>,
     "skill": Dic<I_cfg_skill>,
@@ -14,6 +15,7 @@ interface I_cfgAll {
 let jsonNames = {
     "item": true,
     "map": true,
+    "mapDoor": true,
     "hero": true,
     "heroLv": true,
     "skill": true,
@@ -86,12 +88,13 @@ jsonOn("item", () => {
 });
 
 jsonOn("map", () => {
-    let map: Dic<I_cfg_map> = requireJson("map");
-    cfgAll.map = map;
-    for (let x in map) {
-        map[x].copyIdArr
-    }
+    cfgAll.map = requireJson("map");
     pushToChanged("map");
+});
+
+jsonOn("mapDoor", () => {
+    cfgAll.mapDoor = requireJson("mapDoor");
+    pushToChanged("mapDoor");
 });
 
 jsonOn("hero", () => {
@@ -134,9 +137,17 @@ interface I_cfg_map {
     id: number,
     isCopy: number,
     copyNum: number,
-    copyEnter: { "mapId": number, "x": number, "y": number, "x2": number, "y2": number },  // 副本入口
-    copyIdArr: number[],    // 包含的副本（代码赋值）
-    exitDoor: { "id": number, "mapId": number, "x": number, "y": number, "x2": number, "y2": number }[],   // 通往其他非副本地图的出口
+}
+
+/** 地图出口信息 */
+interface I_cfg_mapDoor {
+    id: number,
+    mapId: number,  // 地图id
+    mapId2: number, // 目标地图id
+    x: number,
+    y: number,
+    x2: number,
+    y2: number,
 }
 
 /** 英雄 */
@@ -160,8 +171,11 @@ interface I_cfg_heroLv {
 interface I_cfg_skill {
     id: number,
     name: number,
-    des: number,
-    cd: number,
+    cd: number,     // 技能cd
+    damage: number,  // 伤害值
+    targetType: number, // 目标类型
+    targetDistance: number, // 施法距离
+    mpCost: number, // 魔法消耗
 }
 
 

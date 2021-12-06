@@ -67,3 +67,14 @@ export function removeFromArr<T>(arr: T[], one: T) {
         arr.splice(index, 1);
     }
 }
+
+/**
+ * 随机获取数组下标
+ */
+ export function randIntNum(num: number) {
+    return Math.floor(Math.random() * num);
+}
+
+export function randBetween(min: number, max: number) {
+    return min + randIntNum(max - min + 1);
+}

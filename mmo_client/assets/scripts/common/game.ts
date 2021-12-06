@@ -6,6 +6,7 @@ export class Game {
     static uid: number = 0;
     static loginInfo: I_loginBack = null as any;
     static roleInfo: I_roleInfo = null as any;
+    static mapId: number = 0;
 
     static keySet: Dic<string> = null as any;    // 快捷键设置
 

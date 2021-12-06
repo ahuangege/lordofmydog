@@ -6,14 +6,16 @@ import { svr_con } from "../../../app/svr_connector/svr_con";
 import { I_roleInfo } from "../../../app/svr_info/roleInfo";
 import { getCharLen, getInfoId } from "../../../app/util/gameUtil";
 import { getInsertSql } from "../../../app/util/mysql";
-import { createCountdown, removeFromArr } from "../../../app/util/util";
+import { createCountdown, randArrElement, removeFromArr } from "../../../app/util/util";
+import { I_xy } from "../../map/handler/main";
 
+let bornPos: I_xy[] = [{ "x": 19, "y": 81 }, { "x": 47, "y": 72 }];
 
 export default class Handler {
 
     /** 获取角色列表 */
     async getRoleList(msg: { "accId": number, "accToken": number }, session: Session, next: Function) {
-        if (session.getLocal("accId")) {    // 已验证过
+        if (session.getLocal(constKey.accId)) {    // 已验证过
             return;
         }
         if (typeof msg.accId !== "number") {
@@ -27,7 +29,7 @@ export default class Handler {
         let svrs = app.getServersByType(serverType.connector);
         let countdown = createCountdown(svrs.length, () => {
 
-            session.setLocal("accId", msg.accId);
+            session.setLocal(constKey.accId, msg.accId);
             svr_con.conMgr.accDic[msg.accId] = session;
             selectRoleList();
 
@@ -52,7 +54,7 @@ export default class Handler {
                         uids.push(one.uid);
                         app.rpc(getInfoId(one.uid)).info.main.loginResetToken(one.uid);
                     }
-                    session.setLocal("uids", uids);
+                    session.setLocal(constKey.uids, uids);
                     next({ "code": 0, "list": list, "lastUid": res[0].lastUid });
                 });
             });
@@ -61,11 +63,13 @@ export default class Handler {
 
     /** 创建角色 */
     createRole(msg: { "heroId": number, "nickname": string }, session: Session, next: Function) {
-        let uids = session.getLocal<number[]>("uids");
+        let uids = session.getLocal<number[]>(constKey.uids);
         if (!uids) {
+            console.log(111)
             return;
         }
         if (uids.length >= 3) {
+            console.log(222)
             return;
         }
 
@@ -78,16 +82,17 @@ export default class Handler {
             return;
         }
         let cfg = cfg_all().hero[msg.heroId];
+        let pos = randArrElement(bornPos);
         let oneRole: Omit<I_roleInfo, "uid"> = {
-            "accId": session.getLocal("accId"),
+            "accId": session.getLocal(constKey.accId),
             "nickname": msg.nickname,
             "gold": 1000,
             "heroId": msg.heroId,
             "level": 1,
             "exp": 0,
             "mapId": 1,
-            "x": 623,
-            "y": 454,
+            "x": pos.x * 64 + 32,
+            "y": pos.y * 64 + 32,
             "hp": 1,
             "mp": 1,
             "learnedSkill": [cfg.initSkill],
@@ -113,14 +118,14 @@ export default class Handler {
 
     /** 删除角色 */
     deleteRole(msg: { "uid": number }, session: Session, next: Function) {
-        let uids = session.getLocal<number[]>("uids");
+        let uids = session.getLocal<number[]>(constKey.uids);
         if (!uids) {
             return;
         }
         if (!uids.includes(msg.uid)) {
             return;
         }
-        svr_con.mysql.query("update player set isDelete = 1 where uid = ? and accId = ? limit 1", [msg.uid, session.getLocal("accId")], (err, res) => {
+        svr_con.mysql.query("update player set isDelete = 1 where uid = ? and accId = ? limit 1", [msg.uid, session.getLocal(constKey.accId)], (err, res) => {
             if (err) {
                 return next({ "code": 1 });
             }

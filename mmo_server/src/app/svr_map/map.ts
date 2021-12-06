@@ -10,7 +10,6 @@ import { svr_map } from "./svr_map";
 import { TowerAOI } from "./towerAOI";
 
 
-export const tileW = 64;
 
 
 /** 场景地图 */
@@ -39,8 +38,8 @@ export class Map {
         this.mapId = mapId;
         this.mapIndex = mapIndex;
         this.mapTiles = getMapTileJson(mapId);
-        this.width = this.mapTiles[0].length * 64;
-        this.height = this.mapTiles.length * 64;
+        this.width = this.mapTiles[0].length * 32;
+        this.height = this.mapTiles.length * 32;
         this.towerAOI = new TowerAOI({ width: this.width, height: this.height, towerWidth: this.towerWidth * 64, towerHeight: this.towerHeight * 64, range: 1 });
         this.addAOIEvent();
         svr_map.pathFindMgr.add(mapId);
@@ -78,8 +77,8 @@ export class Map {
         }
     }
 
-    getEntity(id: number) {
-        return this.entities[id];
+    getEntity<T = Entity>(id: number): T {
+        return this.entities[id] as any as T;
     }
 
     delEntity(entity: Entity) {
@@ -160,16 +159,24 @@ export class Map {
 
     }
 
+    /** 判断点是否可行走 */
+    isPosOk(pos: I_xy) {
+        if (pos.x <= 0 || pos.x >= this.width || pos.y <= 0 || pos.y >= this.height) {
+            return false;
+        }
+        return this.mapTiles[x2j(pos.y)][x2j(pos.x)] === 0;
+    }
+
 
 }
 
 
 export function j2x(j: number) {
-    return j * 64 + 32;
+    return j * 32 + 16;
 }
 
 export function x2j(x: number) {
-    return Math.floor(x / 64);
+    return Math.floor(x / 32);
 }
 
 

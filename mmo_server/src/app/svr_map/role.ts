@@ -62,7 +62,44 @@ export abstract class Role extends Entity {
         }
     }
 
+    isDie() {
+        return this.hp <= 0;
+    }
 
 
+    getMsg(cmd: cmd, msg: any) {
+
+    }
+
+    /** 耗蓝 */
+    subMp(num: number) {
+        this.mp -= num;
+        if (this.mp < 0) {
+            this.mp = 0;
+        }
+        this.getMsg(cmd.onMpMaxChanged, { "mp": this.mp });
+    }
+    /** 加蓝 */
+    addMp(num: number) {
+        this.mp += num;
+        if (this.mp > this.mpMax) {
+            this.mp = this.mpMax;
+        }
+        this.getMsg(cmd.onMpMaxChanged, { "mp": this.mp });
+    }
+    /** 扣血 */
+    subHp(num: number) {
+        this.hp -= num;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+    }
+    /** 加血 */
+    addHp(num: number) {
+        this.hp += num;
+        if (this.hp > this.hpMax) {
+            this.hp = this.hpMax;
+        }
+    }
 }
 

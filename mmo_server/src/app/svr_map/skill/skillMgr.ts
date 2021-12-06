@@ -1,9 +1,12 @@
 import { nowSec } from "../../common/time";
-import { Dic } from "../../util/util";
+import { Dic, getLen, getLen2 } from "../../util/util";
 import { Role } from "../role";
 import * as fs from "fs";
 import * as path from "path";
 import { gameLog } from "../../common/logger";
+import { cfg_all } from "../../common/configUtil";
+import { Entity_type } from "../entity";
+import { cmd } from "../../../config/cmd";
 
 /** 技能实现集合 */
 let skillConDic: Dic<typeof SkillBase> = {};
@@ -55,7 +58,7 @@ export class SkillMgr {
     }
 
     /** 使用技能 */
-    useSkill(info: I_userSkill) {
+    useSkill(info: I_useSkill) {
         let skill = this.skillDic[info.skillId];
         if (!skill || !skill.canUse(info)) {
             return;
@@ -76,8 +79,11 @@ export class SkillMgr {
     }
 }
 
-interface I_userSkill {
-    skillId: number,
+export interface I_useSkill {
+    "skillId": number,
+    "id": number,
+    "x": number,
+    "y": number
 }
 
 
@@ -93,21 +99,64 @@ export class SkillBase {
     }
 
     /** 能否使用 */
-    canUse(info: I_userSkill): boolean {
-        if (nowSec() < this.cd) {
+    canUse(info: I_useSkill): boolean {
+        if (nowSec() < this.cd) {   // 技能cd未好
+            return false;
+        }
+        let cfg = cfg_all().skill[this.skillId];
+        let role = this.skillMgr.role;
+        if (role.mp < cfg.mpCost) {   // 魔法消耗不足
+            return false;
+        }
+        if (cfg.targetType === E_skillTargetType.noTarget) {    // 无需目标即可释放
+            return true;
+        }
+
+        if (cfg.targetType === E_skillTargetType.floor) {   // 点地释放
+            info.x = Math.floor(info.x) || 0;
+            info.y = Math.floor(info.y) || 0;
+            // if (!role.map.isPosOk(info)) {    // 不可行走区域
+            //     return false;
+            // }
+            if (getLen(role, info) > cfg.targetDistance + 64) {  // 施法距离不够（服务器允许的坐标误差：64）
+                return false;
+            }
+            return true;
+        }
+
+        let role2 = role.map.getEntity<Role>(info.id);
+        if (!role2 || role2.hp <= 0) {
+            return false;
+        }
+        if (role2.t === Entity_type.item) {    // 道具
+            return false;
+        } else if (role2.t === Entity_type.monster) {  // 野怪
+            if (cfg.targetType === E_skillTargetType.notEnemy) {
+                return false;
+            }
+        } else {    // 玩家
+            if (cfg.targetType === E_skillTargetType.enemy) {
+                if (role === role2) {
+                    return false;
+                }
+            } else {
+                if (role !== role2) {
+                    return false;
+                }
+            }
+        }
+        if (getLen(role, role2) > cfg.targetDistance + 64) {
             return false;
         }
         return true;
     }
 
     /** 使用技能 */
-    useSkill(info: I_userSkill) {
+    useSkill(info: I_useSkill) {
     }
 
-    /** 开始cd */
-    cdStart() {
 
-    }
+
 
     /** 技能被打断 */
     beBreak() {
@@ -118,6 +167,46 @@ export class SkillBase {
     destroy() {
 
     }
+
+    /** 计算物理攻击造成的伤害  physical */
+    getHurt_p(damage: number, role2: Role) {
+        return Math.round(damage * role2.armor_p);
+    }
+
+    /** 计算魔法攻击造成的伤害  magic */
+    getHurt_m(damage: number, role2: Role) {
+        return Math.round(damage * role2.armor_m);
+    }
+
+    /** 发送使用技能的消息 */
+    sendMsg_useSkill(role: Role, msg: I_onUseSkill) {
+        role.map.sendMsgByAOI(role, cmd.onUseSkill, msg);
+    }
 }
 
+/** 技能目标类型 */
+export const enum E_skillTargetType {
+    /** 无需目标，直接释放 */
+    noTarget = 1,
+    /** 点地释放 */
+    floor = 2,
+    /** 对非敌方释放 */
+    notEnemy = 3,
+    /** 对敌方释放 */
+    enemy = 4,
+}
 
+export interface I_onUseSkill {
+    "id": number,
+    "skillId": number,
+    "id2"?: number,
+    "x"?: number,
+    "y"?: number,
+    "data"?: I_skillDataOne[],
+}
+
+export interface I_skillDataOne {
+    id: number,
+    hurt: number,
+    hp: number,
+}

@@ -4,10 +4,10 @@ let route: string[] = [];
 let heartbeatTimer: any = null;
 let heartbeatResTimeoutTimer: any = null;
 
-let handlers: { [cmdIndex: number]: Function } = {};
-let bindedObj: { [cmdIndex: number]: any } = {};
-let msgCache: { "id": number, "data": any }[] = [];
-let openOrClose = { "open": -1, "close": -2 };
+let handlers: { [cmd: string]: Function } = {};
+let bindedObj: { [cmd: string]: any } = {};
+let msgCache: { "id": string, "data": any }[] = [];
+let openOrClose = { "open": "state_open", "close": "state_close" };
 let tmpBuf = { "len": 0, "buffer": new Uint8Array(0) };
 let md5 = "";
 
@@ -18,7 +18,7 @@ export class network {
      * @param port 
      */
     static connect(host: string, port: number) {
-        network.disconnect();
+        network.disconnect(true);
         tmpBuf.len = 0;
         tmpBuf.buffer = new Uint8Array(0);
         let url = "ws://" + host + ":" + port;
@@ -45,8 +45,9 @@ export class network {
         };
 
         ws.onclose = function () {
-            network.disconnect()
+            network.disconnect(false);
             msgCache.push({ "id": openOrClose.close, "data": null });
+
         };
         ws.onmessage = function (event) {
             handleMsg(new Uint8Array(event.data));
@@ -55,8 +56,9 @@ export class network {
 
     /**
      * 断开连接
+     * @param clearMsg 是否清空消息队列，请开发者保持为 true
      */
-    static disconnect() {
+    static disconnect(clearMsg: boolean = true) {
         if (ws) {
             ws.onopen = function () { };
             ws.onerror = function () { };
@@ -69,9 +71,12 @@ export class network {
             clearInterval(heartbeatTimer);
             clearTimeout(heartbeatResTimeoutTimer);
             heartbeatResTimeoutTimer = null;
+        }
+        if (clearMsg) {
             msgCache.length = 0;
         }
     }
+
 
 
     /**
@@ -117,13 +122,8 @@ export class network {
      * @param self 
      */
     static addHandler(cmd: string, cb: (msg?: any) => void, self: any) {
-        let cmdIndex = route.indexOf(cmd);
-        if (cmdIndex === -1) {
-            console.warn("cmd not exists:", cmd);
-            return;
-        }
-        handlers[cmdIndex] = cb.bind(self);
-        bindedObj[cmdIndex] = self;
+        handlers[cmd] = cb.bind(self);
+        bindedObj[cmd] = self;
     }
 
     /**
@@ -131,10 +131,10 @@ export class network {
      * @param self 
      */
     static removeThisHandlers(self: any) {
-        for (let index in bindedObj) {
-            if (bindedObj[index] === self) {
-                delete bindedObj[index];
-                delete handlers[index];
+        for (let cmd in bindedObj) {
+            if (bindedObj[cmd] === self) {
+                delete bindedObj[cmd];
+                delete handlers[cmd];
             }
         }
     }
@@ -200,7 +200,7 @@ function handleMsg(data: Uint8Array) {
         while (index < data.length) {
             let msgLen = (data[index] << 24) | (data[index + 1] << 16) | (data[index + 2] << 8) | data[index + 3];
             if (data[index + 4] === 1) {
-                msgCache.push({ "id": (data[index + 5] << 8) | data[index + 6], "data": JSON.parse(strdecode(data.subarray(index + 7, index + 4 + msgLen))) });
+                msgCache.push({ "id": route[(data[index + 5] << 8) | data[index + 6]], "data": JSON.parse(strdecode(data.subarray(index + 7, index + 4 + msgLen))) });
             } else if (data[index + 4] === 2) { //握手
                 handshakeOver(JSON.parse(strdecode(data.subarray(index + 5, index + 4 + msgLen))));
             } else if (data[index + 4] === 3) {  // 心跳回调
@@ -237,7 +237,7 @@ function sendHeartbeat() {
 
     if (heartbeatResTimeoutTimer === null) {
         heartbeatResTimeoutTimer = setTimeout(function () {
-            network.disconnect();
+            network.disconnect(false);
             msgCache.push({ "id": openOrClose.close, "data": null })
         }, 5 * 1000);
     }
@@ -279,7 +279,7 @@ function strdecode(bytes: Uint8Array) {
             charCode = ((bytes[offset] & 0x0f) << 12) + ((bytes[offset + 1] & 0x3f) << 6) + (bytes[offset + 2] & 0x3f);
             offset += 3;
         } else {
-            charCode = ((bytes[offset] & 0x07) << 18) + ((bytes[offset + 1] & 0x3f) << 12) + ((bytes[offset + 1] & 0x3f) << 6) + (bytes[offset + 2] & 0x3f);
+            charCode = ((bytes[offset] & 0x07) << 18) + ((bytes[offset + 1] & 0x3f) << 12) + ((bytes[offset + 2] & 0x3f) << 6) + (bytes[offset + 3] & 0x3f);
             offset += 4;
         }
         array.push(charCode);

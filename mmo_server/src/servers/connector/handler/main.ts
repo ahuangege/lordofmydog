@@ -16,7 +16,7 @@ export default class Handler {
         if (session.uid) {
             return;
         }
-        let uids = session.getLocal<number[]>("uids");
+        let uids = session.getLocal<number[]>(constKey.uids);
         if (!uids) {
             return;
         }
@@ -31,9 +31,9 @@ export default class Handler {
             if (info.code !== 0) {
                 return next({ "code": info.code });
             }
-            session.set({ "mapSvr": info.role.mapSvr, "mapIndex": info.role.mapIndex });
+            session.set({ [constKey.mapSvr]: info.role.mapSvr, [constKey.mapIndex]: info.role.mapIndex });
             next(info);
-            svr_con.mysql.query("update account set lastUid = ? where id = ? limit 1", [session.uid, session.getLocal("accId")], (err) => {
+            svr_con.mysql.query("update account set lastUid = ? where id = ? limit 1", [session.uid, session.getLocal(constKey.accId)], (err) => {
                 err && gameLog.error(err);
             });
         });
@@ -69,13 +69,10 @@ export default class Handler {
 // 玩家socket断开
 export function onUserLeave(session: Session) {
     gameLog.debug("--- one user leave :", session.uid);
-    if (session.getLocal("accId")) {
-        delete svr_con.conMgr.accDic[session.getLocal("accId")];
+    if (session.getLocal(constKey.accId)) {
+        delete svr_con.conMgr.accDic[session.getLocal(constKey.accId)];
     }
     if (!session.uid) {
-        return;
-    }
-    if (session.getLocal("notTellInfo")) {
         return;
     }
     app.rpc(getInfoId(session.uid)).info.main.offline(session.uid);

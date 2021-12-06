@@ -6,15 +6,20 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { cmd } from "../common/cmdClient";
-import { getMapJson } from "../common/configUtil";
+import { cfg_all, getMapJson, I_cfg_mapDoor } from "../common/configUtil";
 import { Game } from "../common/game";
 import { network } from "../common/network";
 import { UIMgr, uiPanel } from "../common/uiMgr";
 import { getItemImg, getSkillImg } from "../util/gameUtil";
 import { CameraFollow } from "./cameraFollow";
 import { Entity, Entity_type, I_entityJson } from "./entity";
+import { MapDoor } from "./mapDoor";
+import { HurtNum } from "./other/hurtNum";
 import { Pathfind } from "./pathFind";
 import { I_playerJson, I_xy, Player } from "./player";
+import { Role } from "./role";
+import { I_onUseSkill } from "./skill/skillMgr";
+import { GameMainPanel } from "./ui/gameMainPanel";
 
 const { ccclass, property } = cc._decorator;
 
@@ -32,9 +37,7 @@ export class MapMain extends cc.Component {
     private cameraMain: cc.Camera = null;
     public mePlayer: Player = null;
     pathFind: Pathfind = null;
-    tileW = 64;
-    tileW2 = this.tileW / 2;
-    tiles: number[][] = [];
+    // tiles: number[][] = [];
     private entities: Dic<Entity> = {};
     public meId: number = 0;
 
@@ -44,6 +47,10 @@ export class MapMain extends cc.Component {
     @property(cc.Node)
     private dragImg: cc.Node = null;
     private dragTarget: cc.Node = null;
+    @property(cc.Prefab)
+    private mapDoorPrefab: cc.Prefab = null;
+    @property(cc.Prefab)
+    public hurtNumPrefab: cc.Prefab = null;
 
     onLoad() {
         MapMain.instance = this;
@@ -55,69 +62,95 @@ export class MapMain extends cc.Component {
         UIMgr.showPanel(uiPanel.gameMain);
 
         network.onClose(this.svr_onClose, this);
+        network.addHandler(cmd.onKicked, this.svr_onKicked, this);
         network.addHandler(cmd.map_main_enterMap, this.svr_enterMapBack, this);
         network.addHandler(cmd.onEntityChange, this.svr_onEntityChanged, this);
         network.addHandler(cmd.onMove, this.svr_onMove, this);
         network.addHandler(cmd.onHpMaxChanged, this.svr_onHpMaxChanged, this);
         network.addHandler(cmd.onMpMaxChanged, this.svr_onMpMaxChanged, this);
+        network.addHandler(cmd.onChangeMap, this.svr_onChangeMap, this);
+        network.addHandler(cmd.onUseSkill, this.svr_onUseSkill, this);
+
+        cc.resources.load("map/map" + Game.mapId, cc.TiledMapAsset, (err, res: cc.TiledMapAsset) => {
+            if (err) {
+                return;
+            }
+            this.tilemap.tmxAsset = res;
+            this.tileLayer = this.tilemap.getLayer("obj");
+            let doorCfg = cfg_all().mapDoor;
+            let doorArr: I_cfg_mapDoor[] = [];
+            for (let x in doorCfg) {
+                let one = doorCfg[x];
+                if (one.mapId === Game.mapId) {
+                    doorArr.push(one);
+                }
+            }
+            for (let one of doorArr) {
+                let node = cc.instantiate(this.mapDoorPrefab);
+                this.tileLayer.addUserNode(node);
+                node.getComponent(MapDoor).init(one);
+            }
+
+            // 加载完地图，请求服务器，进入地图
+            network.sendMsg(cmd.map_main_enterMap);
+        });
 
 
-        network.sendMsg(cmd.map_main_enterMap);
 
-        this.tileLayer = this.tilemap.getLayer("obj");
         this.node.on(cc.Node.EventType.MOUSE_UP, (event: cc.Event.EventMouse) => {
             if (event.getButton() !== cc.Event.EventMouse.BUTTON_RIGHT) {
                 return;
             }
+            if (!cc.isValid(this.mePlayer)) {
+                return;
+            }
             let tmpPos = this.screen2worldPoint(event.getLocation());
-            if (cc.isValid(this.mePlayer)) {
-                let meNode = this.mePlayer.node;
-                let x1 = Math.floor(meNode.x / this.tileW);
-                let y1 = Math.floor(meNode.y / this.tileW);
-                let x2 = Math.floor(tmpPos.x / this.tileW);
-                let y2 = Math.floor(tmpPos.y / this.tileW);
-                let path = this.pathFind.findPath(x1, y1, x2, y2);
-                if (!path) {
+            let meNode = this.mePlayer.node;
+            let x1 = Math.floor(meNode.x / 32);
+            let y1 = Math.floor(meNode.y / 32);
+            let x2 = Math.floor(tmpPos.x / 32);
+            let y2 = Math.floor(tmpPos.y / 32);
+            let path = this.pathFind.findPath(x1, y1, x2, y2);
+            if (!path) {
+                return;
+            }
+            let endTile = path[path.length - 1];
+            if (path.length === 0) {  // 周围被堵住，或者是当前格子
+                if (x1 !== x2 || y1 !== y2) {
                     return;
                 }
-                let endTile = path[path.length - 1];
-                if (path.length === 0) {  // 周围被堵住，或者是当前格子
-                    if (x1 !== x2 || y1 !== y2) {
-                        return;
-                    }
-                } else if (endTile.x !== x2 || endTile.y !== y2) {  // 未到达终点格子
-                    path.pop();
-                    tmpPos.x = endTile.x * this.tileW + this.tileW2;
-                    tmpPos.y = endTile.y * this.tileW + this.tileW2;
-                } else {
-                    path.pop();
-                }
-
-                // 同一条直线上的点，去除中间的点，只保留两端的关键点
-                for (let i = 2; i < path.length;) {
-                    let dx1 = path[i].x - path[i - 1].x;
-                    let dy1 = path[i].y - path[i - 1].y;
-                    let dx2 = path[i - 1].x - path[i - 2].x;
-                    let dy2 = path[i - 1].y - path[i - 2].y;
-                    if (dx1 * dy2 === dx2 * dy1) {  // 即 dx1 / dy1 = dx2 / dy2
-                        path.splice(i - 1, 1);
-                    } else {
-                        i++;
-                    }
-                }
-
-                let endPath: I_xy[] = [];
-                for (let one of path) {
-                    endPath.push({
-                        "x": one.x * this.tileW + this.tileW2,
-                        "y": one.y * this.tileW + this.tileW2
-                    });
-                }
-                endPath.push({ "x": Math.floor(tmpPos.x), "y": Math.floor(tmpPos.y) });
-
-                network.sendMsg(cmd.map_main_move, { "x": Math.floor(meNode.x), "y": Math.floor(meNode.y), "path": endPath });
-                this.mePlayer.move(endPath);
+            } else if (endTile.x !== x2 || endTile.y !== y2) {  // 未到达终点格子
+                path.pop();
+                tmpPos.x = endTile.x * 32 + 16;
+                tmpPos.y = endTile.y * 32 + 16;
+            } else {
+                path.pop();
             }
+
+            // 同一条直线上的点，去除中间的点，只保留两端的关键点
+            for (let i = 2; i < path.length;) {
+                let dx1 = path[i].x - path[i - 1].x;
+                let dy1 = path[i].y - path[i - 1].y;
+                let dx2 = path[i - 1].x - path[i - 2].x;
+                let dy2 = path[i - 1].y - path[i - 2].y;
+                if (dx1 * dy2 === dx2 * dy1) {  // 即 dx1 / dy1 = dx2 / dy2
+                    path.splice(i - 1, 1);
+                } else {
+                    i++;
+                }
+            }
+
+            let endPath: I_xy[] = [];
+            for (let one of path) {
+                endPath.push({
+                    "x": one.x * 32 + 16,
+                    "y": one.y * 32 + 16
+                });
+            }
+            endPath.push({ "x": Math.floor(tmpPos.x), "y": Math.floor(tmpPos.y) });
+
+            network.sendMsg(cmd.map_main_move, { "x": Math.floor(meNode.x), "y": Math.floor(meNode.y), "path": endPath });
+            this.mePlayer.move(endPath);
         });
     }
 
@@ -142,11 +175,15 @@ export class MapMain extends cc.Component {
         });
     }
 
-    private svr_onOpen() {
-
+    private svr_onKicked(msg: { code: number }) {
+        network.disconnect();
+        UIMgr.showErrcode(msg.code, false, () => {
+            cc.director.loadScene("login");
+        });
     }
 
-    private svr_enterMapBack(msg: { "code": number, "meId": number, "mp": number, "mpMax": number, "skillCd": number[], "entities": I_entityJson[] }) {
+
+    private svr_enterMapBack(msg: { "code": number, "mapId": number, "meId": number, "mp": number, "mpMax": number, "skillCd": number[], "entities": I_entityJson[] }) {
         if (msg.code !== 0) {
             UIMgr.showErrcode(msg.code, false, () => {
                 cc.director.loadScene("login")
@@ -164,8 +201,11 @@ export class MapMain extends cc.Component {
         CameraFollow.instance.setTarget(this.mePlayer.node);
 
         this.pathFind = new Pathfind();
-        this.tiles = getMapJson(1);
-        this.pathFind.init(getMapJson(1), { "maxSearch": 100 });
+        getMapJson(msg.mapId, (arr) => {
+            if (arr) {
+                this.pathFind.init(arr, { "maxSearch": 200 });
+            }
+        });
     }
 
     /** 新增实体 */
@@ -191,8 +231,8 @@ export class MapMain extends cc.Component {
         this.entities[entity.id] = entity;
     }
 
-    getEntity(id: number) {
-        return this.entities[id];
+    getEntity<T = Entity>(id: number): T {
+        return this.entities[id] as any as T;
     }
 
     delEntity(entity: Entity) {
@@ -303,12 +343,31 @@ export class MapMain extends cc.Component {
     /** 玩家蓝上限变化了 */
     private svr_onMpMaxChanged(msg: { "mpMax": number, "mp": number }) {
         this.mePlayer.mp = msg.mp;
-        this.mePlayer.mpMax = msg.mpMax;
+        if (msg.mpMax) {
+            this.mePlayer.mpMax = msg.mpMax;
+        }
     }
 
     screen2worldPoint(pos: cc.Vec2) {
         return this.cameraMain.getScreenToWorldPoint(pos) as any as cc.Vec2;
     }
+
+
+    /** 通知，切换地图 */
+    private svr_onChangeMap(msg: { "mapId": number }) {
+        Game.mapId = msg.mapId;
+
+        // 本demo为了方便，切换地图时，直接重新加载场景。实际应用中，请考虑更好的方式。
+        cc.director.loadScene("map");
+    }
+
+
+    /** 通知，使用技能 */
+    private svr_onUseSkill(msg: I_onUseSkill) {
+        let role = this.getEntity<Role>(msg.id);
+        role.skillMgr.useSkill(msg);
+    }
+
 
 
     onDestroy() {

@@ -32,13 +32,13 @@ export const enum cmd {
 	 */
 	map_main_getPlayerInfo = "map.main.getPlayerInfo",
 	/**
-	 * 切换战斗模式
-	 */
-	map_main_changeNoFight = "map.main.changeNoFight",
-	/**
 	 * 使用技能
 	 */
 	map_main_useSkill = "map.main.useSkill",
+	/**
+	 * 切换地图
+	 */
+	map_main_changeMap = "map.main.changeMap",
 	/**
 	 * 新增或移除实体
 	 */
@@ -63,6 +63,10 @@ export const enum cmd {
 	 * 蓝上限变化了
 	 */
 	onMpMaxChanged = "onMpMaxChanged",
+	/**
+	 * 通知，切换地图
+	 */
+	onChangeMap = "onChangeMap",
 	/**
 	 * 金币变化
 	 */

@@ -157,6 +157,7 @@ export class GameMainPanel extends cc.Component {
         InputKeyListen.instance.showPanel(E_keyType.heroInfo);
     }
 
+
     onDestroy() {
         network.removeThisHandlers(this);
         GameMainPanel.instance = null;

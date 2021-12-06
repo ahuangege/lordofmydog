@@ -3,39 +3,18 @@
         "id": 1,
         "name": "广袤的城镇",
         "isCopy": 0,
-        "copyNum": 0,
-        "exitDoor": [
-            {
-                "id": 1,
-                "mapId": 2,
-                "x": 1,
-                "y": 2,
-                "x2": 1,
-                "y2": 2
-            }
-        ]
+        "copyNum": 0
     },
     "2": {
         "id": 2,
         "name": "偏僻的郊区",
         "isCopy": 0,
-        "copyNum": 0,
-        "exitDoor": [
-            {
-                "id": 1,
-                "mapId": 1,
-                "x": 1,
-                "y": 2,
-                "x2": 1,
-                "y2": 1
-            }
-        ]
+        "copyNum": 0
     },
     "3": {
         "id": 3,
-        "name": "深山",
+        "name": "恶魔的巢穴",
         "isCopy": 1,
-        "copyNum": 3,
-        "exitDoor": []
+        "copyNum": 2
     }
 }

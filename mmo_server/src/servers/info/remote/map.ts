@@ -1,4 +1,6 @@
+import { app, rpcErr } from "mydog";
 import { cfg_all } from "../../../app/common/configUtil";
+import { constKey } from "../../../app/common/someConfig";
 import { svr_info } from "../../../app/svr_info/svr_info";
 import { I_playerMapJson, I_xy } from "../../map/handler/main";
 
@@ -24,6 +26,17 @@ export default class MapRemote {
         if (hpmp) {
             role.changeRoleInfo(hpmp);
         }
+    }
+
+    /** 切换地图 */
+    changeMap(uid: number, mapId: number, mapIndex: number, mapSvr: string, pos: I_xy, cb: () => void) {
+        let role = svr_info.roleInfoMgr.getRole(uid);
+        role.changeRoleMem({ "mapSvr": mapSvr, "mapIndex": mapIndex });
+        role.changeRoleInfo({ "mapId": mapId });
+        role.changeRoleInfo(pos);
+        app.rpc(role.sid).connector.main.applySomeSession(uid, { [constKey.mapSvr]: mapSvr, [constKey.mapIndex]: mapIndex }, () => {
+            cb();
+        });
     }
 }
 
