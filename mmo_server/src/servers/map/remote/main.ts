@@ -65,4 +65,10 @@ export default class Remote {
         let p = this.mapMgr.getPlayer(mapIndex, uid);
         p.onLvUp(lv);
     }
+
+    /** 使用快速加血加蓝 */
+    useHpMpAdd(mapIndex: number, uid: number, itemId: number) {
+        let p = this.mapMgr.getPlayer(mapIndex, uid);
+        p.useHpMpAdd(itemId);
+    }
 }

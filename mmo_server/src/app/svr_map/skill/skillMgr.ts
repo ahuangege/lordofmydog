@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { gameLog } from "../../common/logger";
 import { cfg_all } from "../../common/configUtil";
-import { Entity_type } from "../entity";
+import { Entity, Entity_type } from "../entity";
 import { cmd } from "../../../config/cmd";
 
 /** 技能实现集合 */
@@ -68,7 +68,7 @@ export class SkillMgr {
         }
         if (this.nowSkillId) {
             let nowSkill = this.skillDic[this.nowSkillId];
-            nowSkill && nowSkill.beBreak();
+            nowSkill && nowSkill.skillOver();
         }
         skill.useSkill(info);
     }
@@ -130,19 +130,11 @@ export class SkillBase {
         }
         if (role2.t === Entity_type.item) {    // 道具
             return false;
-        } else if (role2.t === Entity_type.monster) {  // 野怪
-            if (cfg.targetType === E_skillTargetType.notEnemy) {
+        } else {  // 野怪或玩家
+            let needEnemy = cfg.targetType === E_skillTargetType.enemy ? true : false;
+            let isEnemy = this.isEnemy(role, role2);
+            if (needEnemy !== isEnemy) {
                 return false;
-            }
-        } else {    // 玩家
-            if (cfg.targetType === E_skillTargetType.enemy) {
-                if (role === role2) {
-                    return false;
-                }
-            } else {
-                if (role !== role2) {
-                    return false;
-                }
             }
         }
         if (getLen(role, role2) > cfg.targetDistance + 64) {
@@ -158,14 +150,29 @@ export class SkillBase {
 
 
 
-    /** 技能被打断 */
-    beBreak() {
+    /** 技能结束（持续性技能时，需要通知客户端） */
+    skillOver() {
 
     }
 
-    /** 销毁 */
+    /** 销毁（主要用于玩家离开场景时，不需要通知客户端） */
     destroy() {
 
+    }
+
+
+
+    /** 使用技能 */
+    sendMsg_useSkill(role: Role, msg: I_onUseSkill) {
+        role.map.sendMsgByAOI(this.skillMgr.role, cmd.onUseSkill, msg);
+    }
+    /** 技能过程 */
+    sendMsg_skillAffect(role: Role, msg: { "id": number, "skillId": number, [key: string]: any }) {
+        role.map.sendMsgByAOI(role, cmd.onSkillAffect, msg);
+    }
+    /** 技能结束 */
+    sendMsg_skillOver(role: Role, msg: { "id": number, "skillId": number }) {
+        role.map.sendMsgByAOI(role, cmd.onSkillOver, msg);
     }
 
     /** 计算物理攻击造成的伤害  physical */
@@ -178,9 +185,38 @@ export class SkillBase {
         return Math.round(damage * role2.armor_m);
     }
 
-    /** 发送使用技能的消息 */
-    sendMsg_useSkill(role: Role, msg: I_onUseSkill) {
-        role.map.sendMsgByAOI(role, cmd.onUseSkill, msg);
+    /** 判断是否是敌对关系 */
+    isEnemy(role: Role, role2: Role) {
+        if (role.t === Entity_type.player) {
+            if (role2.t === Entity_type.monster) {
+                return true;
+            } else {
+                return true;
+            }
+        } else {
+            if (role2.t === Entity_type.player) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /** 获取周围的角色 */
+    getRolesAround(range: number, isEnemy: boolean): Role[] {
+        let role = this.skillMgr.role;
+        let entities = role.map.towerAOI.getObjs(role);
+        let endRoles: Entity[] = [];
+        for (let one of entities) {
+            if (one.t !== Entity_type.monster && one.t !== Entity_type.player) {
+                continue;
+            }
+            let tmpIsEnmey = this.isEnemy(role, one as Role);
+            if (tmpIsEnmey === isEnemy && getLen2(role, one) < (range + 60) * (range + 60)) {
+                endRoles.push(one);
+            }
+        }
+        return endRoles as Role[];
     }
 }
 

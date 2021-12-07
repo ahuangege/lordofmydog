@@ -9,6 +9,7 @@ import { cmd } from "../../common/cmdClient";
 import { cfg_all } from "../../common/configUtil";
 import { Game, I_bagItem, I_Item } from "../../common/game";
 import { network } from "../../common/network";
+import { UIMgr } from "../../common/uiMgr";
 import { E_itemT, GameEvent, getItemImg } from "../../util/gameUtil";
 import { MapMain } from "../mapMain";
 import { BagPanel } from "./bagPanel";
@@ -95,6 +96,7 @@ export class HpMpPrefab extends cc.Component {
         }
         cc.tween(this.node).to(0.1, { "scale": 1.1 }).to(0.1, { "scale": 1 }).start();
         if (this.cd > 0) {
+            UIMgr.showTileInfo("快速消耗栏cd中");
             return;
         }
         this.cd = this.cdBase;

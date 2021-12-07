@@ -72,6 +72,18 @@ export const enum cmd {
 	 */
 	onUseSkill = "onUseSkill",
 	/**
+	 * 通知，技能持续过程中的数据
+	 */
+	onSkillAffect = "onSkillAffect",
+	/**
+	 * 通知，技能结束（持续性技能）
+	 */
+	onSkillOver = "onSkillOver",
+	/**
+	 * 通知，使用了快速加血栏
+	 */
+	onUseHpFast = "onUseHpFast",
+	/**
 	 * 金币变化
 	 */
 	onGoldChanged = "onGoldChanged",

@@ -6,7 +6,8 @@
         "damage": 0,
         "targetType": 4,
         "targetDistance": 100,
-        "mpCost": 1
+        "mpCost": 1,
+        "range": 0
     },
     "1002": {
         "id": 1002,
@@ -15,7 +16,8 @@
         "damage": 1,
         "targetType": 2,
         "targetDistance": 400,
-        "mpCost": 1
+        "mpCost": 1,
+        "range": 150
     },
     "1003": {
         "id": 1003,
@@ -24,7 +26,8 @@
         "damage": 1,
         "targetType": 3,
         "targetDistance": 200,
-        "mpCost": 1
+        "mpCost": 1,
+        "range": 0
     },
     "1004": {
         "id": 1004,
@@ -33,7 +36,8 @@
         "damage": 1,
         "targetType": 1,
         "targetDistance": 0,
-        "mpCost": 0
+        "mpCost": 0,
+        "range": 300
     },
     "1101": {
         "id": 1101,
@@ -42,7 +46,8 @@
         "damage": 0,
         "targetType": 4,
         "targetDistance": 500,
-        "mpCost": 1
+        "mpCost": 1,
+        "range": 0
     },
     "1102": {
         "id": 1102,
@@ -51,7 +56,8 @@
         "damage": 1,
         "targetType": 3,
         "targetDistance": 200,
-        "mpCost": 1
+        "mpCost": 1,
+        "range": 0
     },
     "1103": {
         "id": 1103,
@@ -60,7 +66,8 @@
         "damage": 1,
         "targetType": 4,
         "targetDistance": 350,
-        "mpCost": 1
+        "mpCost": 1,
+        "range": 0
     },
     "1104": {
         "id": 1104,
@@ -69,6 +76,7 @@
         "damage": 1,
         "targetType": 2,
         "targetDistance": 400,
-        "mpCost": 1
+        "mpCost": 1,
+        "range": 0
     }
 }

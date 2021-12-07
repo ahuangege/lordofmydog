@@ -16,7 +16,7 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class Role extends Entity {
 
-    protected path: I_xy[] = [];
+    public path: I_xy[] = [];
     protected dx = 0;
     protected dy = 0;
     protected pathTime = 0;
@@ -90,14 +90,6 @@ export class Role extends Entity {
     public refreshHpUi() {
         this.bloodLabel.string = this.hp + " / " + this.hpMax;
         this.bloodBar.progress = this.hp / this.hpMax;
-    }
-
-    /** 展示伤害数字 */
-    showHurtNum(num: number, isSub: boolean) {
-        let node = cc.instantiate(MapMain.instance.hurtNumPrefab);
-        node.parent = this.node;
-        node.y = 50;
-        node.getComponent(HurtNum).init(num, isSub);
     }
 
 }

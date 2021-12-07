@@ -1,7 +1,7 @@
 import { cfg_all } from "../../common/configUtil";
 import { nowSec } from "../../common/time";
 import { Role } from "../role";
-import { I_useSkill, registerSkill, SkillBase, SkillMgr } from "./skillMgr";
+import { I_skillDataOne, I_useSkill, registerSkill, SkillBase, SkillMgr } from "./skillMgr";
 
 @registerSkill
 export class skill_1001 extends SkillBase {
@@ -13,12 +13,11 @@ export class skill_1001 extends SkillBase {
         let cfg = cfg_all().skill[this.skillId];
 
         // this.skillMgr.setNowSkillId(this.skillId);
-        this.cd = nowSec() + cfg.cd;
-
         let role = this.skillMgr.role;
-        let role2 = role.map.getEntity<Role>(info.id);
-
+        this.cd = nowSec() + cfg.cd;
         role.subMp(cfg.mpCost);
+
+        let role2 = role.map.getEntity<Role>(info.id);
         let hurt = this.getHurt_p(role.attack, role2);
         role2.subHp(hurt);
         this.sendMsg_useSkill(role, { "id": role.id, "skillId": this.skillId, "id2": role2.id, "data": [{ "id": role2.id, "hurt": hurt, "hp": role2.hp }] });
@@ -27,10 +26,110 @@ export class skill_1001 extends SkillBase {
     }
 }
 
-
+// 注：这是个位移技能，理论上需要服务器模拟移动过程，但是本demo位移极快，为了方便，直接移到终点
 @registerSkill
 export class skill_1002 extends SkillBase {
     constructor(skillMgr: SkillMgr) {
         super(skillMgr);
+    }
+
+    useSkill(info: I_useSkill) {
+        let cfg = cfg_all().skill[this.skillId];
+
+        let role = this.skillMgr.role;
+        this.cd = nowSec() + cfg.cd;
+        role.subMp(cfg.mpCost);
+
+        role.path.length = 0;
+        // let role2 = role.map.getEntity<Role>(info.id);
+
+        // role.subMp(cfg.mpCost);
+        // let hurt = this.getHurt_p(role.attack, role2);
+        // role2.subHp(hurt);
+        this.sendMsg_useSkill(role, { "id": role.id, "skillId": this.skillId, "x": info.x, "y": info.y });
+
+    }
+}
+
+@registerSkill
+export class skill_1003 extends SkillBase {
+    constructor(skillMgr: SkillMgr) {
+        super(skillMgr);
+    }
+
+    useSkill(info: I_useSkill) {
+        let cfg = cfg_all().skill[this.skillId];
+
+        let role = this.skillMgr.role;
+        this.cd = nowSec() + cfg.cd;
+        role.subMp(cfg.mpCost);
+
+        let role2 = role.map.getEntity<Role>(info.id);
+        role2.addHp(cfg.damage);
+        this.sendMsg_useSkill(role, { "id": role.id, "skillId": this.skillId, "id2": role2.id, "data": [{ "id": role2.id, "hurt": cfg.damage, "hp": role2.hp }] });
+
+    }
+}
+
+@registerSkill
+export class skill_1004 extends SkillBase {
+    private checkTimer: NodeJS.Timer = null as any;
+    private count = 0;
+    constructor(skillMgr: SkillMgr) {
+        super(skillMgr);
+    }
+
+    useSkill(info: I_useSkill) {
+        let cfg = cfg_all().skill[this.skillId];
+
+        this.skillMgr.setNowSkillId(this.skillId);
+
+        let role = this.skillMgr.role;
+        this.cd = nowSec() + cfg.cd;
+        role.subMp(cfg.mpCost);
+
+        this.sendMsg_useSkill(role, { "id": role.id, "skillId": this.skillId });
+
+        this.checkFunc();
+        this.checkTimer = setInterval(this.checkFunc.bind(this), 500);
+
+    }
+
+    private checkFunc() {
+        let cfg = cfg_all().skill[this.skillId];
+        let role = this.skillMgr.role;
+        let roleArr = this.getRolesAround(cfg.range, true);
+        if (roleArr.length > 0) {
+            let hurtArr: I_skillDataOne[] = []
+            for (let one of roleArr) {
+                if (one.isDie()) {
+                    continue;
+                }
+                let hurt = this.getHurt_m(cfg.damage, one);
+                one.subHp(hurt);
+                hurtArr.push({ "id": one.id, "hurt": hurt, "hp": one.hp });
+            }
+            if (hurtArr.length > 0) {
+                this.sendMsg_skillAffect(role, { "id": role.id, "skillId": this.skillId, "data": hurtArr });
+            }
+        }
+
+        this.count++;
+        if (this.count === 6) {
+            this.skillOver();
+        }
+    }
+
+    skillOver() {
+        clearInterval(this.checkTimer);
+        this.checkTimer = null as any;
+        let role = this.skillMgr.role;
+        this.sendMsg_skillOver(role, { "id": role.id, "skillId": this.skillId });
+        this.skillMgr.setNowSkillId(0);
+    }
+
+    destroy() {
+        clearInterval(this.checkTimer);
+        this.checkTimer = null as any;
     }
 }

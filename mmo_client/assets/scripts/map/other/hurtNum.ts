@@ -25,8 +25,8 @@ export class HurtNum extends cc.Component {
             this.label.string = "+" + num;
             this.node.color = cc.Color.GREEN;
         }
-        this.dx = randBetween(-100, 100);
-        this.dy = randBetween(50, 100);
+        this.dx = randBetween(-200, 200);
+        this.dy = randBetween(100, 200);
     }
 
     update(dt: number) {
@@ -34,7 +34,7 @@ export class HurtNum extends cc.Component {
         this.node.y += this.dy * dt;
 
         this.time += dt;
-        if (this.time > 1.5) {
+        if (this.time > 0.5) {
             this.node.destroy();
         }
     }

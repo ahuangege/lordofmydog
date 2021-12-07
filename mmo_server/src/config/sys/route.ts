@@ -21,6 +21,10 @@ export default [
     "onMpMaxChanged",   // 蓝上限变化了
     "onChangeMap",  // 通知，切换地图
     "onUseSkill",   // 通知，使用技能
+    "onSkillAffect",   // 通知，技能持续过程中的数据
+    "onSkillOver",   // 通知，技能结束（持续性技能）
+
+    "onUseHpFast",  // 通知，使用了快速加血栏
 
     "onGoldChanged",    // 金币变化
     "onKicked", // 被踢

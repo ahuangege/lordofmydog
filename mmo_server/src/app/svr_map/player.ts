@@ -311,6 +311,17 @@ export class Player extends Role {
         app.sendMsgByUidSid(cmd, msg, [this]);
     }
 
+    /** 快速加血加蓝 */
+    useHpMpAdd(itemId: number) {
+        let cfg = cfg_all().item[itemId];
+        if (cfg.type === E_itemT.hp) {
+            this.addHp(cfg.num);
+            this.map.sendMsgByAOI(this, cmd.onUseHpFast, { "id": this.id, "num": cfg.num, "hp": this.hp });
+        } else {
+            this.addMp(cfg.num);
+        }
+    }
+
     toJson(): I_playerJson {
         return {
             "id": this.id,

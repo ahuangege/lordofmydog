@@ -51,8 +51,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -471.094,
-        0,
+        2433,
+        2208,
         0,
         0,
         0,
@@ -72,8 +72,8 @@
     "_skewX": 0,
     "_skewY": 0,
     "_is3DNode": false,
-    "_groupIndex": 1,
-    "groupIndex": 1,
+    "_groupIndex": 0,
+    "groupIndex": 0,
     "_id": ""
   },
   {

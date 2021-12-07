@@ -51,6 +51,8 @@ export class MapMain extends cc.Component {
     private mapDoorPrefab: cc.Prefab = null;
     @property(cc.Prefab)
     public hurtNumPrefab: cc.Prefab = null;
+    @property(cc.Node)
+    public hurtNumParent: cc.Node = null;
 
     onLoad() {
         MapMain.instance = this;
@@ -70,6 +72,9 @@ export class MapMain extends cc.Component {
         network.addHandler(cmd.onMpMaxChanged, this.svr_onMpMaxChanged, this);
         network.addHandler(cmd.onChangeMap, this.svr_onChangeMap, this);
         network.addHandler(cmd.onUseSkill, this.svr_onUseSkill, this);
+        network.addHandler(cmd.onSkillAffect, this.svr_onSkillAffect, this);
+        network.addHandler(cmd.onSkillOver, this.svr_onSkillOver, this);
+        network.addHandler(cmd.onUseHpFast, this.svr_onUseHpFast, this);
 
         cc.resources.load("map/map" + Game.mapId, cc.TiledMapAsset, (err, res: cc.TiledMapAsset) => {
             if (err) {
@@ -365,9 +370,37 @@ export class MapMain extends cc.Component {
     /** 通知，使用技能 */
     private svr_onUseSkill(msg: I_onUseSkill) {
         let role = this.getEntity<Role>(msg.id);
-        role.skillMgr.useSkill(msg);
+        role && role.skillMgr.useSkill(msg);
+    }
+    /** 通知，技能过程（针对持续性技能） */
+    private svr_onSkillAffect(msg: { "id": number, "skillId": number, [key: string]: any }) {
+        let role = this.getEntity<Role>(msg.id);
+        role && role.skillMgr.skillAffect(msg);
     }
 
+    /** 通知，技能结束（针对持续性技能） */
+    private svr_onSkillOver(msg: { "id": number, "skillId": number }) {
+        let role = this.getEntity<Role>(msg.id);
+        role && role.skillMgr.skillOver(msg);
+    }
+
+    /** 通知，使用快速加血 */
+    private svr_onUseHpFast(msg: { "id": number, "num": number, "hp": number }) {
+        let role = this.getEntity<Role>(msg.id);
+        if (role) {
+            role.setHp(msg.hp);
+            this.showHurtNum(role.node, msg.num, false);
+        }
+    }
+
+    /** 展示伤害数字 */
+    showHurtNum(nodeBase: cc.Node, num: number, isSub: boolean) {
+        let node = cc.instantiate(this.hurtNumPrefab);
+        node.parent = this.hurtNumParent;
+        node.x = nodeBase.x;
+        node.y = nodeBase.y + 128;
+        node.getComponent(HurtNum).init(num, isSub);
+    }
 
 
     onDestroy() {

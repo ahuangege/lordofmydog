@@ -101,5 +101,7 @@ export abstract class Role extends Entity {
             this.hp = this.hpMax;
         }
     }
+
+
 }
 

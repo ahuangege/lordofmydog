@@ -72,51 +72,63 @@ export const enum cmd {
 	 */
 	onUseSkill = 17,
 	/**
+	 * 通知，技能持续过程中的数据
+	 */
+	onSkillAffect = 18,
+	/**
+	 * 通知，技能结束（持续性技能）
+	 */
+	onSkillOver = 19,
+	/**
+	 * 通知，使用了快速加血栏
+	 */
+	onUseHpFast = 20,
+	/**
 	 * 金币变化
 	 */
-	onGoldChanged = 18,
+	onGoldChanged = 21,
 	/**
 	 * 被踢
 	 */
-	onKicked = 19,
-	onAskFriend = 20,
-	onAddFriend = 21,
-	onDelFriend = 22,
-	onFriendInfoChange = 23,
-	info_bag_delItem = 24,
-	info_bag_dropItem = 25,
-	onItemChanged = 26,
-	info_bag_changePos = 27,
+	onKicked = 22,
+	onAskFriend = 23,
+	onAddFriend = 24,
+	onDelFriend = 25,
+	onFriendInfoChange = 26,
+	info_bag_delItem = 27,
+	info_bag_dropItem = 28,
+	onItemChanged = 29,
+	info_bag_changePos = 30,
 	/**
 	 * 装备道具
 	 */
-	info_bag_equipItem = 28,
+	info_bag_equipItem = 31,
 	/**
 	 * 通知 装备改变
 	 */
-	onEquipChanged = 29,
+	onEquipChanged = 32,
 	/**
 	 * hp mp 快速使用栏变化
 	 */
-	onHpMpPosChanged = 30,
+	onHpMpPosChanged = 33,
 	/**
 	 * hp mp 快速使用
 	 */
-	info_bag_useHpMpAdd = 31,
+	info_bag_useHpMpAdd = 34,
 	/**
 	 * gm命令
 	 */
-	info_main_gmCommit = 32,
+	info_main_gmCommit = 35,
 	/**
 	 * 学习技能
 	 */
-	info_main_learnSkill = 33,
+	info_main_learnSkill = 36,
 	/**
 	 * 装备技能
 	 */
-	info_main_equipSkill = 34,
+	info_main_equipSkill = 37,
 	/**
 	 * 等级经验发生变化
 	 */
-	onLvExpChanged = 35,
+	onLvExpChanged = 38,
 }

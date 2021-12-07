@@ -50,8 +50,25 @@ export class SkillMgr {
     /** 使用技能 */
     useSkill(msg: I_onUseSkill) {
         let skill = this.getSkill(msg.skillId);
+        if (!skill) {
+            skill = this.addSkill(msg.skillId);
+        }
         if (skill) {
             skill.useSkill(msg);
+        }
+    }
+    /** 技能过程 */
+    skillAffect(msg: { "id": number, "skillId": number, [key: string]: any }) {
+        let skill = this.getSkill(msg.skillId);
+        if (skill) {
+            skill.skillAffect(msg);
+        }
+    }
+    /** 技能结束 */
+    skillOver(msg: { "id": number, "skillId": number }) {
+        let skill = this.getSkill(msg.skillId);
+        if (skill) {
+            skill.skillOver();
         }
     }
 
@@ -95,17 +112,13 @@ export class SkillBase {
     /** 使用技能 */
     useSkill(info: I_onUseSkill) {
     }
-
-
-    /** 技能被打断 */
-    beBreak() {
-
+    /** 技能过程 */
+    skillAffect(msg: any) {
+    }
+    /** 技能结束 */
+    skillOver() {
     }
 
-    /** 销毁 */
-    destroy() {
-
-    }
 
     /** 点击技能（想要使用该技能） */
     btnSkill() {
@@ -175,10 +188,10 @@ export class SkillBase {
 export interface I_onUseSkill {
     "id": number,
     "skillId": number,
-    "id2"?: number,
-    "x"?: number,
-    "y"?: number,
-    "data"?: I_skillDataOne[],
+    "id2": number,
+    "x": number,
+    "y": number,
+    "data": I_skillDataOne[],
 }
 
 export interface I_skillDataOne {

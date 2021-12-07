@@ -176,6 +176,7 @@ interface I_cfg_skill {
     targetType: number, // 目标类型
     targetDistance: number, // 施法距离
     mpCost: number, // 魔法消耗
+    range: number,  // 作用范围
 }
 
 

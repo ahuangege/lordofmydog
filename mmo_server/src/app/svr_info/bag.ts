@@ -280,6 +280,7 @@ export class Bag {
         if (!used.id) {
             return;
         }
+        let itemId = used.id;
         used.num--;
         if (used.num <= 0) {
             used.id = 0;
@@ -291,6 +292,7 @@ export class Bag {
         } else {
             this.role.changeSqlKey("mpPos");
         }
+        app.rpc(this.role.roleMem.mapSvr).map.main.useHpMpAdd(this.role.roleMem.mapIndex, this.role.uid, itemId);
     }
 }
 
