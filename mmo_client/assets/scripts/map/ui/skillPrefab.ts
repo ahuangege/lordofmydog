@@ -45,8 +45,12 @@ export class SkillPrefab extends cc.Component {
         if (this.skillId === skillId) {
             return;
         }
+        let skill = MapMain.instance.mePlayer.skillMgr.getSkill(skillId);
+        if (skill && skill.cd > 0) {
+            return;
+        }
         if (this.skillId !== 0) {
-            let skill = MapMain.instance.mePlayer.skillMgr.getSkill(this.skillId);
+            skill = MapMain.instance.mePlayer.skillMgr.getSkill(this.skillId);
             if (skill && skill.cd > 0) {
                 return;
             }

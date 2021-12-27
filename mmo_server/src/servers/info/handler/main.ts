@@ -32,6 +32,14 @@ export default class Handler {
                 num = parseInt(arr[1]) || 1;
                 role.addExp(num);
                 break;
+            case "addgold":
+                num = parseInt(arr[1]) || 1;
+                if (num > 0) {
+                    role.addGold(num);
+                } else {
+                    role.costGold(-num);
+                }
+                break;
             default:
                 break;
         }
@@ -75,15 +83,40 @@ export default class Handler {
         if (oldIndex === msg.index) {
             return;
         }
+        let delSkill: number = 0;
+        let addSkill: number = 0;
         let skillChanged: { "index": number, "skillId": number }[] = [];
         if (oldIndex !== -1) {
             skillPos[oldIndex] = 0;
             skillChanged.push({ "index": oldIndex, "skillId": 0 });
+        } else {
+            addSkill = msg.skillId;
+        }
+        if (skillPos[msg.index] !== 0) {
+            delSkill = skillPos[msg.index];
         }
         skillPos[msg.index] = msg.skillId;
+
         skillChanged.push({ "index": msg.index, "skillId": msg.skillId });
 
         role.changeSqlKey("skillPos");
-        next({ "code": 0, "skill": skillChanged });
+        next({ "code": 0, "skill": skillChanged, "addSkill": addSkill, "delSkill": delSkill });
+        app.rpc(role.roleMem.mapSvr).map.main.changeSkill(role.roleMem.mapIndex, session.uid, addSkill, delSkill);
+    }
+
+    /** 商店购买 */
+    shopBuy(msg: { "shopItemId": number }, session: Session, next: Function) {
+        let role = svr_info.roleInfoMgr.getRole(session.uid);
+        let one = cfg_all().shopItem[msg.shopItemId];
+        let mapId = cfg_all().shop[one.shopId].mapId;
+        if (mapId !== role.role.mapId) {
+            return;
+        }
+        if (!role.hasGold(one.gold)) {
+            return;
+        }
+        role.costGold(one.gold);
+        role.bag.addItem({ "id": one.itemId, "num": 1 });
+        next({ "code": 0 });
     }
 }

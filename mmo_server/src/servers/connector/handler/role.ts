@@ -4,12 +4,13 @@ import { gameLog } from "../../../app/common/logger";
 import { constKey, serverType } from "../../../app/common/someConfig";
 import { svr_con } from "../../../app/svr_connector/svr_con";
 import { I_roleInfo } from "../../../app/svr_info/roleInfo";
+import { j2x2 } from "../../../app/svr_map/map";
 import { getCharLen, getInfoId } from "../../../app/util/gameUtil";
 import { getInsertSql } from "../../../app/util/mysql";
 import { createCountdown, randArrElement, removeFromArr } from "../../../app/util/util";
 import { I_xy } from "../../map/handler/main";
 
-let bornPos: I_xy[] = [{ "x": 19, "y": 81 }, { "x": 47, "y": 72 }];
+let bornPos: I_xy[] = [{ "x": 20, "y": 29 }, { "x": 47, "y": 42 }];
 
 export default class Handler {
 
@@ -91,8 +92,8 @@ export default class Handler {
             "level": 1,
             "exp": 0,
             "mapId": 1,
-            "x": pos.x * 64 + 32,
-            "y": pos.y * 64 + 32,
+            "x": j2x2(pos.x),
+            "y": j2x2(pos.y),
             "hp": 1,
             "mp": 1,
             "learnedSkill": [cfg.initSkill],

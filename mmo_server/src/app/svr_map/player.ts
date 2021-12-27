@@ -10,6 +10,7 @@ import { E_itemT } from "../svr_info/roleInfo";
 import { getInfoId } from "../util/gameUtil";
 import { Dic, getLen, getLen2 } from "../util/util";
 import { Entity_type, I_entityJson } from "./entity";
+import { Item } from "./item";
 import { Map } from "./map";
 import { Role } from "./role";
 
@@ -31,10 +32,11 @@ export class Player extends Role {
     hp2: number;// 上次同步的hp
     mp2: number;// 上次同步的mp
     syncTime: number = 0;    // 定时同步一些信息到info服的计时器
+    copyMatchDoorId: number = 0;    // 当前副本匹配的门id
+    copyMatchTime: number = 0;  // 副本匹配的时间
 
     constructor(map: Map, info: I_playerMapJson) {
         super({ "map": map, "id": map.getId(), "t": Entity_type.player, "x": info.x, "y": info.y });
-        this.map = map;
         this.speed = moveSpeed;
 
 
@@ -65,6 +67,7 @@ export class Player extends Role {
         let map = this.map;
         map.addEntity(this);
         map.addOrDelUidsid(this.uid, this.sid, true);
+        map.playerIn(this);
 
         // 通知视野内的其他玩家
         map.getEntityChangeMsg({ "addEntities": [this.toJson()] }, map.towerAOI.getWatchers(this));
@@ -84,9 +87,13 @@ export class Player extends Role {
 
     /** 离开地图 */
     leaveMap() {
+        this.skillMgr.destroy();
+        this.buffMgr.destroy();
+
         let map = this.map;
         map.delEntity(this);
         map.addOrDelUidsid(this.uid, this.sid, false);
+        map.playerLeave(this);
 
         // 移除监视，移除实体
         map.towerAOI.delWatcher(this, this);
@@ -96,11 +103,17 @@ export class Player extends Role {
         map.getEntityChangeMsg({ "delEntities": [this.id] }, map.towerAOI.getWatchers(this));
 
         this.checkSync();
+
+        if (this.copyMatchDoorId) {
+            this.map.copyMatchDic[this.copyMatchDoorId].cancelMatch(this);
+        }
     }
 
     /** 移动 */
     move(msg: { "x": number, "y": number, "path": I_xy[] }) {
-
+        if (!this.buffMgr.canMove()) {
+            return;
+        }
         let map = this.map;
         // 验证坐标合法性
         msg.x = Math.floor(msg.x) || 0;
@@ -204,22 +217,13 @@ export class Player extends Role {
     }
 
 
-    /** 视野范围聊天 */
-    chatAOI(msg: { "msg": string }) {
-        if (nowMs() - this.chatMapTime < 5 * 1000) {
-            return;
-        }
-        this.chatMapTime = nowMs();
-        this.map.sendMsgByAOI(this, cmd.onChatAOI, { "id": this.id, "msg": msg.msg });
-    }
-
     /** 本场景聊天  */
     chatMap(msg: { "msg": string }) {
-        if (nowMs() - this.chatMapTime < 5 * 1000) {
+        if (nowMs() - this.chatMapTime < 1 * 1000) {
             return;
         }
         this.chatMapTime = nowMs();
-        this.map.getMsg(cmd.onChatMap, { "nickname": this.nickname, "msg": msg.msg });
+        this.map.getMsg(cmd.onChatMap, { "id": this.id, "nickname": this.nickname, "msg": msg.msg });
     }
 
 
@@ -320,6 +324,43 @@ export class Player extends Role {
         } else {
             this.addMp(cfg.num);
         }
+    }
+
+    die() {
+        super.die();
+        this.skillMgr.skillOver();
+        this.buffMgr.buffOverAll();
+    }
+
+    copyStartMatch(doorId: number, next: Function) {
+        if (this.copyMatchDoorId) {
+            return next({ "code": 10040 });
+        }
+        let copyMatch = this.map.copyMatchDic[doorId];
+        if (!copyMatch) {
+            return;
+        }
+        copyMatch.startMatch(this);
+        next({ "code": 0, "doorId": doorId });
+    }
+
+    copyCancelMatch(next: Function) {
+        if (!this.copyMatchDoorId) {
+            return next({ "code": 0 });
+        }
+        let copyMatch = this.map.copyMatchDic[this.copyMatchDoorId];
+        copyMatch.cancelMatch(this);
+        next({ "code": 0 });
+    }
+
+    pickItem(id: number) {
+        let map = this.map;
+        let item = map.getEntity<Item>(id);
+        if (!item || item.t !== Entity_type.item) {
+            return;
+        }
+        item.die();
+        app.rpc(getInfoId(this.uid)).info.map.pickItem(this.uid, { "id": item.itemId, "num": item.num });
     }
 
     toJson(): I_playerJson {

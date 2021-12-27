@@ -1,4 +1,5 @@
 import { cfg_all } from "../common/configUtil";
+import { I_xy } from "../map/player";
 
 
 export function getItemImg(id: number, cb: (img: cc.SpriteFrame) => void) {
@@ -19,6 +20,31 @@ export function getSkillImg(id: number, cb: (img: cc.SpriteFrame) => void) {
         }
     });
 }
+
+export function getImg(url: string, cb: (img: cc.SpriteFrame) => void) {
+    cc.resources.load(url, cc.SpriteFrame, (err, img: cc.SpriteFrame) => {
+        if (err) {
+            cb(null);
+        } else {
+            cb(img);
+        }
+    });
+}
+
+export function getPrefab(url: string, cb: (prefab: cc.Prefab) => void) {
+    cc.resources.load(url, (err, prefab: cc.Prefab) => {
+        if (err) {
+            cb(null);
+        } else {
+            cb(prefab);
+        }
+    });
+}
+
+export function getAngle(pos1: I_xy, pos2: I_xy) {
+    return Math.atan2(pos2.y - pos1.y, pos2.x - pos1.x) / Math.PI * 180;
+}
+
 
 export enum E_itemT {
     gold = 0,               // 金币
@@ -71,7 +97,7 @@ export function removeFromArr<T>(arr: T[], one: T) {
 /**
  * 随机获取数组下标
  */
- export function randIntNum(num: number) {
+export function randIntNum(num: number) {
     return Math.floor(Math.random() * num);
 }
 

@@ -8,6 +8,7 @@
 import { cmd } from "../common/cmdClient";
 import { network } from "../common/network";
 import { UIMgr, uiPanel } from "../common/uiMgr";
+import { getPrefab } from "../util/gameUtil";
 import { RolelistMain } from "./rolelistMain";
 
 const { ccclass, property } = cc._decorator;
@@ -24,7 +25,13 @@ export class RoleOne extends cc.Component {
         this.node.getChildByName("btn_del").active = true;
         this.node.getChildByName("nickname").getComponent(cc.Label).string = info.nickname;
         this.node.getChildByName("lv").getComponent(cc.Label).string = "LV " + info.level;
-        this.node.getChildByName("hero").active = true;
+        getPrefab("heros/hero" + info.heroId, (prefab) => {
+            if (!prefab || !cc.isValid(this)) {
+                return;
+            }
+            let node = cc.instantiate(prefab);
+            node.parent = this.node.getChildByName("hero");
+        });
     }
 
     btn_click() {
@@ -57,10 +64,16 @@ export class RoleOne extends cc.Component {
     be_delete() {
         this.info = null;
         this.node.getChildByName("label_create").active = true;
-        this.node.getChildByName("hero").active = false;
         this.node.getChildByName("btn_del").active = false;
         this.node.getChildByName("nickname").getComponent(cc.Label).string = "";
         this.node.getChildByName("lv").getComponent(cc.Label).string = "";
+
+        let heroNode = this.node.getChildByName("hero");
+        if (heroNode.children.length) {
+            heroNode.children[0].destroy();
+        }
+
+
         if (this.selected) {
             this.selected = false;
             let list = RolelistMain.instance.rolelist;

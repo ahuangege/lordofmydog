@@ -16,7 +16,7 @@ let skillConDic: Dic<typeof SkillBase> = {};
  * 技能注册（装饰器）
  */
 export function registerSkill(skillCon: typeof SkillBase) {
-    skillConDic[skillCon.name.substr(6)] = skillCon;
+    skillConDic[skillCon.name.substring(6)] = skillCon;
 }
 
 /** 技能管理 */
@@ -44,7 +44,11 @@ export class SkillMgr {
 
     /** 删除技能 */
     delSkill(skillId: number) {
-
+        let skill = this.skillDic[skillId];
+        if (skill) {
+            delete this.skillDic[skillId];
+            skill.skillOver();
+        }
     }
 
     /** 使用技能 */
@@ -104,7 +108,7 @@ export class SkillBase {
     cd: number = 0; // 剩余时间
 
     constructor(skillMgr: SkillMgr) {
-        this.skillId = Number((this as Object).constructor.name.substr(6));
+        this.skillId = Number((this as Object).constructor.name.substring(6));
         this.skillMgr = skillMgr;
         this.cdBase = cfg_all().skill[this.skillId].cd;
     }
@@ -131,6 +135,11 @@ export class SkillBase {
             UIMgr.showTileInfo("魔法不足");
             return;
         }
+        if (!this.skillMgr.role.buffMgr.canUseSkill()) {
+            UIMgr.showTileInfo("晕眩中");
+            return;
+        }
+
 
         if (cfg.targetType === E_skillTargetType.noTarget) {
             this.skillMgr.tellSvrUseSkill({ "skillId": this.skillId });
@@ -156,8 +165,11 @@ export class SkillBase {
         }
         let meP = this.skillMgr.role as Player;
         let otherP = MapMain.instance.getEntity<Player>(param.id);
-        if (!otherP || otherP.hp <= 0) {
+        if (!otherP) {
             return;
+        }
+        if (otherP.hp <= 0) {
+            return UIMgr.showTileInfo("目标已死亡");
         }
         if (otherP.t === Entity_type.item) {    // 道具
             return;

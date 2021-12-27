@@ -14,7 +14,10 @@ import { getItemImg, getSkillImg } from "../util/gameUtil";
 import { CameraFollow } from "./cameraFollow";
 import { Entity, Entity_type, I_entityJson } from "./entity";
 import { MapDoor } from "./mapDoor";
+import { I_monsterJson, Monster } from "./monster";
 import { HurtNum } from "./other/hurtNum";
+import { I_itemJson, MapItemPrefab } from "./other/mapItemPrefab";
+import { ShopPrefab } from "./other/shopPrefab";
 import { Pathfind } from "./pathFind";
 import { I_playerJson, I_xy, Player } from "./player";
 import { Role } from "./role";
@@ -33,6 +36,10 @@ export class MapMain extends cc.Component {
     private tileLayer: cc.TiledLayer = null;
     @property(cc.Prefab)
     private playerPrefab: cc.Prefab = null;
+    @property(cc.Prefab)
+    private monsterPrefab: cc.Prefab = null;
+    @property(cc.Prefab)
+    private mapItemPrefab: cc.Prefab = null;
     @property(cc.Camera)
     private cameraMain: cc.Camera = null;
     public mePlayer: Player = null;
@@ -50,9 +57,15 @@ export class MapMain extends cc.Component {
     @property(cc.Prefab)
     private mapDoorPrefab: cc.Prefab = null;
     @property(cc.Prefab)
+    private shopPrefab: cc.Prefab = null;
+    @property(cc.Prefab)
     public hurtNumPrefab: cc.Prefab = null;
     @property(cc.Node)
     public hurtNumParent: cc.Node = null;
+    @property(cc.Node)
+    public effectParent: cc.Node = null;
+    @property(cc.Prefab)
+    public buffPrefab: cc.Prefab = null;
 
     onLoad() {
         MapMain.instance = this;
@@ -71,10 +84,14 @@ export class MapMain extends cc.Component {
         network.addHandler(cmd.onHpMaxChanged, this.svr_onHpMaxChanged, this);
         network.addHandler(cmd.onMpMaxChanged, this.svr_onMpMaxChanged, this);
         network.addHandler(cmd.onChangeMap, this.svr_onChangeMap, this);
+        network.addHandler(cmd.onCopyMatchOk, this.svr_onMatchOk, this);
         network.addHandler(cmd.onUseSkill, this.svr_onUseSkill, this);
         network.addHandler(cmd.onSkillAffect, this.svr_onSkillAffect, this);
         network.addHandler(cmd.onSkillOver, this.svr_onSkillOver, this);
         network.addHandler(cmd.onUseHpFast, this.svr_onUseHpFast, this);
+        network.addHandler(cmd.onAddBuff, this.svr_onAddBuff, this);
+        network.addHandler(cmd.onBuffOver, this.svr_onBuffOver, this);
+        network.addHandler(cmd.onSomeHurt, this.svr_onSomeHurt, this);
 
         cc.resources.load("map/map" + Game.mapId, cc.TiledMapAsset, (err, res: cc.TiledMapAsset) => {
             if (err) {
@@ -95,6 +112,14 @@ export class MapMain extends cc.Component {
                 this.tileLayer.addUserNode(node);
                 node.getComponent(MapDoor).init(one);
             }
+            for (let x in cfg_all().shop) {
+                let one = cfg_all().shop[x];
+                if (one.mapId === Game.mapId) {
+                    let node = cc.instantiate(this.shopPrefab);
+                    this.tileLayer.addUserNode(node);
+                    node.getComponent(ShopPrefab).init(one);
+                }
+            }
 
             // 加载完地图，请求服务器，进入地图
             network.sendMsg(cmd.map_main_enterMap);
@@ -107,6 +132,9 @@ export class MapMain extends cc.Component {
                 return;
             }
             if (!cc.isValid(this.mePlayer)) {
+                return;
+            }
+            if (!this.mePlayer.buffMgr.canMove()) {
                 return;
             }
             let tmpPos = this.screen2worldPoint(event.getLocation());
@@ -172,6 +200,10 @@ export class MapMain extends cc.Component {
             }
         }
 
+        if (cc.isValid(this.mePlayer)) {
+            GameMainPanel.instance.setMapPos(Math.floor(this.mePlayer.node.x / 32), Math.floor(this.mePlayer.node.y / 32));
+        }
+
     }
 
     private svr_onClose() {
@@ -205,6 +237,9 @@ export class MapMain extends cc.Component {
 
         CameraFollow.instance.setTarget(this.mePlayer.node);
 
+        let mapCfg = cfg_all().map[msg.mapId];
+        GameMainPanel.instance.setMapName(mapCfg.isCopy, mapCfg.name);
+
         this.pathFind = new Pathfind();
         getMapJson(msg.mapId, (arr) => {
             if (arr) {
@@ -218,14 +253,33 @@ export class MapMain extends cc.Component {
         for (let one of entities) {
             switch (one.t) {
                 case Entity_type.player:
-                    let p = cc.instantiate(this.playerPrefab);
-                    this.tileLayer.addUserNode(p);
-                    p.x = one.x;
-                    p.y = one.y;
-                    let com = p.getComponent(Player);
-                    com.init(one as I_playerJson);
-                    this.addEntity(com);
+                    let node = cc.instantiate(this.playerPrefab);
+                    this.tileLayer.addUserNode(node);
+                    node.x = one.x;
+                    node.y = one.y;
+                    let comP = node.getComponent(Player);
+                    comP.init(one as I_playerJson);
+                    this.addEntity(comP);
                     break;
+                case Entity_type.monster:
+                    node = cc.instantiate(this.monsterPrefab);
+                    this.tileLayer.addUserNode(node);
+                    node.x = one.x;
+                    node.y = one.y;
+                    let comMonster = node.getComponent(Monster);
+                    comMonster.init(one as I_monsterJson);
+                    this.addEntity(comMonster);
+                    break;
+                case Entity_type.item:
+                    node = cc.instantiate(this.mapItemPrefab);
+                    this.tileLayer.addUserNode(node);
+                    node.x = one.x;
+                    node.y = one.y;
+                    let comItem = node.getComponent(MapItemPrefab);
+                    comItem.init(one as I_itemJson);
+                    this.addEntity(comItem);
+                    break;
+
                 default:
                     break;
             }
@@ -257,11 +311,8 @@ export class MapMain extends cc.Component {
                 continue;
             }
             this.delEntity(entity);
-
-            if (entity.t === Entity_type.player) {
-                this.tileLayer.destroyUserNode(entity.node);
-                entity.node.destroy();
-            }
+            this.tileLayer.destroyUserNode(entity.node);
+            entity.node.destroy();
         }
     }
 
@@ -366,6 +417,14 @@ export class MapMain extends cc.Component {
         cc.director.loadScene("map");
     }
 
+    /** 通知，副本匹配成功 */
+    private svr_onMatchOk(msg: { "doorId": number }) {
+        let cfg = cfg_all().mapDoor[msg.doorId];
+        Game.mapId = cfg.mapId2;
+
+        // 本demo为了方便，切换地图时，直接重新加载场景。实际应用中，请考虑更好的方式。
+        cc.director.loadScene("map");
+    }
 
     /** 通知，使用技能 */
     private svr_onUseSkill(msg: I_onUseSkill) {
@@ -393,6 +452,19 @@ export class MapMain extends cc.Component {
         }
     }
 
+
+    /** 通知，新增buff */
+    private svr_onAddBuff(msg: { "id": number, "buffId": number }) {
+        let role = this.getEntity<Role>(msg.id);
+        role && role.buffMgr.addBuff(msg.buffId);
+    }
+
+    /** 通知，buff移除 */
+    private svr_onBuffOver(msg: { "id": number, "buffId": number }) {
+        let role = this.getEntity<Role>(msg.id);
+        role && role.buffMgr.delBuff(msg.buffId);
+    }
+
     /** 展示伤害数字 */
     showHurtNum(nodeBase: cc.Node, num: number, isSub: boolean) {
         let node = cc.instantiate(this.hurtNumPrefab);
@@ -400,6 +472,15 @@ export class MapMain extends cc.Component {
         node.x = nodeBase.x;
         node.y = nodeBase.y + 128;
         node.getComponent(HurtNum).init(num, isSub);
+    }
+
+    /** 部分伤害 */
+    private svr_onSomeHurt(msg: { "arr": { "id": number, "hurt": number, "hp": number }[] }) {
+        for (let one of msg.arr) {
+            let role2 = MapMain.instance.getEntity<Role>(one.id);
+            role2.setHp(one.hp);
+            this.showHurtNum(role2.node, one.hurt, true);
+        }
     }
 
 

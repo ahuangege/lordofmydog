@@ -40,13 +40,13 @@ export const enum cmd {
 	 */
 	map_main_changeMap = "map.main.changeMap",
 	/**
+	 * 地图中聊天
+	 */
+	map_main_chatMap = "map.main.chatMap",
+	/**
 	 * 新增或移除实体
 	 */
 	onEntityChange = "onEntityChange",
-	/**
-	 * 视野内聊天
-	 */
-	onChatAOI = "onChatAOI",
 	/**
 	 * 本地图聊天
 	 */
@@ -79,6 +79,18 @@ export const enum cmd {
 	 * 通知，技能结束（持续性技能）
 	 */
 	onSkillOver = "onSkillOver",
+	/**
+	 * 通知，新增buff
+	 */
+	onAddBuff = "onAddBuff",
+	/**
+	 * 通知，buff结束
+	 */
+	onBuffOver = "onBuffOver",
+	/**
+	 * 部分伤害通知
+	 */
+	onSomeHurt = "onSomeHurt",
 	/**
 	 * 通知，使用了快速加血栏
 	 */
@@ -128,7 +140,27 @@ export const enum cmd {
 	 */
 	info_main_equipSkill = "info.main.equipSkill",
 	/**
+	 * 商店购买
+	 */
+	info_main_shopBuy = "info.main.shopBuy",
+	/**
 	 * 等级经验发生变化
 	 */
 	onLvExpChanged = "onLvExpChanged",
+	/**
+	 * 副本匹配
+	 */
+	map_main_copyStartMatch = "map.main.copyStartMatch",
+	/**
+	 * 副本取消匹配
+	 */
+	map_main_copyCancelMatch = "map.main.copyCancelMatch",
+	/**
+	 * 通知副本匹配成功
+	 */
+	onCopyMatchOk = "onCopyMatchOk",
+	/**
+	 * 拾取地图上的道具
+	 */
+	map_main_pickItem = "map.main.pickItem",
 }

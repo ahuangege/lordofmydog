@@ -1,4 +1,5 @@
 import { UIMgr, uiPanel } from "../common/uiMgr";
+import { getPrefab } from "../util/gameUtil";
 import { Entity, Entity_type } from "./entity";
 import { MapMain } from "./mapMain";
 import { Role } from "./role";
@@ -13,7 +14,8 @@ const moveSpeed = 280;
 export class Player extends Role {
     uid: number;
     heroId: number;
-    nickname: string;
+    @property(cc.Label)
+    private chatLabel: cc.Label = null;
     onLoad() {
         super.onLoad();
     }
@@ -44,12 +46,19 @@ export class Player extends Role {
 
         this.uid = json.id;
         this.heroId = json.heroId;
-        this.nickname = json.nickname;
-        this.node.getChildByName("name").getComponent(cc.Label).string = this.nickname;
+        this.node.getChildByName("name").getComponent(cc.Label).string = json.nickname;
         this.move(json.path);
         this.hp = json.hp;
         this.hpMax = json.hpMax;
         this.refreshHpUi();
+
+        getPrefab("heros/hero" + this.heroId, (prefab) => {
+            if (!prefab || !cc.isValid(this)) {
+                return;
+            }
+            let node = cc.instantiate(prefab);
+            node.parent = this.roleNode;
+        });
     }
 
     initSkill(skillPos: number[], skillCd: number[]) {
@@ -65,6 +74,17 @@ export class Player extends Role {
 
     update(dt: number) {
         super.update(dt);
+    }
+
+    chat(msg: string) {
+        this.chatLabel.string = msg;
+        this.chatLabel.node.parent.active = true;
+        this.unschedule(this.chatDisappear);
+        this.scheduleOnce(this.chatDisappear, 3);
+    }
+
+    private chatDisappear() {
+        this.chatLabel.node.parent.active = false;
     }
 
 }

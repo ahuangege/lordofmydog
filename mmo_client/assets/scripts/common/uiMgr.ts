@@ -107,4 +107,5 @@ export const enum uiPanel {
     gmPanel = "map/gmPanel",
     skillPanel = "map/skillPanel",
     settingPanel = "map/settingPanel",
+    shopPanel = "map/shopPanel",
 }

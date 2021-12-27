@@ -40,13 +40,13 @@ export const enum cmd {
 	 */
 	map_main_changeMap = 9,
 	/**
+	 * 地图中聊天
+	 */
+	map_main_chatMap = 10,
+	/**
 	 * 新增或移除实体
 	 */
-	onEntityChange = 10,
-	/**
-	 * 视野内聊天
-	 */
-	onChatAOI = 11,
+	onEntityChange = 11,
 	/**
 	 * 本地图聊天
 	 */
@@ -80,55 +80,87 @@ export const enum cmd {
 	 */
 	onSkillOver = 19,
 	/**
+	 * 通知，新增buff
+	 */
+	onAddBuff = 20,
+	/**
+	 * 通知，buff结束
+	 */
+	onBuffOver = 21,
+	/**
+	 * 部分伤害通知
+	 */
+	onSomeHurt = 22,
+	/**
 	 * 通知，使用了快速加血栏
 	 */
-	onUseHpFast = 20,
+	onUseHpFast = 23,
 	/**
 	 * 金币变化
 	 */
-	onGoldChanged = 21,
+	onGoldChanged = 24,
 	/**
 	 * 被踢
 	 */
-	onKicked = 22,
-	onAskFriend = 23,
-	onAddFriend = 24,
-	onDelFriend = 25,
-	onFriendInfoChange = 26,
-	info_bag_delItem = 27,
-	info_bag_dropItem = 28,
-	onItemChanged = 29,
-	info_bag_changePos = 30,
+	onKicked = 25,
+	onAskFriend = 26,
+	onAddFriend = 27,
+	onDelFriend = 28,
+	onFriendInfoChange = 29,
+	info_bag_delItem = 30,
+	info_bag_dropItem = 31,
+	onItemChanged = 32,
+	info_bag_changePos = 33,
 	/**
 	 * 装备道具
 	 */
-	info_bag_equipItem = 31,
+	info_bag_equipItem = 34,
 	/**
 	 * 通知 装备改变
 	 */
-	onEquipChanged = 32,
+	onEquipChanged = 35,
 	/**
 	 * hp mp 快速使用栏变化
 	 */
-	onHpMpPosChanged = 33,
+	onHpMpPosChanged = 36,
 	/**
 	 * hp mp 快速使用
 	 */
-	info_bag_useHpMpAdd = 34,
+	info_bag_useHpMpAdd = 37,
 	/**
 	 * gm命令
 	 */
-	info_main_gmCommit = 35,
+	info_main_gmCommit = 38,
 	/**
 	 * 学习技能
 	 */
-	info_main_learnSkill = 36,
+	info_main_learnSkill = 39,
 	/**
 	 * 装备技能
 	 */
-	info_main_equipSkill = 37,
+	info_main_equipSkill = 40,
+	/**
+	 * 商店购买
+	 */
+	info_main_shopBuy = 41,
 	/**
 	 * 等级经验发生变化
 	 */
-	onLvExpChanged = 38,
+	onLvExpChanged = 42,
+	/**
+	 * 副本匹配
+	 */
+	map_main_copyStartMatch = 43,
+	/**
+	 * 副本取消匹配
+	 */
+	map_main_copyCancelMatch = 44,
+	/**
+	 * 通知副本匹配成功
+	 */
+	onCopyMatchOk = 45,
+	/**
+	 * 拾取地图上的道具
+	 */
+	map_main_pickItem = 46,
 }

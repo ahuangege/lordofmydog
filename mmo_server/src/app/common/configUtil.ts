@@ -9,6 +9,11 @@ interface I_cfgAll {
     "hero": Dic<I_cfg_hero>,
     "heroLv": Dic<Dic<I_cfg_heroLv>>,
     "skill": Dic<I_cfg_skill>,
+    "shop": Dic<I_cfg_shop>,
+    "shopItem": Dic<I_cfg_shopItem>,
+    "monster": Dic<I_cfg_monster>,
+    "mapMonster": Dic<I_cfg_mapMonster>,
+    "mapId_monster": Dic<I_cfg_mapMonster[]>,
 }
 
 
@@ -19,6 +24,10 @@ let jsonNames = {
     "hero": true,
     "heroLv": true,
     "skill": true,
+    "shop": true,
+    "shopItem": true,
+    "monster": true,
+    "mapMonster": true,
 };
 
 let cfgAll: I_cfgAll = {} as any;
@@ -123,6 +132,37 @@ jsonOn("skill", () => {
     pushToChanged("skill");
 });
 
+jsonOn("shop", () => {
+    cfgAll.shop = requireJson("shop");
+    pushToChanged("shop");
+});
+
+jsonOn("shopItem", () => {
+    cfgAll.shopItem = requireJson("shopItem");
+    pushToChanged("shopItem");
+});
+
+jsonOn("monster", () => {
+    cfgAll.monster = requireJson("monster");
+    pushToChanged("monster");
+});
+
+jsonOn("mapMonster", () => {
+    cfgAll.mapMonster = requireJson("mapMonster");
+    let obj: Dic<I_cfg_mapMonster[]> = {};
+    for (let x in cfg_all().mapMonster) {
+        let one = cfg_all().mapMonster[x];
+        if (obj[one.mapId]) {
+            obj[one.mapId].push(one);
+        } else {
+            obj[one.mapId] = [one];
+        }
+    }
+    cfgAll.mapId_monster = obj;
+    pushToChanged("mapMonster");
+});
+
+
 //#region 结构声明
 
 /** 道具 */
@@ -140,7 +180,7 @@ interface I_cfg_map {
 }
 
 /** 地图出口信息 */
-interface I_cfg_mapDoor {
+export interface I_cfg_mapDoor {
     id: number,
     mapId: number,  // 地图id
     mapId2: number, // 目标地图id
@@ -179,7 +219,46 @@ interface I_cfg_skill {
     range: number,  // 作用范围
 }
 
+/** 商店 */
+interface I_cfg_shop {
+    id: number, // 商店id
+    mapId: number,  // 所在地图
+    x: number,     // x
+    y: number,  // y
+}
 
+/** 商店卖的物品 */
+interface I_cfg_shopItem {
+    id: number,
+    shopId: number,
+    itemId: number,
+    gold: number,
+}
+
+/** 怪物数据 */
+interface I_cfg_monster {
+    id: number,
+    skill: number[],
+    hp: number,
+    mp: number,
+    attack: number,
+    armor_p: number,
+    armor_m: number,
+    items: number[][],
+    exp: number,
+    range: number,
+}
+
+/** 地图的怪物分布 */
+interface I_cfg_mapMonster {
+    id: number,
+    mapId: number,
+    monsterId: number,
+    x: number,  // 初始坐标x
+    y: number,  // 初始坐标y
+    x2: number, // 巡逻坐标x
+    y2: number, // 巡逻坐标y
+}
 
 //#endregion
 

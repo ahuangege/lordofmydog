@@ -6,7 +6,7 @@
         "cd": 1,
         "damage": 0,
         "targetType": 4,
-        "targetDistance": 100,
+        "targetDistance": 200,
         "mpCost": 1,
         "range": 0
     },
@@ -40,7 +40,7 @@
         "damage": 1,
         "targetType": 1,
         "targetDistance": 0,
-        "mpCost": 0,
+        "mpCost": 2,
         "range": 300
     },
     "1101": {
@@ -63,7 +63,7 @@
         "targetType": 3,
         "targetDistance": 200,
         "mpCost": 1,
-        "range": 0
+        "range": 300
     },
     "1103": {
         "id": 1103,
@@ -74,7 +74,7 @@
         "targetType": 4,
         "targetDistance": 350,
         "mpCost": 1,
-        "range": 0
+        "range": 100
     },
     "1104": {
         "id": 1104,

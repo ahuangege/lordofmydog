@@ -15,6 +15,9 @@ interface I_cfgAll {
     "skill": Dic<I_cfg_skill>,
     "map": Dic<I_cfg_map>,
     "mapDoor": Dic<I_cfg_mapDoor>,
+    "shop": Dic<I_cfg_shop>,
+    "shopItem": Dic<I_cfg_shopItem>,
+    "monster": Dic<I_cfg_monster>,
 }
 
 
@@ -87,6 +90,7 @@ interface I_cfg_item {
 /** 英雄 */
 interface I_cfg_hero {
     id: number,
+    name: string,
     initSkill: number,
     skill: number[],
     skillUnlockLv: number[],
@@ -111,6 +115,7 @@ interface I_cfg_skill {
     targetType: E_skillTargetType,
     targetDistance: number,
     mpCost: number,
+    range: number,
 }
 
 /** 地图信息 */
@@ -130,4 +135,37 @@ export interface I_cfg_mapDoor {
     y: number,
     x2: number,
     y2: number,
+}
+
+/** 商店 */
+export interface I_cfg_shop {
+    id: number, // 商店id
+    name: string,
+    mapId: number,  // 所在地图
+    x: number,     // x
+    y: number,  // y
+}
+
+/** 商店卖的物品 */
+export interface I_cfg_shopItem {
+    id: number,
+    shopId: number,
+    itemId: number,
+    gold: number,
+}
+
+
+/** 怪物数据 */
+export interface I_cfg_monster {
+    id: number,
+    name: string,
+    skill: number[],
+    hp: number,
+    mp: number,
+    attack: number,
+    armor_p: number,
+    armor_m: number,
+    items: number[][],
+    exp: number,
+    range: number,
 }

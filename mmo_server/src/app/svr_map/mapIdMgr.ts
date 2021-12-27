@@ -30,6 +30,9 @@ export class MapIdMgr {
     }
 
     static getCopySvr() {
+        if (this.needInit) {
+            this.init();
+        }
         return randArrElement(this.copySvrArr);
     }
 

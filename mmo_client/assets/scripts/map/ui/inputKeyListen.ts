@@ -192,6 +192,7 @@ export enum E_keyType {
     add_hp = 8,     // 快速加血栏
     add_mp = 9,     // 快速加蓝栏
     setting = 10,   // 设置面板
+    shopPanel = 11, // 商店面板
 }
 
 /** 按键对应值 */

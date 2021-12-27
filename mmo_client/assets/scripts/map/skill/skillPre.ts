@@ -44,9 +44,9 @@ export class SkillPre extends cc.Component {
         }, this, true);
 
         this.node.on(cc.Node.EventType.MOUSE_MOVE, (event: cc.Event.EventMouse) => {
-            if (!this.info) {
-                return;
-            }
+            // if (!this.info) {
+            //     return;
+            // }
             let pos = this.node.convertToNodeSpaceAR(event.getLocation());
             this.cursorNode.x = pos.x;
             this.cursorNode.y = pos.y;

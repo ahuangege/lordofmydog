@@ -12,6 +12,7 @@ import { network } from "../../common/network";
 import { UIMgr, uiPanel } from "../../common/uiMgr";
 import { E_itemT, removeFromArr } from "../../util/gameUtil";
 import { MapMain } from "../mapMain";
+import { Player } from "../player";
 import { BagPanel } from "./bagPanel";
 import { EscGo } from "./escGo";
 import { GmPanel } from "./gmPanel";
@@ -33,7 +34,18 @@ export class GameMainPanel extends cc.Component {
     public skillArr: SkillPrefab[] = [];
     public hpPrefab: HpMpPrefab = null;
     public mpPrefab: HpMpPrefab = null;
-
+    @property(cc.Label)
+    private posLabel: cc.Label = null;
+    @property(cc.Node)
+    private matchNode: cc.Node = null;
+    @property(cc.Node)
+    private chatPrefab: cc.Node = null;
+    @property(cc.Node)
+    private chatParent: cc.Node = null;
+    @property(cc.EditBox)
+    private chatEdit: cc.EditBox = null;
+    @property(cc.Label)
+    private goldLabel: cc.Label = null;
     onLoad() {
         GameMainPanel.instance = this;
     }
@@ -44,8 +56,13 @@ export class GameMainPanel extends cc.Component {
         network.addHandler(cmd.onHpMpPosChanged, this.svr_onHpMpPosChanged, this);
         network.addHandler(cmd.onLvExpChanged, this.svr_onLvExpChanged, this);
         network.addHandler(cmd.info_main_equipSkill, this.svr_equipSkillBack, this);
+        network.addHandler(cmd.map_main_copyStartMatch, this.svr_startMatchBack, this);
+        network.addHandler(cmd.map_main_copyCancelMatch, this.svr_cancelMatchBack, this);
+        network.addHandler(cmd.onChatMap, this.svr_onChatMap, this);
+        network.addHandler(cmd.onGoldChanged, this.svr_onGoldChanged, this);
 
         this.setLvExp(true);
+        this.goldLabel.string = Game.roleInfo.gold.toString();
 
         let children = this.skillParentNode.children;
         let skillPos = Game.roleInfo.skillPos;
@@ -59,6 +76,7 @@ export class GameMainPanel extends cc.Component {
         this.hpPrefab.init(Game.roleInfo.hpPos);
         this.mpPrefab.init(Game.roleInfo.mpPos);
 
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
     }
 
 
@@ -144,11 +162,18 @@ export class GameMainPanel extends cc.Component {
     }
 
     /** 技能使用栏，换了技能 */
-    private svr_equipSkillBack(msg: { "code": number, "skill": { "index": number, "skillId": number }[] }) {
+    private svr_equipSkillBack(msg: { "code": number, "skill": { "index": number, "skillId": number }[], "addSkill": number, "delSkill": number }) {
         if (msg.code === 0) {
             for (let one of msg.skill) {
                 Game.roleInfo.skillPos[one.index] = one.skillId;
                 this.skillArr[one.index].init(one.skillId);
+            }
+            let player = MapMain.instance.mePlayer;
+            if (msg.delSkill) {
+                player.skillMgr.delSkill(msg.delSkill);
+            }
+            if (msg.addSkill) {
+                player.skillMgr.addSkill(msg.addSkill);
             }
         }
     }
@@ -156,9 +181,88 @@ export class GameMainPanel extends cc.Component {
     btn_heroInfo() {
         InputKeyListen.instance.showPanel(E_keyType.heroInfo);
     }
+    /** 设置当前地图的地图名 */
+    setMapName(isCopy: number, mapName: string) {
+        this.posLabel.node.parent.getChildByName("name").getComponent(cc.Label).string = isCopy ? mapName + "(副本)" : mapName;
+    }
+    /** 设置当前坐标 */
+    setMapPos(x: number, y: number) {
+        this.posLabel.string = "(" + x + "," + y + ")";
+    }
 
+    btn_cancelMatch() {
+        network.sendMsg(cmd.map_main_copyCancelMatch);
+    }
+
+    private svr_startMatchBack(msg: { "code": number, "doorId": number }) {
+        if (msg.code === 0) {
+            let mapId = cfg_all().mapDoor[msg.doorId].mapId2;
+            this.setMatchOk(true, cfg_all().map[mapId].name);
+        } else {
+            UIMgr.showErrcode(msg.code);
+        }
+    }
+    private svr_cancelMatchBack(msg: { "code": number }) {
+        if (msg.code === 0) {
+            this.setMatchOk(false, "");
+        }
+    }
+
+    /** 设置匹配状态 */
+    setMatchOk(ok: boolean, mapName: string) {
+        if (ok) {
+            this.matchNode.active = true;
+            this.matchNode.getChildByName("name").getComponent(cc.Label).string = "匹配中 [" + mapName + "]";
+        } else {
+            this.matchNode.active = false;
+        }
+    }
+
+    chatEdit_enter() {
+        this.scheduleOnce(() => {
+            this.chatEdit.focus();
+        }, 0.2);
+
+        let str = this.chatEdit.string;
+        if (str === "") {
+            return;
+        }
+        this.chatEdit.string = "";
+        network.sendMsg(cmd.map_main_chatMap, { "msg": str });
+    }
+
+    private svr_onChatMap(msg: { "id": number, "nickname": string, "msg": string }) {
+        let node = cc.instantiate(this.chatPrefab);
+        node.parent = this.chatParent;
+        if (msg.id === MapMain.instance.meId) {
+            node.getComponent(cc.RichText).string = "<color=green>" + msg.nickname + "</c>: " + msg.msg;
+        } else {
+            node.getComponent(cc.RichText).string = "<color=yellow>" + msg.nickname + "</c>: " + msg.msg;
+        }
+        if (this.chatParent.children.length > 10) {
+            let arr = this.chatParent.children.slice(0, 5);
+            for (let one of arr) {
+                one.destroy();
+            }
+        }
+
+        let p = MapMain.instance.getEntity<Player>(msg.id);
+        p.chat(msg.msg);
+    }
+
+    private svr_onGoldChanged(msg: { "num": number }) {
+        Game.roleInfo.gold = msg.num;
+        this.goldLabel.string = msg.num.toString();
+    }
+
+    private onKeyDown(event: cc.Event.EventKeyboard) {
+        if (event.keyCode === cc.macro.KEY.enter) {
+            this.chatEdit.focus();
+        }
+    }
 
     onDestroy() {
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         network.removeThisHandlers(this);
         GameMainPanel.instance = null;
     }

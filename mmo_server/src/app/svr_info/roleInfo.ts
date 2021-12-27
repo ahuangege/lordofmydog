@@ -9,9 +9,10 @@ import { getBit, getDiffDays, randArrElement, setBit, timeFormat } from "../util
 import { Friend } from "./friend";
 import { MapIdMgr } from "../svr_map/mapIdMgr";
 import { I_playerMapJson } from "../../servers/map/handler/main";
-import { cfg_all } from "../common/configUtil";
+import { cfg_all, I_cfg_mapDoor } from "../common/configUtil";
 import { Bag, I_item } from "./bag";
 import { Equipment } from "./equipment";
+import { j2x2 } from "../svr_map/map";
 
 export class RoleInfo {
     public uid: number;
@@ -37,8 +38,14 @@ export class RoleInfo {
         this.bag = new Bag(this, allInfo.bag);
         this.equip = new Equipment(this, allInfo.equip);
 
+        let svr = "";
+        if (cfg_all().map[this.role.mapId].isCopy) {
+            svr = MapIdMgr.getCopySvr();
+        } else {
+            svr = MapIdMgr.getSvr(this.role.mapId);
+        }
         this.roleMem = {
-            "mapSvr": MapIdMgr.getSvr(this.role.mapId),
+            "mapSvr": svr,
             "mapIndex": this.role.mapId,
             "token": 0,
         }
@@ -48,18 +55,24 @@ export class RoleInfo {
 
     entryServerLogic(sid: string, cb: (err: number, endInfo: I_roleAllInfoClient) => void) {
         this.sid = sid;
-
         app.rpc(this.roleMem.mapSvr).map.main.isMapOk(this.role.mapId, this.roleMem.mapIndex, this.uid, (err, ok) => {
             if (err) {
                 return cb(0, { "code": 1 } as any);
             }
-
             if (!ok) {
                 let mapData = cfg_all().map[this.role.mapId];
-                // if (mapData.isCopy) {
-                //     this.changeRoleInfo({ "mapId": mapData.copyEnter.mapId, "x": mapData.copyEnter.x, "y": mapData.copyEnter.y });
-                //     this.changeRoleMem({ "mapSvr": MapIdMgr.getSvr(this.role.mapId), "mapIndex": this.role.mapId });
-                // }
+                if (mapData.isCopy) {
+                    let doorCfg: I_cfg_mapDoor = null as any;
+                    for (let x in cfg_all().mapDoor) {
+                        let one = cfg_all().mapDoor[x];
+                        if (one.mapId === this.role.mapId) {
+                            doorCfg = one;
+                            break;
+                        }
+                    }
+                    this.changeRoleInfo({ "mapId": doorCfg.mapId2, "x": j2x2(doorCfg.x2), "y": j2x2(doorCfg.y2) });
+                    this.changeRoleMem({ "mapSvr": MapIdMgr.getSvr(this.role.mapId), "mapIndex": this.role.mapId });
+                }
             }
             this.online();
             let role = this.role;

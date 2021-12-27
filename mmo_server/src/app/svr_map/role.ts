@@ -27,7 +27,7 @@ export abstract class Role extends Entity {
     constructor(info: I_EntityInit) {
         super(info);
         this.skillMgr = new SkillMgr(this);
-        this.buffMgr = new BuffMgr();
+        this.buffMgr = new BuffMgr(this);
     }
 
 
@@ -62,6 +62,17 @@ export abstract class Role extends Entity {
         }
     }
 
+    changePos(x: number, y: number) {
+        let oldPos = { "x": this.x, "y": this.y };
+        this.x = x;
+        this.y = y;
+
+        if (this.t === Entity_type.player) {
+            this.map.towerAOI.updateWatcher(this as any as Player, oldPos, this);
+        }
+        this.map.towerAOI.updateObj(this, oldPos, this);
+    }
+
     isDie() {
         return this.hp <= 0;
     }
@@ -89,11 +100,15 @@ export abstract class Role extends Entity {
     }
     /** 扣血 */
     subHp(num: number) {
+        if (this.hp === 0) {
+            return;
+        }
         this.hp -= num;
         if (this.hp < 0) {
             this.hp = 0;
         }
     }
+
     /** 加血 */
     addHp(num: number) {
         this.hp += num;
@@ -102,6 +117,10 @@ export abstract class Role extends Entity {
         }
     }
 
+    /** 死亡 */
+    die() {
+        this.hp = 0;
+    }
 
 }
 

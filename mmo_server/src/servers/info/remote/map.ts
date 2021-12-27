@@ -1,6 +1,7 @@
 import { app, rpcErr } from "mydog";
 import { cfg_all } from "../../../app/common/configUtil";
 import { constKey } from "../../../app/common/someConfig";
+import { I_item } from "../../../app/svr_info/bag";
 import { svr_info } from "../../../app/svr_info/svr_info";
 import { I_playerMapJson, I_xy } from "../../map/handler/main";
 
@@ -38,6 +39,13 @@ export default class MapRemote {
             cb();
         });
     }
+
+    /** 拾取地图上的道具 */
+    pickItem(uid: number, item: I_item) {
+        let role = svr_info.roleInfoMgr.getRole(uid);
+        role.bag.addItem(item);
+    }
+
 }
 
 export interface I_syncSomeInfo {

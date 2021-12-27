@@ -31,7 +31,12 @@ export class MapDoor extends cc.Component {
                 if (cc.Vec2.distance(this.node, p.node) > 2 * 64) {
                     return;
                 }
-                network.sendMsg(cmd.map_main_changeMap, { "doorId": this.doorId });
+                let cfg = cfg_all().map[this.mapId]
+                if (cfg.isCopy) {
+                    network.sendMsg(cmd.map_main_copyStartMatch, { "doorId": this.doorId });
+                } else {
+                    network.sendMsg(cmd.map_main_changeMap, { "doorId": this.doorId });
+                }
             }
 
         });

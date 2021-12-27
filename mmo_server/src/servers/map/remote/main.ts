@@ -1,6 +1,7 @@
 import { E_itemT } from "../../../app/svr_info/roleInfo";
 import { MapMgr } from "../../../app/svr_map/mapMgr";
 import { svr_map } from "../../../app/svr_map/svr_map";
+import { randBetween } from "../../../app/util/util";
 
 
 declare global {
@@ -17,6 +18,11 @@ export default class Remote {
         this.mapMgr = svr_map.mapMgr;
     }
 
+    /** 创建副本 */
+    createCopyMap(mapId: number, copyUids: number[], cb: (err: number, mapIndex: number) => void) {
+        let mapIndex = this.mapMgr.createCopyMap(mapId, copyUids);
+        cb(0, mapIndex);
+    }
 
 
     /** 离开地图 */
@@ -29,21 +35,6 @@ export default class Remote {
         cb && cb(0);
     }
 
-    // /** 观察地图 */
-    // watchMap(mapId: number, uid: number, sid: string) {
-    //     // let role = this.mapMgr.getRole(mapId, uid);
-    //     // if (role) {
-    //     //     role.watchMap(sid);
-    //     // }
-    // }
-
-    // /** 不再观察地图 */
-    // unwatchMap(mapId: number, uid: number) {
-    //     let role = this.mapMgr.getRole(mapId, uid);
-    //     if (role) {
-    //         role.unwatchMap();
-    //     }
-    // }
 
 
     isMapOk(mapId: number, mapIndex: number, uid: number, cb: (err: number, ok: boolean) => void) {
@@ -70,5 +61,33 @@ export default class Remote {
     useHpMpAdd(mapIndex: number, uid: number, itemId: number) {
         let p = this.mapMgr.getPlayer(mapIndex, uid);
         p.useHpMpAdd(itemId);
+    }
+
+    /** 切换技能了 */
+    changeSkill(mapIndex: number, uid: number, addSkill: number, delSkill: number) {
+        let p = this.mapMgr.getPlayer(mapIndex, uid);
+        if (delSkill) {
+            p.skillMgr.delSkill(delSkill);
+        }
+        if (addSkill) {
+            p.skillMgr.addSkill(addSkill);
+        }
+    }
+
+    /** 将装备扔地上 */
+    dropItem(mapIndex: number, uid: number, itemId: number, num: number) {
+        let map = this.mapMgr.getMap(mapIndex);
+        if (!map) {
+            return;
+        }
+        let p = map.getPlayer(uid);
+        if (!p) {
+            return;
+        }
+        let x = Math.floor(p.x);
+        let y = Math.floor(p.y);
+        x = map.limitX(randBetween(x - 80, x + 80));
+        y = map.limitY(randBetween(y - 80, y + 80));
+        map.createItem([{ "itemId": itemId, "num": num, "x": x, "y": y, "time": 20 }]);
     }
 }

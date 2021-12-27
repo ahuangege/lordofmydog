@@ -65,6 +65,10 @@ export class Bag {
     }
 
     addItem(item: I_item) {
+        if (cfg_all().item[item.id].type == E_itemT.gold) {
+            this.role.addGold(item.num * cfg_all().item[item.id].num);
+            return;
+        }
         let tmpItem = this.getItem(item.id);
         if (tmpItem) {
             tmpItem.num += item.num;
@@ -84,6 +88,10 @@ export class Bag {
     addItems(items: I_item[]) {
         let changedArr: I_bagItem[] = [];
         for (let item of items) {
+            if (cfg_all().item[item.id].type == E_itemT.gold) {
+                this.role.addGold(item.num * cfg_all().item[item.id].num);
+                continue;
+            }
             let tmpItem = this.getItem(item.id);
             if (tmpItem) {
                 tmpItem.num += item.num;
@@ -129,6 +137,8 @@ export class Bag {
         item.num = 0;
         this.onItemChanged([item]);
         this.addToSqlPool();
+
+        app.rpc(this.role.roleMem.mapSvr).map.main.dropItem(this.role.roleMem.mapIndex, this.role.uid, item.id, num);
     }
 
     /** 道具换位置 */
