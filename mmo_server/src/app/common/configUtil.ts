@@ -236,7 +236,7 @@ interface I_cfg_shopItem {
 }
 
 /** 怪物数据 */
-interface I_cfg_monster {
+export interface I_cfg_monster {
     id: number,
     skill: number[],
     hp: number,

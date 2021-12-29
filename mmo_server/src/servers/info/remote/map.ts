@@ -46,6 +46,12 @@ export default class MapRemote {
         role.bag.addItem(item);
     }
 
+    /** 加经验值 */
+    addExp(uid: number, num: number) {
+        let role = svr_info.roleInfoMgr.getRole(uid);
+        role.addExp(num);
+    }
+
 }
 
 export interface I_syncSomeInfo {

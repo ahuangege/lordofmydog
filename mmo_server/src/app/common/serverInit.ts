@@ -1,5 +1,6 @@
 import { Application, app, Session } from "mydog";
 import * as path from "path";
+import { loadSkill } from "../svr_map/skill/skillMgr";
 import { ConMgr } from "../svr_connector/conMgr";
 import { svr_con } from "../svr_connector/svr_con";
 import { RoleInfoMgr } from "../svr_info/roleInfoMgr";
@@ -8,7 +9,6 @@ import { LoginMgr } from "../svr_login/loginMgr";
 import { svr_login } from "../svr_login/svr_login";
 import { MapMgr } from "../svr_map/mapMgr";
 import { PathFindMgr } from "../svr_map/pathFindMgr";
-import { loadSkill } from "../svr_map/skill/skillMgr";
 import { svr_map } from "../svr_map/svr_map";
 import { getInfoId } from "../util/gameUtil";
 import { MysqlClient } from "../util/mysql";

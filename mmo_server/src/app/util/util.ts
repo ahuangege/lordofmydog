@@ -265,7 +265,7 @@ export function md5(data: string) {
  * @param pos2 坐标2
  */
 export function getLen(pos1: { "x": number, "y": number }, pos2: { "x": number, "y": number }) {
-    return Math.sqrt((pos1.x - pos2.x) * (pos1.x - pos2.x) + (pos1.y - pos2.y) * (pos1.y - pos2.y));
+    return Math.sqrt(getLen2(pos1, pos2));
 }
 
 /**

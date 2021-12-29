@@ -9,10 +9,12 @@ export class MapMgr {
     private mapDic: Dic<Map> = {};
     private copyIndex = 1000;   // 从1000开始，假定非副本类的地图少于1000张
     constructor() {
-        let mapIds: number[] = app.serverInfo["mapIds"];
-        for (let id of mapIds) {
-            this.mapDic[id] = new Map(id, id, []);
-        }
+        process.nextTick(() => {
+            let mapIds: number[] = app.serverInfo["mapIds"];
+            for (let id of mapIds) {
+                this.mapDic[id] = new Map(id, id, []);
+            }
+        });
     }
 
     /** 创建副本 */

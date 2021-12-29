@@ -20,7 +20,7 @@ export class skill_1001 extends SkillBase {
 
         let role2 = role.map.getEntity<Role>(info.id);
         let hurt = this.getHurt_p(role.attack, role2);
-        role2.subHp(hurt);
+        role2.subHp(hurt, role.id);
         this.sendMsg_useSkill({ "id": role.id, "skillId": this.skillId, "id2": role2.id, "data": [{ "id": role2.id, "hurt": hurt, "hp": role2.hp }] });
 
         // this.skillMgr.setNowSkillId(0);
@@ -49,7 +49,7 @@ export class skill_1002 extends SkillBase {
         for (let one of roleArr) {
             let hurt = this.getHurt_m(cfg.damage, one);
             one.buffMgr.addBuff(1);
-            one.subHp(hurt);
+            one.subHp(hurt, role.id);
             hurtArr.push({ "id": one.id, "hurt": hurt, "hp": one.hp });
         }
         this.sendMsg_useSkill({ "id": role.id, "skillId": this.skillId, "x": info.x, "y": info.y, "data": hurtArr });
@@ -109,7 +109,7 @@ export class skill_1004 extends SkillBase {
             let hurtArr: I_skillDataOne[] = []
             for (let one of roleArr) {
                 let hurt = this.getHurt_m(cfg.damage, one);
-                one.subHp(hurt);
+                one.subHp(hurt, role.id);
                 hurtArr.push({ "id": one.id, "hurt": hurt, "hp": one.hp });
             }
             this.sendMsg_skillAffect({ "id": role.id, "skillId": this.skillId, "data": hurtArr });
@@ -159,7 +159,7 @@ export class skill_1101 extends SkillBase {
         setTimeout(() => {
             role2 = role.map.getEntity<Role>(info.id);
             if (role2 && !role2.isDie()) {
-                role2.subHp(hurt);
+                role2.subHp(hurt, role.id);
                 role2.map.sendMsgByAOI(role2, cmd.onSomeHurt, { "arr": [{ "id": role2.id, "hurt": hurt, "hp": role2.hp }] })
             }
         }, 0.2)
@@ -215,12 +215,11 @@ export class skill_1103 extends SkillBase {
             if (!role2 || role2.isDie()) {
                 return;
             }
-            console.log("---1", cfg.range);
             let roleArr = role.map.getRolesAround(role2, role, cfg.range, true);
             let hurtArr: I_skillDataOne[] = [];
             for (let one of roleArr) {
                 let hurt = this.getHurt_m(cfg.damage, one);
-                one.subHp(hurt);
+                one.subHp(hurt, role.id);
                 one.buffMgr.addBuff(1);
                 hurtArr.push({ "id": one.id, "hurt": hurt, "hp": one.hp });
             }

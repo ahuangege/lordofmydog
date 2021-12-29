@@ -219,7 +219,6 @@ export class Map {
     getRolesAround(xy: I_xy, role: Role, range: number, isEnemy: boolean): Role[] {
         let entities = this.towerAOI.getObjs(xy);
         let endRoles: Entity[] = [];
-        console.log("---rolearoundLen", entities.length)
         for (let one of entities) {
             if (one.t !== Entity_type.monster && one.t !== Entity_type.player) {
                 continue;
@@ -267,6 +266,7 @@ export function j2x2(j: number) {
 export function x2j(x: number) {
     return Math.floor(x / 32);
 }
+
 
 
 

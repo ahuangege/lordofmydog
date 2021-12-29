@@ -111,6 +111,9 @@ export class Player extends Role {
 
     /** 移动 */
     move(msg: { "x": number, "y": number, "path": I_xy[] }) {
+        if (this.isDie()) {
+            return;
+        }
         if (!this.buffMgr.canMove()) {
             return;
         }
@@ -327,7 +330,7 @@ export class Player extends Role {
     }
 
     die() {
-        super.die();
+        super.die(0);
         this.skillMgr.skillOver();
         this.buffMgr.buffOverAll();
     }

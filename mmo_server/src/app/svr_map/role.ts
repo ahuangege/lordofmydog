@@ -73,9 +73,6 @@ export abstract class Role extends Entity {
         this.map.towerAOI.updateObj(this, oldPos, this);
     }
 
-    isDie() {
-        return this.hp <= 0;
-    }
 
 
     getMsg(cmd: cmd, msg: any) {
@@ -99,13 +96,14 @@ export abstract class Role extends Entity {
         this.getMsg(cmd.onMpMaxChanged, { "mp": this.mp });
     }
     /** 扣血 */
-    subHp(num: number) {
+    subHp(num: number, roleId: number) {
         if (this.hp === 0) {
             return;
         }
         this.hp -= num;
-        if (this.hp < 0) {
+        if (this.hp <= 0) {
             this.hp = 0;
+            this.die(roleId);
         }
     }
 
@@ -118,9 +116,15 @@ export abstract class Role extends Entity {
     }
 
     /** 死亡 */
-    die() {
+    die(roleId: number) {
         this.hp = 0;
+        this.path.length = 0;
     }
+
+    isDie() {
+        return this.hp <= 0;
+    }
+
 
 }
 

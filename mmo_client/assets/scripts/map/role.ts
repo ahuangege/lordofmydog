@@ -103,6 +103,10 @@ export class Role extends Entity {
         this.bloodBar.progress = this.hp / this.hpMax;
     }
 
+    isDie() {
+        return this.hp <= 0;
+    }
+
     playAnim(animName: "hero_attack" | "hero_magic") {
         this.anim.play(animName);
     }

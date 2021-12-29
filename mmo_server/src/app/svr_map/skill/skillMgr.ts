@@ -63,6 +63,9 @@ export class SkillMgr {
 
     /** 使用技能 */
     useSkill(info: I_useSkill) {
+        if (this.role.isDie()) {
+            return;
+        }
         let skill = this.skillDic[info.skillId];
         if (!skill || !skill.canUse(info)) {
             console.log(111)
@@ -88,6 +91,12 @@ export class SkillMgr {
         if (this.nowSkillId) {
             let nowSkill = this.skillDic[this.nowSkillId];
             nowSkill && nowSkill.skillOver();
+        }
+    }
+
+    clearAllCd() {
+        for (let x in this.skillDic) {
+            this.skillDic[x].cd = 0;
         }
     }
 
@@ -121,11 +130,13 @@ export class SkillBase {
     /** 能否使用 */
     canUse(info: I_useSkill): boolean {
         if (nowSec() < this.cd) {   // 技能cd未好
+            gameLog.debug("技能cd未好")
             return false;
         }
         let cfg = cfg_all().skill[this.skillId];
         let role = this.skillMgr.role;
         if (role.mp < cfg.mpCost) {   // 魔法消耗不足
+            gameLog.debug("魔法消耗不足")
             return false;
         }
         if (cfg.targetType === E_skillTargetType.noTarget) {    // 无需目标即可释放
@@ -139,6 +150,7 @@ export class SkillBase {
             //     return false;
             // }
             if (getLen(role, info) > cfg.targetDistance + 64) {  // 施法距离不够（服务器允许的坐标误差：64）
+                gameLog.debug("施法距离不够")
                 return false;
             }
             return true;
@@ -154,10 +166,12 @@ export class SkillBase {
             let needEnemy = cfg.targetType === E_skillTargetType.enemy ? true : false;
             let isEnemy = role.map.isEnemy(role, role2);
             if (needEnemy !== isEnemy) {
+                gameLog.debug("目标类型错误")
                 return false;
             }
         }
         if (getLen(role, role2) > cfg.targetDistance + 64) {
+            gameLog.debug("施法距离不够")
             return false;
         }
         return true;

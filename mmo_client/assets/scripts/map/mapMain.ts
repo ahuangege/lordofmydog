@@ -134,6 +134,9 @@ export class MapMain extends cc.Component {
             if (!cc.isValid(this.mePlayer)) {
                 return;
             }
+            if (this.mePlayer.isDie()) {
+                return;
+            }
             if (!this.mePlayer.buffMgr.canMove()) {
                 return;
             }
@@ -312,7 +315,6 @@ export class MapMain extends cc.Component {
             }
             this.delEntity(entity);
             this.tileLayer.destroyUserNode(entity.node);
-            entity.node.destroy();
         }
     }
 
@@ -325,6 +327,8 @@ export class MapMain extends cc.Component {
             if (entity.id !== this.meId) {
                 (entity as Player).move(msg.path);
             }
+        } else if (entity.t == Entity_type.monster) {
+            (entity as Monster).move(msg.path);
         }
 
     }

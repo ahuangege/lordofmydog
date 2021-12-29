@@ -168,7 +168,7 @@ export class SkillBase {
         if (!otherP) {
             return;
         }
-        if (otherP.hp <= 0) {
+        if (otherP.isDie()) {
             return UIMgr.showTileInfo("目标已死亡");
         }
         if (otherP.t === Entity_type.item) {    // 道具
