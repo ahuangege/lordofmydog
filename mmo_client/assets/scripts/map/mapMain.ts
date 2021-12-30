@@ -135,10 +135,10 @@ export class MapMain extends cc.Component {
                 return;
             }
             if (this.mePlayer.isDie()) {
-                return;
+                return UIMgr.showTileInfo("您已死亡");;
             }
             if (!this.mePlayer.buffMgr.canMove()) {
-                return;
+                return UIMgr.showTileInfo("您有不可移动buff");;
             }
             let tmpPos = this.screen2worldPoint(event.getLocation());
             let meNode = this.mePlayer.node;

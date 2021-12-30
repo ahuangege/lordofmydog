@@ -9,7 +9,7 @@ import { cmd } from "../../common/cmdClient";
 import { cfg_all } from "../../common/configUtil";
 import { Game, I_equipment } from "../../common/game";
 import { network } from "../../common/network";
-import { E_itemT } from "../../util/gameUtil";
+import { E_itemT, getPrefab } from "../../util/gameUtil";
 import { Entity, Entity_type } from "../entity";
 import { Dic, MapMain } from "../mapMain";
 import { HeroEquipPrefab } from "./heroEquipPrefab";
@@ -58,6 +58,14 @@ export class HeroInfoPanel extends cc.Component {
     }
 
     private showInfo(info: { "heroId": number, "level": number, "nickname": string, "equip": I_equipment }) {
+
+        getPrefab("heros/hero" + info.heroId, (prefab) => {
+            if (!prefab || !cc.isValid(this)) {
+                return;
+            }
+            let node = cc.instantiate(prefab);
+            node.parent = this.node.getChildByName("hero");
+        });
 
         this.node.getChildByName("lv").getComponent(cc.Label).string = "Lv." + info.level;
         this.node.getChildByName("name").getComponent(cc.Label).string = info.nickname;

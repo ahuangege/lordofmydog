@@ -55,7 +55,7 @@ export class Monster extends Role {
         let cfg = cfg_all().monster[this.monsterId];
         this.hpMax = cfg.hp;
         this.mpMax = cfg.mp;
-        this.hp = 10;
+        this.hp = this.hpMax;
         this.mp = this.mpMax;
         this.attack = cfg.attack;
         this.armor_p = 1 - cfg.armor_p / 100;
@@ -114,8 +114,8 @@ export class Monster extends Role {
 
     revive() {
         this.targetId = 0;
-        this.hp = 10;
-        this.mp = this.mp;
+        this.hp = this.hpMax;
+        this.mp = this.mpMax;
         this.path.length = 0;
         this.stateMachine.toState(E_monsterState.idle);
 

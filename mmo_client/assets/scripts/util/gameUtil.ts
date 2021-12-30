@@ -58,6 +58,7 @@ export enum E_itemT {
 }
 
 let hintDic = {
+    [E_itemT.gold]: "",
     [E_itemT.weapon]: "攻击力：",
     [E_itemT.armor_physical]: "物抗：",
     [E_itemT.armor_magic]: "魔抗：",

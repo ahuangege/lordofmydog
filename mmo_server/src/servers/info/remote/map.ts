@@ -2,6 +2,7 @@ import { app, rpcErr } from "mydog";
 import { cfg_all } from "../../../app/common/configUtil";
 import { constKey } from "../../../app/common/someConfig";
 import { I_item } from "../../../app/svr_info/bag";
+import { E_itemT } from "../../../app/svr_info/roleInfo";
 import { svr_info } from "../../../app/svr_info/svr_info";
 import { I_playerMapJson, I_xy } from "../../map/handler/main";
 
@@ -52,6 +53,11 @@ export default class MapRemote {
         role.addExp(num);
     }
 
+    /** 删除某装备 */
+    delEquip(uid: number, t: E_itemT) {
+        let role = svr_info.roleInfoMgr.getRole(uid);
+        role.equip.delEquip(t);
+    }
 }
 
 export interface I_syncSomeInfo {

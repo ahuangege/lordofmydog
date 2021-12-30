@@ -193,6 +193,7 @@ export enum E_keyType {
     add_mp = 9,     // 快速加蓝栏
     setting = 10,   // 设置面板
     shopPanel = 11, // 商店面板
+    monsterInfoPanel = 12,  // 怪物信息面板
 }
 
 /** 按键对应值 */

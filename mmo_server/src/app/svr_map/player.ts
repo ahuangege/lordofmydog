@@ -8,7 +8,7 @@ import { I_item } from "../svr_info/bag";
 import { I_equipment } from "../svr_info/equipment";
 import { E_itemT } from "../svr_info/roleInfo";
 import { getInfoId } from "../util/gameUtil";
-import { Dic, getLen, getLen2 } from "../util/util";
+import { Dic, getLen, getLen2, randBetween } from "../util/util";
 import { Entity_type, I_entityJson } from "./entity";
 import { Item } from "./item";
 import { Map } from "./map";
@@ -333,6 +333,17 @@ export class Player extends Role {
         super.die(0);
         this.skillMgr.skillOver();
         this.buffMgr.buffOverAll();
+
+        if (this.equip.weapon === 1107) { // 圣剑，死亡后掉落
+            this.onEquipChanged({ "t": E_itemT.weapon, "id": 0 });
+            app.rpc(getInfoId(this.uid)).info.map.delEquip(this.uid, E_itemT.weapon);
+            let x = Math.floor(this.x);
+            let y = Math.floor(this.y);
+            x = this.map.limitX(randBetween(x - 80, x + 80));
+            y = this.map.limitY(randBetween(y - 80, y + 80));
+            this.map.createItem([{ "itemId": 1107, "num": 1, "x": x, "y": y, "time": 20 }]);
+
+        }
     }
 
     copyStartMatch(doorId: number, next: Function) {
@@ -357,6 +368,9 @@ export class Player extends Role {
     }
 
     pickItem(id: number) {
+        if (this.isDie()) {
+            return;
+        }
         let map = this.map;
         let item = map.getEntity<Item>(id);
         if (!item || item.t !== Entity_type.item) {

@@ -46,6 +46,26 @@ export class Equipment {
     onEquipChanged(msg: { "t": E_itemT, "id": number }) {
         this.role.getMsg(cmd.onEquipChanged, msg);
     }
+
+    delEquip(t: E_itemT) {
+        if (t === E_itemT.weapon) {
+            this.equip.weapon = 0;
+            this.role.equip.changeSqlKey("weapon");
+        } else if (t === E_itemT.armor_physical) {
+            this.equip.armor_physical = 0;
+            this.role.equip.changeSqlKey("armor_physical");
+        } else if (t === E_itemT.armor_magic) {
+            this.equip.armor_magic = 0;
+            this.role.equip.changeSqlKey("armor_magic");
+        } else if (t === E_itemT.hp_add) {
+            this.equip.hp_add = 0;
+            this.role.equip.changeSqlKey("hp_add");
+        } else if (t === E_itemT.mp_add) {
+            this.equip.mp_add = 0;
+            this.role.equip.changeSqlKey("mp_add");
+        }
+        this.onEquipChanged({ "t": t, "id": 0 })
+    }
 }
 
 

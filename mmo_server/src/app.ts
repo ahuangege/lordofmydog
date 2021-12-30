@@ -26,7 +26,7 @@ app.setConfig("logger", (type, level, info) => {
 app.start();
 
 process.on("uncaughtException", function (err: any) {
-    console.log(err)
+    gameLog.error(err)
 });
 
 

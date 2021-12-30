@@ -40,7 +40,7 @@ export class CopyMatch {
             let arr = this.players.splice(0, this.needNum);
             this.matchOk(arr);
         }
-        if (this.players.length > 0 && nowSec() - this.players[0].copyMatchTime > 15) {
+        if (this.players.length > 0 && nowSec() - this.players[0].copyMatchTime > 6) {
             this.matchOk(this.players.splice(0));
         }
     }
