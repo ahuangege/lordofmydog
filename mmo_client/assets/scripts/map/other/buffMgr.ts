@@ -6,11 +6,11 @@ import { Role } from "../role";
 let buffConDic: Dic<typeof BuffBase> = {};
 
 /**
- * buff注册（装饰器）
+ * buff注册
  */
-function registerBuff(buffCon: typeof BuffBase) {
+function registerBuff(buffCon: typeof BuffBase, buffId: number) {
     // console.log("buff注册（装饰器）", buffCon.name.substring(5));
-    buffConDic[buffCon.name.substring(5)] = buffCon;
+    buffConDic[buffId] = buffCon;
 }
 
 
@@ -30,7 +30,7 @@ export class BuffMgr {
         }
         let buffCon = buffConDic[buffId];
         if (buffCon) {
-            this.buffDic[buffId] = new buffCon(this);
+            this.buffDic[buffId] = new buffCon(this, 0);
         } else {
             console.warn("没有buff实现", buffId)
         }
@@ -85,8 +85,8 @@ export class BuffBase {
     buffMgr: BuffMgr;
     isOver = false;
     buffNode: cc.Node = null;
-    constructor(buffMgr: BuffMgr) {
-        this.buffId = Number((this as Object).constructor.name.substring(5));
+    constructor(buffMgr: BuffMgr, buffId: number) {
+        this.buffId = buffId;
         this.buffMgr = buffMgr;
     }
 
@@ -111,10 +111,10 @@ export class BuffBase {
     }
 }
 
-@registerBuff
+
 class buff_1 extends BuffBase {
     constructor(buffMgr: BuffMgr) {
-        super(buffMgr);
+        super(buffMgr, 1);
         this.buffMgr.addSub_yunxuan(true);
 
         super.addBuffImg();
@@ -128,3 +128,4 @@ class buff_1 extends BuffBase {
     }
 
 }
+registerBuff(buff_1, 1);

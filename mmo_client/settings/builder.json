@@ -2,7 +2,10 @@
   "title": "mmo_client",
   "packageName": "org.cocos2d.demo",
   "startScene": "bde63b6d-4e7c-4af8-89be-9390c2ed8f9b",
-  "excludeScenes": [],
+  "excludeScenes": [
+    "8cf62421-7f1d-4d3a-a7f5-8d367687f201",
+    "9f78a01d-8c96-4694-946a-b87003b2888a"
+  ],
   "orientation": {
     "landscapeRight": true,
     "landscapeLeft": true,

@@ -6,10 +6,9 @@ import { DestroyNode } from "../other/destroyNode";
 import { Role } from "../role";
 import { I_onUseSkill, I_skillDataOne, registerSkill, SkillBase, SkillMgr } from "./skillMgr";
 
-@registerSkill
-export class skill_1001 extends SkillBase {
+class skill_1001 extends SkillBase {
     constructor(skillMgr: SkillMgr) {
-        super(skillMgr);
+        super(skillMgr, 1001);
     }
 
 
@@ -41,12 +40,12 @@ export class skill_1001 extends SkillBase {
     }
 
 }
+registerSkill(skill_1001, 1001)
 
 
-@registerSkill
-export class skill_1002 extends SkillBase {
+class skill_1002 extends SkillBase {
     constructor(skillMgr: SkillMgr) {
-        super(skillMgr);
+        super(skillMgr, 1002);
     }
 
     /** 使用技能 */
@@ -75,12 +74,11 @@ export class skill_1002 extends SkillBase {
         }
     }
 }
+registerSkill(skill_1002, 1002)
 
-
-@registerSkill
-export class skill_1003 extends SkillBase {
+class skill_1003 extends SkillBase {
     constructor(skillMgr: SkillMgr) {
-        super(skillMgr);
+        super(skillMgr, 1003);
     }
 
     /** 使用技能 */
@@ -106,13 +104,12 @@ export class skill_1003 extends SkillBase {
         });
     }
 }
+registerSkill(skill_1003, 1003)
 
-
-@registerSkill
-export class skill_1004 extends SkillBase {
+class skill_1004 extends SkillBase {
     private animNode: cc.Node = null;
     constructor(skillMgr: SkillMgr) {
-        super(skillMgr);
+        super(skillMgr, 1004);
     }
 
     /** 使用技能 */
@@ -142,12 +139,11 @@ export class skill_1004 extends SkillBase {
         }
     }
 }
+registerSkill(skill_1004, 1004)
 
-
-@registerSkill
-export class skill_1101 extends SkillBase {
+class skill_1101 extends SkillBase {
     constructor(skillMgr: SkillMgr) {
-        super(skillMgr);
+        super(skillMgr, 1101);
     }
 
 
@@ -175,12 +171,12 @@ export class skill_1101 extends SkillBase {
     }
 
 }
+registerSkill(skill_1101, 1101)
 
 
-@registerSkill
-export class skill_1102 extends SkillBase {
+class skill_1102 extends SkillBase {
     constructor(skillMgr: SkillMgr) {
-        super(skillMgr);
+        super(skillMgr, 1102);
     }
 
     /** 使用技能 */
@@ -208,13 +204,12 @@ export class skill_1102 extends SkillBase {
 
     }
 }
+registerSkill(skill_1102, 1102)
 
 
-
-@registerSkill
-export class skill_1103 extends SkillBase {
+class skill_1103 extends SkillBase {
     constructor(skillMgr: SkillMgr) {
-        super(skillMgr);
+        super(skillMgr, 1103);
     }
 
     /** 使用技能 */
@@ -243,3 +238,5 @@ export class skill_1103 extends SkillBase {
 
     }
 }
+registerSkill(skill_1103, 1103)
+

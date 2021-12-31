@@ -13,10 +13,11 @@ import { E_skillTargetType, SkillPre } from "./skillPre";
 let skillConDic: Dic<typeof SkillBase> = {};
 
 /**
- * 技能注册（装饰器）
+ * 技能注册
  */
-export function registerSkill(skillCon: typeof SkillBase) {
-    skillConDic[skillCon.name.substring(6)] = skillCon;
+export function registerSkill(skillCon: typeof SkillBase, skillId: number) {
+    console.log("注册技能", skillCon, skillCon.name, "|", skillId)
+    skillConDic[skillId] = skillCon;
 }
 
 /** 技能管理 */
@@ -35,7 +36,7 @@ export class SkillMgr {
         }
         let skillCon = skillConDic[skillId];
         if (skillCon) {
-            this.skillDic[skillId] = new skillCon(this);
+            this.skillDic[skillId] = new skillCon(this, 0);
         } else {
             console.warn("没有技能实现", skillId)
         }
@@ -107,9 +108,9 @@ export class SkillBase {
     cdBase: number = 0;
     cd: number = 0; // 剩余时间
 
-    constructor(skillMgr: SkillMgr) {
-        this.skillId = Number((this as Object).constructor.name.substring(6));
+    constructor(skillMgr: SkillMgr, skillId: number) {
         this.skillMgr = skillMgr;
+        this.skillId = skillId;
         this.cdBase = cfg_all().skill[this.skillId].cd;
     }
 
