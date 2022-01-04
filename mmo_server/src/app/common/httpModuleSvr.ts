@@ -1,12 +1,14 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as http from "http";
+import * as https from "https";
 import * as url from "url";
 import { ip_str2int } from "../util/util";
 import { gameLog } from "./logger";
+import { app } from "mydog";
 
-export function createHttpModuleSvr(port: number, moduleDir: string, svrName: string) {
-    return new HttpModuleSvr(port, moduleDir, svrName);
+export function createHttpModuleSvr(isHttps: boolean, port: number, moduleDir: string, svrName: string) {
+    return new HttpModuleSvr(isHttps, port, moduleDir, svrName);
 }
 
 const errList = {
@@ -23,9 +25,10 @@ class HttpModuleSvr {
     private modules: { [moduleName: string]: { [file: string]: any } } = {};
     private moduleBefore: { [moduleName: string]: (msg: any, cb: (errMsg?: any) => void) => void } = {};
     private moduleFilter: { [moduleName: string]: (ip: number, url: string) => boolean } = {};
+    private isHttps: boolean = false;
 
-
-    constructor(port: number, moduleDir: string, svrName: string) {
+    constructor(isHttps: boolean, port: number, moduleDir: string, svrName: string) {
+        this.isHttps = isHttps;
         this.port = port;
         this.moduleDir = moduleDir;
         this.svrName = svrName;
@@ -55,7 +58,12 @@ class HttpModuleSvr {
     }
     public start() {
         this.loadModule(this.moduleDir);
-        let server = http.createServer((request: http.IncomingMessage, response: http.ServerResponse) => {
+        let options = {
+            "key": app.get("key"),
+            "cert": app.get("cert"),
+        }
+        let httpCon = this.isHttps ? https : http;
+        let server = httpCon.createServer(options as any, (request: http.IncomingMessage, response: http.ServerResponse) => {
             response.setHeader("Access-Control-Allow-Origin", "*");
             if (request.url === "/favicon.ico") {
                 return response.end();

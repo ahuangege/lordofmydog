@@ -17,11 +17,11 @@ export class network {
      * @param host 
      * @param port 
      */
-    static connect(host: string, port: number) {
+    static connect(host: string, port: number, isWss: boolean) {
         network.disconnect(true);
         tmpBuf.len = 0;
         tmpBuf.buffer = new Uint8Array(0);
-        let url = "ws://" + host + ":" + port;
+        let url = (isWss ? "wss://" : "ws://") + host + ":" + port;
         ws = new WebSocket(url);
         ws.binaryType = 'arraybuffer';
         ws.onopen = function () {

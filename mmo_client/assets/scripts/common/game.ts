@@ -3,6 +3,7 @@ import { Dic } from "../map/mapMain";
 
 export class Game {
 
+    static isHttps = false;
     static uid: number = 0;
     static loginInfo: I_loginBack = null as any;
     static roleInfo: I_roleInfo = null as any;

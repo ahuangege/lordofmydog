@@ -300,6 +300,7 @@
     "_enabled": true,
     "loginHost": "127.0.0.1",
     "loginPort": 5101,
+    "isHttps": false,
     "_id": "a0YQLHC4pO8aCEIZTn6uxK"
   },
   {

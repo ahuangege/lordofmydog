@@ -39,7 +39,7 @@ export default class NewClass extends cc.Component {
             return;
         }
         this.isRegistering = true;
-        let url = "http://" + LoginMain.instance.loginHost + ":" + LoginMain.instance.loginPort + "/client/login/register";
+        let url = (Game.isHttps ? "https://" : "http://") + LoginMain.instance.loginHost + ":" + LoginMain.instance.loginPort + "/client/login/register";
         httpReq({ "url": url, "msg": { "username": this.usernameInput.string, "password": this.passwordInput.string } }, (err, data) => {
             this.isRegistering = false;
             if (err) {

@@ -10,6 +10,9 @@ export let mysqlConfig = {
         "password": "123456",
         "database": "mmo_demo",
         "connectionLimit": 5,
+    },
+    "production": {
+
     }
 }
 

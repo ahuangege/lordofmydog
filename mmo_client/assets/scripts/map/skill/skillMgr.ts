@@ -16,7 +16,7 @@ let skillConDic: Dic<typeof SkillBase> = {};
  * 技能注册
  */
 export function registerSkill(skillCon: typeof SkillBase, skillId: number) {
-    console.log("注册技能", skillCon, skillCon.name, "|", skillId)
+    // console.log("注册技能", skillCon, skillCon.name, "|", skillId)
     skillConDic[skillId] = skillCon;
 }
 

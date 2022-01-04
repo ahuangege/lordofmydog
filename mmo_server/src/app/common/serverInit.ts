@@ -45,7 +45,7 @@ export function initServer() {
 function loginInit(app: Application) {
     svr_login.mysql = new MysqlClient(getConfigByEnv(app, mysqlConfig));
     svr_login.loginMgr = new LoginMgr(app);
-    let httpSvr = createHttpModuleSvr(app.serverInfo.loginHttpPort, path.join((app as any).base, "app/svr_login/modules"), "loginHttp");
+    let httpSvr = createHttpModuleSvr(app.env === "production", app.serverInfo.loginHttpPort, path.join((app as any).base, "app/svr_login/modules"), "loginHttp");
     httpSvr.start();
     // console.log(1111)
 }

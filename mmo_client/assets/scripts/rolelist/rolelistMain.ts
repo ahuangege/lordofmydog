@@ -27,7 +27,7 @@ export class RolelistMain extends cc.Component {
     start() {
         network.onClose(this.svr_onClose, this);
         network.onOpen(this.svr_onOpen, this);
-        network.connect(Game.loginInfo.host, Game.loginInfo.port);
+        network.connect(Game.loginInfo.host, Game.loginInfo.port, Game.isHttps);
 
         let roleParent = cc.find("rolelist/list", this.node);
         for (let one of roleParent.children) {

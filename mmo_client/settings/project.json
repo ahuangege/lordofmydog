@@ -6,7 +6,7 @@
   "last-module-event-record-time": 1640955159318,
   "collision-matrix": [
     [
-      true
+      false
     ],
     [
       false,
@@ -14,12 +14,15 @@
     ]
   ],
   "excluded-modules": [
+    "Audio",
+    "AudioSource",
     "Collider",
     "Dynamic Atlas",
     "DragonBones",
     "Physics",
     "ParticleSystem",
     "Spine Skeleton",
+    "VideoPlayer",
     "3D",
     "3D Primitive",
     "3D Physics/cannon.js",

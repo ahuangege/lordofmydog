@@ -6,6 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { initConfig } from "../common/configUtil";
+import { Game } from "../common/game";
 import { UIMgr, uiPanel } from "../common/uiMgr";
 
 const { ccclass, property } = cc._decorator;
@@ -18,6 +19,8 @@ export class LoginMain extends cc.Component {
     loginHost: string = "127.0.0.1";
     @property
     loginPort: number = 5101;
+    @property(cc.Boolean)
+    isHttps: boolean = false;
 
     onLoad() {
         LoginMain.instance = this;
@@ -25,6 +28,7 @@ export class LoginMain extends cc.Component {
 
     start() {
         initConfig(() => {
+            Game.isHttps = this.isHttps;
             UIMgr.showPanel(uiPanel.loginPanel);
         });
     }
