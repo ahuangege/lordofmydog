@@ -247,7 +247,7 @@ export class GameMainPanel extends cc.Component {
         }
 
         let p = MapMain.instance.getEntity<Player>(msg.id);
-        p.chat(msg.msg);
+        p && p.chat(msg.msg);
     }
 
     private svr_onGoldChanged(msg: { "num": number }) {
