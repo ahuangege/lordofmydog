@@ -1,19 +1,8 @@
 {
-  "name": "mmo_server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "dependencies": {
-    "@types/mysql": "^2.15.19",
-    "log4js": "^6.3.0",
-    "mydog": "^2.3.2",
+    "@types/mysql": "^2.15.21",
+    "log4js": "^6.9.1",
+    "mydog": "^2.3.6",
     "mysql": "^2.18.1"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

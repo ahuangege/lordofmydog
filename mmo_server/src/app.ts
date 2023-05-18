@@ -33,8 +33,8 @@ app.setConfig("connector", {
 });
 app.setConfig("rpc", { "interval": 30, "noDelay": false });
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
-app.setConfig("logger", (type, level, info) => {
-    if (type === "msg") {
+app.setConfig("logger", (level, info) => {
+    if (level !== "debug") {
         gameLog[level](info);
     }
 })
