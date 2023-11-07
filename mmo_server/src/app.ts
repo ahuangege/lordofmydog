@@ -14,8 +14,8 @@ import { serverType } from "./app/common/someConfig";
 import { onUserIn, onUserLeave } from "./servers/connector/handler/main";
 
 if (app.env === "production") {
-    app.set("key", fs.readFileSync(path.join(__dirname, "../www.mydog.wiki.key")))
-    app.set("cert", fs.readFileSync(path.join(__dirname, "../www.mydog.wiki.pem")));
+    app.set("key", fs.readFileSync(path.join(__dirname, "../api.mydog.wiki.key")))
+    app.set("cert", fs.readFileSync(path.join(__dirname, "../api.mydog.wiki.pem")));
 }
 
 initServer();
@@ -33,9 +33,9 @@ app.setConfig("connector", {
 });
 app.setConfig("rpc", { "interval": 30, "noDelay": false });
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
-app.setConfig("logger", (type, level, info) => {
-    if (type === "msg") {
-        gameLog[level](info);
+app.setConfig("logger", (level, msg) => {
+    if (level !== "debug") {
+        gameLog[level](msg);
     }
 })
 app.start();

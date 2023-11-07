@@ -18,7 +18,7 @@ export default {
             { "id": "login", "host": "127.0.0.1", "port": 5102, "loginHttpPort": 5101 }
         ],
         "connector": [
-            { "id": "con-0", "host": "127.0.0.1", "port": 5110, "frontend": true, "clientHost": "47.105.203.146", "clientPort": 5120 },
+            { "id": "con-0", "host": "127.0.0.1", "port": 5110, "frontend": true, "clientHost": "api.mydog.wiki", "clientPort": 5120 },
         ],
         "info": [
             { "id": "info-0", "host": "127.0.0.1", "port": 5130 },

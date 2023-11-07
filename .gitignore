@@ -9,6 +9,8 @@ mmo_client/temp
 mmo_server/dist
 mmo_server/node_modules
 mmo_server/src/log
+mmo_server/log
+mmo_server/src.zip
 
 # mmo excel
 mmo_excel/node_modules

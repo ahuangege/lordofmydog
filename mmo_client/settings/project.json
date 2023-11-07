@@ -3,7 +3,7 @@
     "default",
     "ui"
   ],
-  "last-module-event-record-time": 1640955159318,
+  "last-module-event-record-time": 1684251466449,
   "collision-matrix": [
     [
       false
@@ -52,5 +52,8 @@
     "audience": {
       "enable": false
     }
-  }
+  },
+  "migrate-history": [
+    "cloud-function"
+  ]
 }

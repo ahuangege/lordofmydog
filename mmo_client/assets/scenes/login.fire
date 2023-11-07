@@ -298,9 +298,9 @@
       "__id__": 2
     },
     "_enabled": true,
-    "loginHost": "127.0.0.1",
+    "loginHost": "api.mydog.wiki",
     "loginPort": 5101,
-    "isHttps": false,
+    "isHttps": true,
     "_id": "a0YQLHC4pO8aCEIZTn6uxK"
   },
   {
