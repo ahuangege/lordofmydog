@@ -22,7 +22,7 @@ export default class Handler {
         if (typeof msg.accId !== "number") {
             return;
         }
-        let ok = await app.rpcAwait(constKey.loginSvr).login.main.isTokenOk(msg.accId, msg.accToken);
+        let ok = await app.rpc(constKey.loginSvr).login.main.isTokenOk(msg.accId, msg.accToken);
         if (!ok) {
             return next({ "code": 10020 });
         }

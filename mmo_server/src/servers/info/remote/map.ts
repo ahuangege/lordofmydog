@@ -1,4 +1,4 @@
-import { app, rpcErr } from "mydog";
+import { app } from "mydog";
 import { cfg_all } from "../../../app/common/configUtil";
 import { constKey } from "../../../app/common/someConfig";
 import { I_item } from "../../../app/svr_info/bag";

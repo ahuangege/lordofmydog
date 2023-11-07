@@ -6,7 +6,6 @@ import { app } from "mydog";
 import { nowMs } from "../common/time";
 import { cmd } from "../../config/cmd";
 import { getBit, getDiffDays, randArrElement, setBit, timeFormat } from "../util/util";
-import { Friend } from "./friend";
 import { MapIdMgr } from "../svr_map/mapIdMgr";
 import { I_playerMapJson } from "../../servers/map/handler/main";
 import { cfg_all, I_cfg_mapDoor } from "../common/configUtil";
@@ -20,7 +19,6 @@ export class RoleInfo {
     public role: I_roleInfo;
     public roleMem: I_roleMem;
 
-    public friend: Friend;
     public bag: Bag;
     public equip: Equipment;
 
@@ -34,7 +32,6 @@ export class RoleInfo {
         this.uid = allInfo.role.uid;
         this.role = allInfo.role;
 
-        this.friend = new Friend(this, { "list": [], "asklist": [] });
         this.bag = new Bag(this, allInfo.bag);
         this.equip = new Equipment(this, allInfo.equip);
 

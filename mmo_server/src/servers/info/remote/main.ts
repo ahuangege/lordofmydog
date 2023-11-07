@@ -3,14 +3,12 @@ import { I_roleAllInfoClient, I_uidsid } from "../../../app/common/someInterface
 import { svr_info } from "../../../app/svr_info/svr_info";
 import { randIntNum } from "../../../app/util/util";
 import { cmd } from "../../../config/cmd";
-import FriendRemote from "./friend";
 import MapRemote from "./map";
 
 declare global {
     interface Rpc {
         info: {
             main: Remote,
-            friend: FriendRemote,
             map: MapRemote,
         }
     }

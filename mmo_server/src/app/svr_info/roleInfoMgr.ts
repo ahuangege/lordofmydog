@@ -1,4 +1,4 @@
-import { Application, rpcErr } from "mydog";
+import { Application } from "mydog";
 import { gameLog } from "../common/logger";
 import { I_roleAllInfoClient, I_uidsid } from "../common/someInterface";
 import { nowMs } from "../common/time";
@@ -58,7 +58,7 @@ export class RoleInfoMgr {
     /**
      * 重连
      */
-    reconnectEntry(uid: number, sid: string, token: number, cb: (err: rpcErr, info: I_roleAllInfoClient) => void) {
+    reconnectEntry(uid: number, sid: string, token: number, cb: (err: number, info: I_roleAllInfoClient) => void) {
         let role = this.roles[uid];
         if (!role) {
             return cb(0, { "code": 1 } as any);
