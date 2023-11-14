@@ -5,34 +5,34 @@ import { gameLog } from "../common/logger";
 import { removeFromArr } from "../util/util";
 import { E_itemT, RoleInfo } from "./roleInfo";
 import { svr_info } from "./svr_info";
+import { Db_bag, I_bagItem } from "../db/dbModel/bagTable";
 
 export class Bag {
     private role: RoleInfo;
     private items: I_bagItem[];
-    private changed = false;
+    private isInSql = false;
 
-    constructor(role: RoleInfo, items: I_bagItem[]) {
+    constructor(role: RoleInfo, bagDb: Db_bag) {
         this.role = role;
-        this.items = items;
+        this.items = bagDb.items;
     }
 
     getBag() {
         return this.items;
     }
 
-    updateSql() {
-        if (this.changed) {
-            this.changed = false;
-            let sql = `update bag set items='${JSON.stringify(this.items)}' where uid = ${this.role.uid} limit 1`;
-            svr_info.mysql.query(sql, null, (err) => {
-                err && gameLog.error(err);
-            });
-        }
+    public getSqlUpdateObj() {
+        let updateObj: Partial<Db_bag> = { "items": this.items };
+        this.isInSql = false;
+        return updateObj;
     }
 
+
     private addToSqlPool() {
-        this.changed = true;
-        this.role.addToSqlPool();
+        if (!this.isInSql) {
+            this.isInSql = true;
+            svr_info.syncUtil.sync.playerSync.updateBag(this.role.uid, this);
+        }
     }
 
     getItemByI(index: number) {
@@ -307,11 +307,6 @@ export class Bag {
 }
 
 
-export interface I_bagItem {
-    i: number,
-    id: number,
-    num: number,
-}
 
 export interface I_item {
     id: number,

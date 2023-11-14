@@ -1,6 +1,7 @@
 import { app } from "mydog";
 import { serverType } from "../common/someConfig";
 import { MapIdMgr } from "../svr_map/mapIdMgr";
+import { Dic } from "./util";
 
 let infoArr = app.serversConfig[serverType.info];
 /**
@@ -25,3 +26,13 @@ export function getCharLen(charCode: number) {
     }
     return 2;
 }
+
+
+export function getUpdateObj(obj: Dic<any>, changedKey: Dic<boolean>) {
+    let updateObj: Dic<any> = {};
+    for (let x in changedKey) {
+        updateObj[x] = obj[x];
+    }
+    return updateObj;
+}
+

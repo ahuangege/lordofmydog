@@ -5,14 +5,14 @@ import { I_playerMapJson, I_xy } from "../../servers/map/handler/main";
 import { cfg_all } from "../common/configUtil";
 import { nowMs, nowSec } from "../common/time";
 import { I_item } from "../svr_info/bag";
-import { I_equipment } from "../svr_info/equipment";
 import { E_itemT } from "../svr_info/roleInfo";
 import { getInfoId } from "../util/gameUtil";
 import { Dic, getLen, getLen2, randBetween } from "../util/util";
-import { Entity_type, I_entityJson } from "./entity";
+import { Entity_type, I_entityJson, playerRange } from "./entity";
 import { Item } from "./item";
 import { Map } from "./map";
 import { Role } from "./role";
+import { Db_equipment } from "../db/dbModel/equipmentTable";
 
 const moveSpeed = 280;
 
@@ -25,7 +25,7 @@ export class Player extends Role {
     level: number;      // 英雄等级
     nickname: string;   // 昵称
     chatMapTime: number = 0;   // 上次场景聊天时刻
-    equip: I_equipment;   // 装备
+    equip: Db_equipment;   // 装备
     skillPos: number[]; // 技能栏
     x2: number; // 上次同步的x
     y2: number; // 上次同步的y
@@ -34,6 +34,8 @@ export class Player extends Role {
     syncTime: number = 0;    // 定时同步一些信息到info服的计时器
     copyMatchDoorId: number = 0;    // 当前副本匹配的门id
     copyMatchTime: number = 0;  // 副本匹配的时间
+    wx = 0;
+    wy = 0;
 
     constructor(map: Map, info: I_playerMapJson) {
         super({ "map": map, "id": map.getId(), "t": Entity_type.player, "x": info.x, "y": info.y });
@@ -69,15 +71,12 @@ export class Player extends Role {
         map.addOrDelUidsid(this.uid, this.sid, true);
         map.playerIn(this);
 
-        // 通知视野内的其他玩家
-        map.getEntityChangeMsg({ "addEntities": [this.toJson()] }, map.towerAOI.getWatchers(this));
-
         // 加入到实体列表，添加为监视者
         map.towerAOI.addObj(this, this);
-        map.towerAOI.addWatcher(this, this);
+        map.towerAOI.addWatcher(this, this, playerRange);
 
         // 获取视野内实体数据
-        let entities = map.towerAOI.getObjs(this);
+        let entities = map.towerAOI.getObjs(this, playerRange);
         let jsonArr: I_entityJson[] = [];
         for (let one of entities) {
             jsonArr.push(one.toJson());
@@ -96,11 +95,8 @@ export class Player extends Role {
         map.playerLeave(this);
 
         // 移除监视，移除实体
-        map.towerAOI.delWatcher(this, this);
-        map.towerAOI.delObj(this, this);
-
-        // 通知视野内其他玩家
-        map.getEntityChangeMsg({ "delEntities": [this.id] }, map.towerAOI.getWatchers(this));
+        map.towerAOI.removeWatcher(this, playerRange);
+        map.towerAOI.removeObj(this);
 
         this.checkSync();
 
@@ -159,16 +155,14 @@ export class Player extends Role {
         // }
 
 
-        let oldPos: { "x": number, "y": number } = { "x": this.x, "y": this.y };
-
         this.x = msg.x;
         this.y = msg.y;
         this.path = msg.path;
 
         this.map.sendMsgByAOI(this, cmd.onMove, { "id": this.id, "path": msg.path });
 
-        map.towerAOI.updateWatcher(this, oldPos, this);
-        map.towerAOI.updateObj(this, oldPos, this);
+        map.towerAOI.updateWatcher(this, this, playerRange, playerRange);
+        map.towerAOI.updateObj(this, this);
     }
 
     private checkPathLine(path: I_xy[]): boolean {
@@ -311,7 +305,7 @@ export class Player extends Role {
         if (equip.armor_physical !== 0) {
             this.armor_p -= cfg_all().item[equip.armor_physical].num / 100;
         }
-        console.log("人物信息", this.attack, this.armor_p, this.armor_m, this.hpMax, this.mpMax)
+        // console.log("人物信息", this.attack, this.armor_p, this.armor_m, this.hpMax, this.mpMax)
     }
 
     getMsg(cmd: cmd, msg: any) {

@@ -1,3 +1,6 @@
+require('source-map-support').install({
+    handleUncaughtExceptions: false
+});
 
 import { connector, createApp, Session } from "mydog";
 import * as fs from "fs";
@@ -7,6 +10,10 @@ app.appName = "lord of mydog";
 
 import { gameLog, log4js_init } from "./app/common/logger";
 log4js_init(app);
+process.on("uncaughtException", function (err: any) {
+    gameLog.error(err)
+});
+
 
 import { msgDecode, msgEncode } from "./app/common/encode_decode";
 import { initServer, on_mydoglist_func, routeFunc } from "./app/common/serverInit";
@@ -31,17 +38,15 @@ app.setConfig("connector", {
     "key": app.get("key"),
     "cert": app.get("cert"),
 });
-app.setConfig("rpc", { "interval": 30, "noDelay": false });
+app.setConfig("rpc", { "interval": 30, "noDelay": false, "errStack": true });
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
 app.setConfig("logger", (level, msg) => {
     if (level !== "debug") {
         gameLog[level](msg);
     }
-})
+});
+
 app.start();
 
-process.on("uncaughtException", function (err: any) {
-    gameLog.error(err)
-});
 
 

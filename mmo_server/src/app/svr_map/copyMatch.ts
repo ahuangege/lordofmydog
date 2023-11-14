@@ -45,26 +45,19 @@ export class CopyMatch {
         }
     }
 
-    private matchOk(arr: Player[]) {
+    private async matchOk(arr: Player[]) {
         let uids: number[] = [];
         for (let one of arr) {
             one.leaveMap();
             uids.push(one.uid);
         }
         let mapSvr = MapIdMgr.getCopySvr();
-        app.rpc(mapSvr).map.main.createCopyMap(this.doorInfo.mapId2, uids, (err, mapIndex) => {
-            if (err) {
-                gameLog.error("创建副本失败：", this.doorInfo.id, uids);
-                return;
-            }
-            let doorCfg = this.doorInfo;
-            for (let one of arr) {
-                app.rpc(getInfoId(one.uid)).info.map.changeMap(one.uid, doorCfg.mapId2, mapIndex, mapSvr, { "x": j2x2(doorCfg.x2), "y": j2x2(doorCfg.y2), }, () => {
-                    one.getMsg(cmd.onCopyMatchOk, { "doorId": doorCfg.id });
-                });
-            }
-        });
+        const mapIndex = await app.rpc(mapSvr).map.main.createCopyMap(this.doorInfo.mapId2, uids);
 
-
+        let doorCfg = this.doorInfo;
+        for (let one of arr) {
+            await app.rpc(getInfoId(one.uid)).info.map.changeMap(one.uid, doorCfg.mapId2, mapIndex, mapSvr, { "x": j2x2(doorCfg.x2), "y": j2x2(doorCfg.y2), });
+            one.getMsg(cmd.onCopyMatchOk, { "doorId": doorCfg.id });
+        }
     }
 }

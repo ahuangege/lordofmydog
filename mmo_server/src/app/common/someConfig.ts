@@ -11,6 +11,8 @@ export const enum constKey {
     mapIndex = "mapIndex",  // 所在地图编号
     accId = "accId",    // 账号id
     uids = "uids",  // 已建角色id
+
+    notTellInfoSvr = "notTellInfoSvr",
 }
 
 /** 服务器类型 */

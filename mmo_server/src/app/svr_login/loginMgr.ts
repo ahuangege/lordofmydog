@@ -16,15 +16,11 @@ export class LoginMgr {
     }
 
 
-    private rpcGetUserNum() {
+    private async rpcGetUserNum() {
         let svrs = this.app.getServersByType(serverType.connector);
         for (let one of svrs) {
-            this.app.rpc(one.id).connector.main.getClientNum(function (err, num) {
-                if (err) {
-                    return;
-                }
-                one.userNum = num;
-            });
+            const num = await this.app.rpc(one.id).connector.main.getClientNum();
+            one.userNum = num;
         }
     }
 

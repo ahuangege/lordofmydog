@@ -21,8 +21,7 @@ export class Item extends Entity {
 
     die() {
         this.map.delEntity(this);
-        this.map.towerAOI.delObj(this, this);
-        this.map.getEntityChangeMsg({ "delEntities": [this.id] }, this.map.towerAOI.getWatchers(this));
+        this.map.towerAOI.removeObj(this);
     }
 
     toJson(): I_itemJson {

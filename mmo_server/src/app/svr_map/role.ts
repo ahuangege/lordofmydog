@@ -4,7 +4,7 @@ import { cmd } from "../../config/cmd";
 import { I_xy } from "../../servers/map/handler/main";
 import { getLen, getLerpPos } from "../util/util";
 import { BuffMgr } from "./buffMgr";
-import { Entity, Entity_type, I_EntityInit } from "./entity";
+import { Entity, Entity_type, I_EntityInit, playerRange } from "./entity";
 import { Map } from "./map";
 import { Player } from "./player";
 import { SkillMgr } from "./skill/skillMgr";
@@ -35,9 +35,8 @@ export abstract class Role extends Entity {
     update(dt: number) {
         if (this.path.length > 0) {
             let moveDis = this.speed * dt;
-            let oldPos = { "x": this.x, "y": this.y };
 
-            let startPos: I_xy = oldPos;
+            let startPos: I_xy = this;
             let endPos: I_xy = null as any;
             let i: number = 0;
             for (i = 0; i < this.path.length; i++) {
@@ -56,21 +55,20 @@ export abstract class Role extends Entity {
             this.y = endPos.y;
 
             if (this.t === Entity_type.player) {
-                this.map.towerAOI.updateWatcher(this as any as Player, oldPos, this);
+                this.map.towerAOI.updateWatcher(this as any as Player, this, playerRange, playerRange);
             }
-            this.map.towerAOI.updateObj(this, oldPos, this);
+            this.map.towerAOI.updateObj(this, this);
         }
     }
 
     changePos(x: number, y: number) {
-        let oldPos = { "x": this.x, "y": this.y };
         this.x = x;
         this.y = y;
 
         if (this.t === Entity_type.player) {
-            this.map.towerAOI.updateWatcher(this as any as Player, oldPos, this);
+            this.map.towerAOI.updateWatcher(this as any as Player, this, playerRange, playerRange);
         }
-        this.map.towerAOI.updateObj(this, oldPos, this);
+        this.map.towerAOI.updateObj(this, this);
     }
 
 

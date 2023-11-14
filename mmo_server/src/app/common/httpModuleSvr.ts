@@ -92,11 +92,12 @@ class HttpModuleSvr {
                 return response.end(errList.fastErr);
             }
 
-            let msg = "";
+            let buffer = Buffer.alloc(0);
             request.on("data", (chuck) => {
-                msg += chuck;
+                buffer = Buffer.concat([buffer, chuck])
             });
             request.on("end", () => {
+                let msg = buffer.toString();
                 gameLog.debug(this.svrName, "↑ ", request.url, msg);
 
                 let body: any;

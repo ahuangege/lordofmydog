@@ -1,7 +1,7 @@
-import { I_bagItem, I_item } from "../svr_info/bag";
-import { I_equipment } from "../svr_info/equipment";
-import { I_roleInfo } from "../svr_info/roleInfo";
-
+import { Db_bag, I_bagItem } from "../db/dbModel/bagTable";
+import { Db_equipment } from "../db/dbModel/equipmentTable";
+import { Db_role } from "../db/dbModel/roleTable";
+import { I_item } from "../svr_info/bag";
 
 /**
  * 玩家内存里的部分信息（非数据库字段）
@@ -18,9 +18,10 @@ export interface I_roleMem {
  * 玩家基本数据
  */
 export interface I_roleAllInfo {
-    "role": I_roleInfo,
-    "bag": I_bagItem[],
-    "equip": I_equipment,
+    "code": number,
+    "role": Db_role,
+    "bag": Db_bag,
+    "equipment": Db_equipment,
 }
 
 /**
@@ -43,37 +44,11 @@ interface I_roleInfoClient {
     "mapSvr": string,
     "mapIndex": number,
     "bag": I_bagItem[],         // 背包
-    "equip": I_equipment,       // 装备
+    "equip": Db_equipment,       // 装备
     "learnedSkill": number[],   // 已学习技能
     "skillPos": number[],   // 使用中的技能栏
     "hpPos": I_item,    // 快速加血栏
     "mpPos": I_item,    // 快速加蓝栏
-}
-
-/**
- * 好友基本信息
- */
-export interface I_friendInfo_client {
-    "uid": number,
-    "nickname": string,
-    "state": friendState,
-}
-
-export const enum friendState {
-    ask = 1,        // 申请
-    friend = 2,     // 好友
-}
-
-/**
- * 好友信息改变，通知
- */
-export interface I_friendInfoChange {
-    "uid": number,
-    "type": E_friendInfoChange,
-    "nickname"?: string,
-}
-export const enum E_friendInfoChange {
-    nickname = 0,
 }
 
 

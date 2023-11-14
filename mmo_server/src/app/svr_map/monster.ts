@@ -81,10 +81,9 @@ export class Monster extends Role {
         this.skillMgr.skillOver();
         this.buffMgr.buffOverAll();
 
-        this.map.towerAOI.delObj(this, this);
         this.stateMachine.toState(E_monsterState.die);
         process.nextTick(() => {    // 先发扣血消息，后发死亡消息
-            this.map.getEntityChangeMsg({ "delEntities": [this.id] }, this.map.towerAOI.getWatchers(this));
+            this.map.towerAOI.removeObj(this);
         });
 
         this.sendAward(roleId);
@@ -120,7 +119,6 @@ export class Monster extends Role {
         this.stateMachine.toState(E_monsterState.idle);
 
         let map = this.map;
-        map.getEntityChangeMsg({ "addEntities": [this.toJson()] }, map.towerAOI.getWatchers(this));
         map.towerAOI.addObj(this, this);
     }
 

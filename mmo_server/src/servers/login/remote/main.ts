@@ -14,7 +14,7 @@ export default class Remote {
     constructor(app: Application) {
     }
 
-    isTokenOk(accId: number, token: number) {
+    async isTokenOk(accId: number, token: number) {
         return svr_login.loginMgr.isTokenOk(accId, token);
     }
 }

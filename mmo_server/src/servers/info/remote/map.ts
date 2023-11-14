@@ -9,13 +9,12 @@ import { I_playerMapJson, I_xy } from "../../map/handler/main";
 export default class MapRemote {
 
 
-    enterMap(uid: number, cb: (err: number, data: I_playerMapJson) => void) {
+    async enterMap(uid: number) {
         let role = svr_info.roleInfoMgr.getRole(uid);
         if (!role) {
-            return cb(0, null as any);
+            return null;
         }
-        cb(0, role.toMapJson());
-
+        return role.toMapJson();
     }
 
     /** 场景服定时同步玩家一些信息到info服 */
@@ -31,14 +30,12 @@ export default class MapRemote {
     }
 
     /** 切换地图 */
-    changeMap(uid: number, mapId: number, mapIndex: number, mapSvr: string, pos: I_xy, cb: () => void) {
+    async changeMap(uid: number, mapId: number, mapIndex: number, mapSvr: string, pos: I_xy) {
         let role = svr_info.roleInfoMgr.getRole(uid);
         role.changeRoleMem({ "mapSvr": mapSvr, "mapIndex": mapIndex });
         role.changeRoleInfo({ "mapId": mapId });
         role.changeRoleInfo(pos);
-        app.rpc(role.sid).connector.main.applySomeSession(uid, { [constKey.mapSvr]: mapSvr, [constKey.mapIndex]: mapIndex }, () => {
-            cb();
-        });
+        await app.rpc(role.sid).connector.main.applySomeSession(uid, { [constKey.mapSvr]: mapSvr, [constKey.mapIndex]: mapIndex });
     }
 
     /** 拾取地图上的道具 */

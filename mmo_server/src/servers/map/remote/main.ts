@@ -19,30 +19,27 @@ export default class Remote {
     }
 
     /** 创建副本 */
-    createCopyMap(mapId: number, copyUids: number[], cb: (err: number, mapIndex: number) => void) {
+    async createCopyMap(mapId: number, copyUids: number[]) {
         let mapIndex = this.mapMgr.createCopyMap(mapId, copyUids);
-        cb(0, mapIndex);
+        return mapIndex
     }
 
 
     /** 离开地图 */
-    leaveMap(mapIndex: number, uid: number, cb?: (err: number) => void) {
-        console.log("leaveMap")
+    async leaveMap(mapIndex: number, uid: number) {
         let player = this.mapMgr.getPlayer(mapIndex, uid);
         if (player) {
             player.leaveMap();
         }
-        cb && cb(0);
     }
 
 
-
-    isMapOk(mapId: number, mapIndex: number, uid: number, cb: (err: number, ok: boolean) => void) {
+    async isMapOk(mapId: number, mapIndex: number, uid: number) {
         let map = this.mapMgr.getMap(mapIndex);
         if (!map) {
-            return cb(0, false);
+            return false;
         }
-        cb(0, map.isPlayerHere(mapId, uid));
+        return map.isPlayerHere(mapId, uid);
     }
 
     /** 装备变化了 */

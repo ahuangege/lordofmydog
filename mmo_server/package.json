@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@types/mysql": "^2.15.19",
+    "a-star-pathfind": "^1.5.3",
     "log4js": "^6.3.0",
-    "mydog": "^2.3.6",
-    "mysql": "^2.18.1",
-    "sync-util": "^1.0.0"
+    "mydog": "^2.4.0",
+    "mysql2": "^3.6.3",
+    "source-map-support": "^0.5.21",
+    "sync-util": "^1.0.0",
+    "tower-aoi": "^1.2.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

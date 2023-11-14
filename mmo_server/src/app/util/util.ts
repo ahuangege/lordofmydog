@@ -119,49 +119,6 @@ export function removeFromArr<T>(arr: T[], one: T) {
 }
 
 
-export function strdecode(bytes: Buffer) {
-    let array: number[] = [];
-    let offset = 0;
-    let charCode = 0;
-    let end = bytes.length;
-    while (offset < end) {
-        if (bytes[offset] < 128) {
-            charCode = bytes[offset];
-            offset += 1;
-        } else if (bytes[offset] < 224) {
-            charCode = ((bytes[offset] & 0x3f) << 6) + (bytes[offset + 1] & 0x3f);
-            offset += 2;
-        } else if (bytes[offset] < 240) {
-            charCode = ((bytes[offset] & 0x0f) << 12) + ((bytes[offset + 1] & 0x3f) << 6) + (bytes[offset + 2] & 0x3f);
-            offset += 3;
-        } else {
-            charCode = ((bytes[offset] & 0x07) << 18) + ((bytes[offset + 1] & 0x3f) << 12) + ((bytes[offset + 1] & 0x3f) << 6) + (bytes[offset + 2] & 0x3f);
-            offset += 4;
-        }
-        array.push(charCode);
-    }
-    return String.fromCharCode.apply(null, array);
-}
-
-
-export function strencode(str: string) {
-    let codes: number[] = [];
-    for (let i = 0, len = str.length; i < len; i++) {
-        let charCode = str.charCodeAt(i);
-        if (charCode <= 0x7f) {
-            codes.push(charCode);
-        } else if (charCode <= 0x7ff) {
-            codes.push(0xc0 | (charCode >> 6), 0x80 | (charCode & 0x3f));
-        } else if (charCode <= 0xffff) {
-            codes.push(0xe0 | (charCode >> 12), 0x80 | ((charCode & 0xfc0) >> 6), 0x80 | (charCode & 0x3f));
-        } else if (charCode <= 0x0010ffff) {
-            codes.push(0xf0 | (charCode >> 18), 0x80 | ((charCode & 0x3f000) >> 12), 0x80 | ((charCode & 0xfc0) >> 6), 0x80 | (charCode & 0x3f));
-        }
-    }
-    return Buffer.from(codes);
-}
-
-
 
 export function ip_str2int(ip: string) {
     if (!ip) {

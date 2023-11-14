@@ -7,12 +7,13 @@ import { CopyMatch } from "./copyMatch";
 import { Entity, Entity_type, I_EntityInit, I_entityJson } from "./entity";
 import { Item } from "./item";
 import { Monster } from "./monster";
-import { Pathfind } from "./pathFind";
 import { Player } from "./player";
 import { Role } from "./role";
 import { svr_map } from "./svr_map";
-import { TowerAOI } from "./towerAOI";
-
+// import { TowerAOI } from "./towerAOI";
+import pathfind from "a-star-pathfind";
+import { TowerAOI } from "tower-aoi";
+import { I_uidsid } from "../common/someInterface";
 
 
 
@@ -27,8 +28,8 @@ export class Map {
     public height: number;
     private towerWidth: number = 10;
     private towerHeight: number = 5;
-    towerAOI: TowerAOI<Entity>;
-    pathFind: Pathfind;
+    towerAOI: TowerAOI<Entity, Player>;
+    pathFind: pathfind;
     private id: number = 1;
     private entities: Dic<Entity> = {};
     protected players: Dic<Player> = {};
@@ -45,7 +46,7 @@ export class Map {
         this.mapTiles = getMapTileJson(mapId);
         this.width = this.mapTiles[0].length * 32;
         this.height = this.mapTiles.length * 32;
-        this.towerAOI = new TowerAOI({ width: this.width, height: this.height, towerWidth: this.towerWidth * 64, towerHeight: this.towerHeight * 64, range: 1 });
+        this.towerAOI = new TowerAOI({ width: this.width, height: this.height, towerWidth: this.towerWidth * 32, towerHeight: this.towerHeight * 32, bufferNum: 0 });
         this.addAOIEvent();
         svr_map.pathFindMgr.add(mapId);
         this.pathFind = svr_map.pathFindMgr.get(mapId);
@@ -130,47 +131,62 @@ export class Map {
         this.app.sendMsgByGroup(cmd, msg, this.group);
     }
 
-    getEntityChangeMsg(msg: { "addEntities"?: I_entityJson[], "delEntities"?: number[] }, group: Dic<number[]>) {
-        this.app.sendMsgByGroup(cmd.onEntityChange, msg, group);
+    getEntityChangeMsg(msg: { "addEntities"?: I_entityJson[], "delEntities"?: number[] }, uidsid: I_uidsid[]) {
+        this.app.sendMsgByUidSid(cmd.onEntityChange, msg, uidsid);
     }
 
     private addAOIEvent() {
-        // 实体位置更新，通知对应观察者
-        this.towerAOI.on("updateObj", (entity, addWatchers, delWatchers) => {
-            if (addWatchers) {
-                this.getEntityChangeMsg({ "addEntities": [entity.toJson()] }, addWatchers);
+        // 添加实体，通知对应观察者
+        this.towerAOI.on("addObj", (obj, watchers) => {
+            if (watchers.length) {
+                this.getEntityChangeMsg({ "addEntities": [obj.toJson()] }, watchers);
             }
-            if (delWatchers) {
-                this.getEntityChangeMsg({ "delEntities": [entity.id] }, delWatchers);
+        });
+
+        // 移除实体，通知对应观察者
+        this.towerAOI.on("removeObj", (obj, watchers) => {
+            if (watchers.length) {
+                this.getEntityChangeMsg({ "delEntities": [obj.id] }, watchers);
+            }
+        });
+
+        // 实体位置更新，通知对应观察者
+        this.towerAOI.on("updateObj", (obj, addWatchers, removeWatchers) => {
+            if (addWatchers.length) {
+                this.getEntityChangeMsg({ "addEntities": [obj.toJson()] }, addWatchers);
+            }
+            if (removeWatchers.length) {
+                this.getEntityChangeMsg({ "delEntities": [obj.id] }, removeWatchers);
             }
         });
 
         // 观察者区域更新，通知该观察者相关实体变更
-        this.towerAOI.on('updateWatcher', (uidsid, addArr, delArr) => {
+        this.towerAOI.on('updateWatcher', (watcher, addObjs, removeObjs) => {
             let msg: { "addEntities"?: I_entityJson[], "delEntities"?: number[] } = {};
-            if (addArr.length) {
+            if (addObjs.length) {
                 let addEntities: I_entityJson[] = [];
-                for (let one of addArr) {
+                for (let one of addObjs) {
                     addEntities.push(one.toJson());
                 }
                 msg.addEntities = addEntities;
             }
-            if (delArr.length) {
+            if (removeObjs.length) {
                 let delEntities: number[] = [];
-                for (let one of delArr) {
+                for (let one of removeObjs) {
                     delEntities.push(one.id);
                 }
                 msg.delEntities = delEntities;
             }
-
-            this.app.sendMsgByUidSid(cmd.onEntityChange, msg, [uidsid]);
+            if (addObjs.length || removeObjs.length) {
+                this.getEntityChangeMsg(msg, [watcher]);
+            }
         });
     }
 
 
-    sendMsgByAOI(pos: I_xy, cmd: cmd, msg: any) {
-        let group = this.towerAOI.getWatchers(pos);
-        app.sendMsgByGroup(cmd, msg, group);
+    sendMsgByAOI(entity: Entity, cmd: cmd, msg: any) {
+        let watchers = this.towerAOI.getWatchers(entity);
+        app.sendMsgByUidSid(cmd, msg, watchers);
 
     }
 
@@ -191,7 +207,6 @@ export class Map {
             let item = new Item(one.itemId, one.num, one.time, one as any as I_EntityInit);
             this.addEntity(item);
             this.towerAOI.addObj(item, item);
-            this.getEntityChangeMsg({ "addEntities": [item.toJson()] }, this.towerAOI.getWatchers(item));
         }
     }
 
@@ -217,7 +232,7 @@ export class Map {
 
     /** 获取周围的角色 */
     getRolesAround(xy: I_xy, role: Role, range: number, isEnemy: boolean): Role[] {
-        let entities = this.towerAOI.getObjs(xy);
+        let entities = this.towerAOI.getObjsByPos(xy, range);
         let endRoles: Entity[] = [];
         for (let one of entities) {
             if (one.t !== Entity_type.monster && one.t !== Entity_type.player) {

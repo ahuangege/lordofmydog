@@ -23,15 +23,15 @@ export default class Remote {
     /**
      * 进入游戏
      */
-    enterServer(msg: I_uidsid, cb: (err: number, info: I_roleAllInfoClient) => void) {
-        svr_info.roleInfoMgr.enterServer(msg, cb);
+    async enterServer(msg: I_uidsid) {
+        return await svr_info.roleInfoMgr.enterServer(msg);
     }
 
     /**
      * 重连
      */
-    reconnectEntry(uid: number, sid: string, token: number, cb: (err: number, info: I_roleAllInfoClient) => void) {
-        svr_info.roleInfoMgr.reconnectEntry(uid, sid, token, cb);
+    async reconnectEntry(uid: number, sid: string, token: number) {
+        return await svr_info.roleInfoMgr.reconnectEntry(uid, sid, token);
     }
 
     /**

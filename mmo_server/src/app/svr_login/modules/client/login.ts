@@ -1,11 +1,12 @@
 
 import { svr_login } from "../../svr_login";
 import { gameLog } from "../../../common/logger";
-import { getInsertSql } from "../../../util/mysql";
-import { nowStr } from "../../../common/time";
+import { nowMs, nowStr } from "../../../common/time";
 import { md5 } from "../../../util/util";
 import { constKey } from "../../../common/someConfig";
 import { getCharLen } from "../../../util/gameUtil";
+import { Db_account } from "../../../db/dbModel/accountTable";
+import { dbTable } from "../../../db/dbTable";
 
 export default class Handler {
 
@@ -13,7 +14,7 @@ export default class Handler {
     /**
      * 注册
      */
-    register(msg: { "username": string, "password": string }, next: (data: any) => void) {
+    async register(msg: { "username": string, "password": string }, next: (data: any) => void) {
         if (typeof msg.username !== "string") {
             return next({ "code": 1 });
         }
@@ -48,28 +49,27 @@ export default class Handler {
         }
 
 
-        let obj = {
-            "username": msg.username,
-            "password": md5(msg.password),
-            "regTime": nowStr(),
-        }
-        svr_login.mysql.query(getInsertSql("account", obj), null, (err, res) => {
-            if (err) {
-                if (err.errno === constKey.duplicateKey) {
-                    next({ "code": 10005 });
-                } else {
-                    gameLog.error(err);
-                    next({ "code": 1 });
-                }
-                return;
-            }
+        let account = new Db_account();
+        account.username = msg.username;
+        account.password = md5(msg.password);
+        delete (account as any).id;
 
-            let accId = res.insertId;
+        try {
+            const res = await svr_login.mysql.insert<Db_account>(dbTable.account, account);
             this.getSuccessData({
-                "accId": accId,
+                "accId": res.insertId,
                 "next": next
             });
-        });
+
+        } catch (e: any) {
+            if (e?.errno === constKey.duplicateKey) {
+                next({ "code": 10005 });
+            } else {
+                gameLog.error(e);
+                next({ "code": 1 });
+            }
+        }
+
     }
 
 
@@ -78,7 +78,7 @@ export default class Handler {
      * @param msg 
      * @param next 
      */
-    login(msg: { "username": string, "password": string }, next: (data: any) => void) {
+    async login(msg: { "username": string, "password": string }, next: (data: any) => void) {
         if (typeof msg.username !== "string") {
             return next({ "code": 1 });
         }
@@ -112,29 +112,21 @@ export default class Handler {
             return;
         }
 
-        svr_login.mysql.query("select id,password from account where username = ? limit 1", [msg.username],
-            (err: any, users: { "id": number, "password": string }[]) => {
-                if (err) {
-                    gameLog.error(err);
-                    next({ "code": -1 });
-                    return;
-                }
+        const users = await svr_login.mysql.select<Db_account>(dbTable.account, "*", { "where": { "username": msg.username }, "limit": 1 });
+        if (users.length === 0) { // 不存在
+            next({ "code": 10006 });
+            return;
+        }
 
-                if (users.length === 0) { // 不存在
-                    next({ "code": 10006 });
-                    return;
-                }
+        let user = users[0];
+        if (user.password !== md5(msg.password)) {
+            return next({ "code": 10007 });
+        }
 
-                let user = users[0];
-                if (user.password !== md5(msg.password)) {
-                    return next({ "code": 10007 });
-                }
-
-                this.getSuccessData({
-                    "accId": user.id,
-                    "next": next
-                });
-            });
+        this.getSuccessData({
+            "accId": user.id,
+            "next": next
+        });
     }
 
     private getSuccessData(info: { "accId": number, "next": Function }) {

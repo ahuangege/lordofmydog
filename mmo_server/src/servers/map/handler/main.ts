@@ -3,7 +3,6 @@ import { cfg_all } from "../../../app/common/configUtil";
 import { constKey } from "../../../app/common/someConfig";
 import { nowSec } from "../../../app/common/time";
 import { I_item } from "../../../app/svr_info/bag";
-import { I_equipment } from "../../../app/svr_info/equipment";
 import { j2x2 } from "../../../app/svr_map/map";
 import { MapIdMgr } from "../../../app/svr_map/mapIdMgr";
 import { MapMgr } from "../../../app/svr_map/mapMgr";
@@ -13,6 +12,7 @@ import { svr_map } from "../../../app/svr_map/svr_map";
 import { getInfoId } from "../../../app/util/gameUtil";
 import { getLen } from "../../../app/util/util";
 import { cmd } from "../../../config/cmd";
+import { Db_equipment } from "../../../app/db/dbModel/equipmentTable";
 
 export default class Handler {
     private app: Application;
@@ -23,27 +23,26 @@ export default class Handler {
     }
 
     /** 客户端加载场景完了，请求进入地图 */
-    enterMap(msg: any, session: Session, next: Function) {
-        app.rpc(getInfoId(session.uid)).info.map.enterMap(session.uid, (err, data) => {
-            if (err || !data) {
-                next({ "code": 1 });
-                return;
-            }
-            let map = this.mapMgr.getMap(session.get(constKey.mapIndex));
-            if (!map) {
-                return next({ "code": 1 });
-            }
-            if (!map.isPlayerHere(data.mapId, session.uid)) {
-                return next({ "code": 1 });
-            }
-            let player = map.getPlayer(session.uid);
-            if (player) {
-                return next({ "code": 1 });
-            }
-            player = new Player(map, data);
-            let jsonArr = player.enterMap();
-            next({ "code": 0, "mapId": map.mapId, "meId": player.id, "mp": player.mp, "mpMax": player.mpMax, "skillCd": [0, 0, 0], "entities": jsonArr });
-        });
+    async enterMap(msg: any, session: Session, next: Function) {
+        const data = await app.rpc(getInfoId(session.uid)).info.map.enterMap(session.uid);
+        if (!data) {
+            next({ "code": 1 });
+            return;
+        }
+        let map = this.mapMgr.getMap(session.get(constKey.mapIndex));
+        if (!map) {
+            return next({ "code": 1 });
+        }
+        if (!map.isPlayerHere(data.mapId, session.uid)) {
+            return next({ "code": 1 });
+        }
+        let player = map.getPlayer(session.uid);
+        if (player) {
+            return next({ "code": 1 });
+        }
+        player = new Player(map, data);
+        let jsonArr = player.enterMap();
+        next({ "code": 0, "mapId": map.mapId, "meId": player.id, "mp": player.mp, "mpMax": player.mpMax, "skillCd": [0, 0, 0], "entities": jsonArr });
     }
 
 
@@ -86,7 +85,7 @@ export default class Handler {
     }
 
     /** 点击传送门，切换地图 */
-    changeMap(msg: { "doorId": number }, session: Session, next: Function) {
+    async changeMap(msg: { "doorId": number }, session: Session, next: Function) {
         let p = this.mapMgr.getPlayer(session.get(constKey.mapIndex), session.uid);
         if (!p) {
             return;
@@ -106,9 +105,8 @@ export default class Handler {
         }
         p.leaveMap();
         let mapSvr = MapIdMgr.getSvr(doorCfg.mapId2);
-        app.rpc(getInfoId(session.uid)).info.map.changeMap(session.uid, doorCfg.mapId2, doorCfg.mapId2, mapSvr, { "x": j2x2(doorCfg.x2), "y": j2x2(doorCfg.y2), }, () => {
-            p.getMsg(cmd.onChangeMap, { "mapId": doorCfg.mapId2 });
-        });
+        await app.rpc(getInfoId(session.uid)).info.map.changeMap(session.uid, doorCfg.mapId2, doorCfg.mapId2, mapSvr, { "x": j2x2(doorCfg.x2), "y": j2x2(doorCfg.y2), });
+        p.getMsg(cmd.onChangeMap, { "mapId": doorCfg.mapId2 });
     }
 
 
@@ -146,7 +144,7 @@ export interface I_playerMapJson {
     nickname: string,
     x: number,
     y: number,
-    equip: I_equipment,   // 装备
+    equip: Db_equipment,   // 装备
     skillPos: number[], // 技能栏
     hp: number, // 血量
     mp: number, // 蓝量

@@ -17,6 +17,9 @@ import { getCpuUsage } from "./cpuUsage";
 import { mysqlConfig } from "./dbConfig";
 import { createHttpModuleSvr } from "./httpModuleSvr";
 import { constKey, serverType } from "./someConfig";
+import { SyncUtil } from "sync-util";
+import { PlayerSync } from "../db/dbSync/playerSync";
+import { gameLog } from "./logger";
 
 
 
@@ -47,7 +50,7 @@ function loginInit(app: Application) {
     svr_login.loginMgr = new LoginMgr(app);
     let httpSvr = createHttpModuleSvr(app.env === "production", app.serverInfo.loginHttpPort, path.join((app as any).base, "app/svr_login/modules"), "loginHttp");
     httpSvr.start();
-    // console.log(1111)
+
 }
 
 // 网关服
@@ -60,6 +63,12 @@ function connectorInit(app: Application) {
 function infoInit(app: Application) {
     svr_info.mysql = new MysqlClient(getConfigByEnv(app, mysqlConfig));
     svr_info.roleInfoMgr = new RoleInfoMgr(app);
+    svr_info.syncUtil = new SyncUtil({
+        "handler": { "playerSync": new PlayerSync(svr_info.mysql) },
+        "syncInterval": 3 * 60 * 1000,
+        "syncCount": 1000,
+        "logger": gameLog
+    });
 }
 
 

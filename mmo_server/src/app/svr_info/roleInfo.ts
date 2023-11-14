@@ -1,39 +1,39 @@
 import { gameLog } from "../common/logger";
-import { friendState, I_friendInfo_client, I_roleAllInfo, I_roleAllInfoClient, I_roleMem, I_uidsid } from "../common/someInterface";
+import { I_roleAllInfo, I_roleAllInfoClient, I_roleMem, I_uidsid } from "../common/someInterface";
 import { svr_info } from "./svr_info";
 import { constKey } from "../common/someConfig";
 import { app } from "mydog";
 import { nowMs } from "../common/time";
 import { cmd } from "../../config/cmd";
-import { getBit, getDiffDays, randArrElement, setBit, timeFormat } from "../util/util";
 import { MapIdMgr } from "../svr_map/mapIdMgr";
 import { I_playerMapJson } from "../../servers/map/handler/main";
 import { cfg_all, I_cfg_mapDoor } from "../common/configUtil";
 import { Bag, I_item } from "./bag";
 import { Equipment } from "./equipment";
 import { j2x2 } from "../svr_map/map";
+import { Db_role } from "../db/dbModel/roleTable";
+import { getUpdateObj } from "../util/gameUtil";
 
 export class RoleInfo {
     public uid: number;
     public sid: string = "";
-    public role: I_roleInfo;
+    public role: Db_role;
     public roleMem: I_roleMem;
 
     public bag: Bag;
     public equip: Equipment;
 
-    private lock = 0;   // 部分操作上锁
-    private changedKey: { [key in keyof I_roleInfo]?: boolean } = {};
-    private changed = false;
-    public delThisTime: number = 0; // 玩家下线后删除时刻
+    private changedKey: { [key in keyof Db_role]?: boolean } = {};
     private isInSql = false;
+
+    public delThisTime: number = 0; // 玩家下线后删除时刻
 
     constructor(allInfo: I_roleAllInfo) {
         this.uid = allInfo.role.uid;
         this.role = allInfo.role;
 
         this.bag = new Bag(this, allInfo.bag);
-        this.equip = new Equipment(this, allInfo.equip);
+        this.equip = new Equipment(this, allInfo.equipment);
 
         let svr = "";
         if (cfg_all().map[this.role.mapId].isCopy) {
@@ -50,53 +50,51 @@ export class RoleInfo {
     }
 
 
-    entryServerLogic(sid: string, cb: (err: number, endInfo: I_roleAllInfoClient) => void) {
+    async entryServerLogic(sid: string): Promise<I_roleAllInfoClient> {
+        if (this.sid) {
+            this.kick(10021);
+        }
         this.sid = sid;
-        app.rpc(this.roleMem.mapSvr).map.main.isMapOk(this.role.mapId, this.roleMem.mapIndex, this.uid, (err, ok) => {
-            if (err) {
-                return cb(0, { "code": 1 } as any);
-            }
-            if (!ok) {
-                let mapData = cfg_all().map[this.role.mapId];
-                if (mapData.isCopy) {
-                    let doorCfg: I_cfg_mapDoor = null as any;
-                    for (let x in cfg_all().mapDoor) {
-                        let one = cfg_all().mapDoor[x];
-                        if (one.mapId === this.role.mapId) {
-                            doorCfg = one;
-                            break;
-                        }
+        const ok = await app.rpc(this.roleMem.mapSvr).map.main.isMapOk(this.role.mapId, this.roleMem.mapIndex, this.uid);
+        if (!ok) {
+            let mapData = cfg_all().map[this.role.mapId];
+            if (mapData.isCopy) {
+                let doorCfg: I_cfg_mapDoor = null as any;
+                for (let x in cfg_all().mapDoor) {
+                    let one = cfg_all().mapDoor[x];
+                    if (one.mapId === this.role.mapId) {
+                        doorCfg = one;
+                        break;
                     }
-                    this.changeRoleInfo({ "mapId": doorCfg.mapId2, "x": j2x2(doorCfg.x2), "y": j2x2(doorCfg.y2) });
-                    this.changeRoleMem({ "mapSvr": MapIdMgr.getSvr(this.role.mapId), "mapIndex": this.role.mapId });
                 }
+                this.changeRoleInfo({ "mapId": doorCfg.mapId2, "x": j2x2(doorCfg.x2), "y": j2x2(doorCfg.y2) });
+                this.changeRoleMem({ "mapSvr": MapIdMgr.getSvr(this.role.mapId), "mapIndex": this.role.mapId });
             }
-            this.online();
-            let role = this.role;
-            let allInfo: I_roleAllInfoClient = {
-                "code": 0,
-                "role": {
-                    "uid": this.uid,
-                    "accId": role.accId,
-                    "nickname": role.nickname,
-                    "gold": role.gold,
-                    "heroId": role.heroId,
-                    "level": role.level,
-                    "exp": role.exp,
-                    "mapId": role.mapId,
-                    "mapSvr": this.roleMem.mapSvr,
-                    "mapIndex": this.roleMem.mapIndex,
-                    "bag": this.bag.getBag(),
-                    "equip": this.equip.equip,
-                    "learnedSkill": role.learnedSkill,
-                    "skillPos": role.skillPos,
-                    "hpPos": role.hpPos,
-                    "mpPos": role.mpPos,
-                }
+        }
+        this.online();
+        let role = this.role;
+        let allInfo: I_roleAllInfoClient = {
+            "code": 0,
+            "role": {
+                "uid": this.uid,
+                "accId": role.accId,
+                "nickname": role.nickname,
+                "gold": role.gold,
+                "heroId": role.heroId,
+                "level": role.level,
+                "exp": role.exp,
+                "mapId": role.mapId,
+                "mapSvr": this.roleMem.mapSvr,
+                "mapIndex": this.roleMem.mapIndex,
+                "bag": this.bag.getBag(),
+                "equip": this.equip.equip,
+                "learnedSkill": role.learnedSkill,
+                "skillPos": role.skillPos,
+                "hpPos": role.hpPos,
+                "mpPos": role.mpPos,
             }
-            cb(0, allInfo);
-            this.setLock(E_lock.login, false);
-        });
+        }
+        return allInfo;
     }
 
 
@@ -113,79 +111,52 @@ export class RoleInfo {
 
         app.rpc(this.roleMem.mapSvr).map.main.leaveMap(this.roleMem.mapIndex, this.uid);
 
+        svr_info.syncUtil.saveUid(this.uid);
     }
 
+    //#region  玩家的信息改变，数据库
+    private addToSqlPool() {
+        if (!this.isInSql) {
+            this.isInSql = true;
+            svr_info.syncUtil.sync.playerSync.updateRole(this.uid, this);
+        }
+    }
+    public getSqlUpdateObj() {
+        let updateObj: Partial<Db_role> = getUpdateObj(this.role, this.changedKey);
+        this.changedKey = {};
+        this.isInSql = false;
+        return updateObj;
+    }
 
-    changeSqlKey(key: keyof I_roleInfo) {
+    changeSqlKey(key: keyof Db_role) {
         if (!this.changedKey[key]) {
             this.changedKey[key] = true;
-            this.changed = true;
             this.addToSqlPool();
         }
     }
-
-    addToSqlPool() {
-        if (!this.isInSql) {
-            this.isInSql = true;
-            svr_info.roleInfoMgr.addToSqlPool(this);
+    changeSqlKeys(keys: (keyof Db_role)[]) {
+        for (let key of keys) {
+            this.changeSqlKey(key);
         }
     }
-
-    updateSql() {
-
-        this.isInSql = false;
-        this.bag.updateSql();
-        this.equip.updateSql();
-
-        if (!this.changed) {
-            return;
-        }
-        this.changed = false;
-
-        let updateArr: string[] = [];
-        let key: keyof I_roleInfo;
-        for (key in this.changedKey) {
-            let typeStr = typeof roleMysql[key];
-            if (typeStr === "string") {
-                updateArr.push(key + "='" + this.role[key] + "'");
-            } else if (typeStr === "object") {
-                updateArr.push(key + "='" + JSON.stringify(this.role[key]) + "'");
-            } else {
-                updateArr.push(key + "=" + this.role[key]);
-            }
-        }
-        if (updateArr.length === 0) {
-            return;
-        }
-        this.changedKey = {};
-        let sql = "update player set " + updateArr.join(",") + " where uid = " + this.uid + " limit 1";
-        svr_info.mysql.query(sql, null, (err) => {
-            if (err) {
-                gameLog.error(err);
-            }
-        });
-    }
-
-
-    /**
-       * 玩家信息改变
-       */
-    changeRoleInfo(changed: { [K in keyof I_roleInfo]?: I_roleInfo[K] }) {
-        let key: keyof I_roleInfo;
+    changeRoleInfo(changed: Partial<Db_role>) {
+        let key: keyof Db_role;
         for (key in changed) {
             (this.role as any)[key] = changed[key];
             this.changedKey[key] = true;
         }
-        this.changed = true;
         this.addToSqlPool();
     }
 
-    changeRoleMem(changed: { [K in keyof I_roleMem]?: I_roleMem[K] }) {
+    changeRoleMem(changed: Partial<I_roleMem>) {
         let key: keyof I_roleMem;
         for (key in changed) {
             (this.roleMem as any)[key] = changed[key];
         }
     }
+    //#endregion
+
+
 
     addGold(num: number) {
         this.role.gold += num;
@@ -211,25 +182,6 @@ export class RoleInfo {
         if (this.sid) {
             app.sendMsgByUidSid(route, msg, [{ "uid": this.uid, "sid": this.sid }]);
         }
-    }
-
-    getFriendInfo(state: friendState): I_friendInfo_client {
-        let role = this.role;
-        return {
-            "uid": role.uid,
-            "nickname": role.nickname,
-            "state": state,
-        };
-    }
-
-
-
-    getLock(lockT: E_lock) {
-        return getBit(this.lock, lockT);
-    }
-
-    setLock(lockT: E_lock, lock: boolean) {
-        this.lock = setBit(this.lock, lockT, lock);
     }
 
     toMapJson(): I_playerMapJson {
@@ -279,55 +231,14 @@ export class RoleInfo {
         }
     }
 
-}
+    kick(code: number) {
+        if (!this.sid) {
+            return;
+        }
+        app.rpc(this.sid, true).connector.main.kickUser(this.uid, code, true);
+        this.offline();
+    }
 
-
-// 数据库里的玩家数据（注意，类型需要正确）
-export let roleMysql: I_roleInfo = {
-    "uid": 1,
-    "accId": 1,
-    "nickname": "a",
-    "gold": 1,
-    "heroId": 1,
-    "level": 1,
-    "exp": 1,
-    "mapId": 1,
-    "x": 1,
-    "y": 1,
-    "hp": 1,
-    "mp": 1,
-    "learnedSkill": [],
-    "skillPos": [],
-    "hpPos": {} as any,
-    "mpPos": {} as any,
-    "isDelete": 1,
-};
-
-
-export interface I_roleInfo {
-    "uid": number,              // uid
-    "accId": number,            // 账号id
-    "nickname": string,         // 昵称
-    "gold": number,             // 金币
-    "heroId": number,           // 英雄id
-    "level": number,            // 等级
-    "exp": number,              // 经验值
-    "mapId": number,            // 当前地图
-    "x": number,                // 当前地图，坐标x
-    "y": number,                // 当前地图，坐标y
-    "hp": number,               // 血量
-    "mp": number,               // 蓝量
-    "learnedSkill": number[],   // 已学习的技能
-    "skillPos": number[],         // 使用中的技能栏
-    "hpPos": I_item,           // 快速加血栏
-    "mpPos": I_item,           // 快速加蓝栏
-    "isDelete": number,         // 角色是否被删除
-}
-
-
-export const enum E_lock {
-    login,
-    friend,
 }
 
 
